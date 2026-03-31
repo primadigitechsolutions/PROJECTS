@@ -21,7 +21,6 @@
       padding: 20px;
     }
 
-    /* mobile card container */
     .phone-frame {
       max-width: 380px;
       width: 100%;
@@ -33,12 +32,10 @@
       transition: all 0.2s ease;
     }
 
-    /* content padding */
     .screen-content {
       padding: 32px 24px 40px;
     }
 
-    /* logo area */
     .logo-area {
       text-align: center;
       margin-bottom: 36px;
@@ -72,7 +69,6 @@
       color: transparent;
     }
 
-    /* form group */
     .input-group {
       margin-bottom: 24px;
     }
@@ -107,7 +103,6 @@
       font-weight: 400;
     }
 
-    /* forgot password */
     .forgot-row {
       text-align: right;
       margin: 6px 0 28px 0;
@@ -124,7 +119,6 @@
       text-decoration: underline;
     }
 
-    /* primary button */
     .btn-primary {
       width: 100%;
       background: linear-gradient(100deg, #4E356F 0%, #7a538f 100%);
@@ -146,7 +140,6 @@
       box-shadow: 0 4px 10px -4px rgba(78, 53, 111, 0.4);
     }
 
-    /* signup row */
     .signup-row {
       text-align: center;
       margin-bottom: 32px;
@@ -168,7 +161,6 @@
       text-decoration: underline;
     }
 
-    /* divider */
     .divider {
       display: flex;
       align-items: center;
@@ -191,7 +183,6 @@
       margin-left: 14px;
     }
 
-    /* social login buttons */
     .social-login {
       display: flex;
       gap: 16px;
@@ -224,7 +215,6 @@
       font-weight: 600;
     }
 
-    /* bottom hint (optional) */
     .meta-info {
       text-align: center;
       margin-top: 28px;
@@ -232,13 +222,9 @@
       color: #bcafbf;
     }
 
-    /* adjust spacing for mobile */
     @media (max-width: 450px) {
       .screen-content {
         padding: 28px 20px 36px;
-      }
-      .btn-primary {
-        padding: 14px 18px;
       }
     }
   </style>
@@ -294,22 +280,32 @@
     </div>
   </div>
 
-  <!-- simple demo interactions (non-functional alerts for demonstration) -->
   <script>
     document.getElementById('loginBtn').addEventListener('click', () => {
-      alert('Demo: Login attempt (connected to Academic Tracker)');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (username === "wina.va" && password === "11111111") {
+        // Successful login - redirect to dashboard
+        window.location.href = "dashboard.html";
+      } 
+      else if (username === "" || password === "") {
+        alert("Please enter username and password");
+      }
+      else {
+        alert("Invalid credentials!\n\nHint: Use\nUsername: wina.va\nPassword: 11111111");
+      }
     });
-    document.getElementById('signupTrigger').addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('SignUp flow — create new account');
-    });
+
+    // Keep other demo buttons
     document.getElementById('googleBtn').addEventListener('click', () => {
       alert('Social login: Google (demo)');
     });
+
     document.getElementById('appleBtn').addEventListener('click', () => {
       alert('Social login: Apple ID (demo)');
     });
-    // optional: forgot password interaction
+
     document.querySelector('.forgot-link').addEventListener('click', (e) => {
       e.preventDefault();
       alert('Password reset link sent to registered email');
