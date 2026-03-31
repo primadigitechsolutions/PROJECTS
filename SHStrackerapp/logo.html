@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>SHS Academic Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(145deg, #faf7fc 0%, #f3edf5 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .phone-frame {
+      max-width: 380px;
+      width: 100%;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 48px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .screen-content {
+      padding: 48px 28px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-height: 680px; /* Ensures content fits without scroll */
+    }
+
+    /* === Main Logo - Now the hero focus === */
+    .logo-area {
+      margin-bottom: 32px;
+    }
+    .logo-wrapper {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-symbol {
+      width: 96px;
+      height: 96px;
+      background: linear-gradient(135deg, #4E356F 0%, #9C6A82 100%);
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 30px -12px rgba(78, 53, 111, 0.4);
+    }
+    .logo-symbol span {
+      font-size: 52px;
+    }
+    .logo-text-large {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      background: linear-gradient(120deg, #4E356F 20%, #9C6A82 70%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* Minimized title */
+    .main-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: #2c1e3f;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #4E356F 0%, #9C6A82 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* Compact tagline */
+    .tagline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+    .tagline-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #4E356F;
+      background: rgba(156, 106, 130, 0.08);
+      padding: 10px 18px;
+      border-radius: 50px;
+    }
+    .tagline-item span:first-child {
+      font-size: 22px;
+    }
+
+    .accent-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #EF9875, #9C6A82, #4E356F);
+      border-radius: 4px;
+      margin: 20px auto 24px;
+    }
+
+    /* Smaller insight card */
+    .insight-card {
+      background: #fefafc;
+      border: 1px solid #ecdde6;
+      border-radius: 28px;
+      padding: 14px 18px;
+      margin-bottom: 32px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(78, 53, 111, 0.06);
+    }
+    .insight-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #4E356F;
+      line-height: 1.4;
+    }
+    .highlight {
+      color: #EF9875;
+      font-weight: 700;
+    }
+
+    /* Compact buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(100deg, #4E356F 0%, #7a538f 100%);
+      border: none;
+      padding: 15px 20px;
+      border-radius: 60px;
+      font-size: 17px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 18px -6px rgba(78, 53, 111, 0.3);
+    }
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+    .btn-outline {
+      width: 100%;
+      background: transparent;
+      border: 1.8px solid #9C6A82;
+      padding: 13px 20px;
+      border-radius: 60px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4E356F;
+      cursor: pointer;
+    }
+    .btn-outline:active {
+      background-color: rgba(156, 106, 130, 0.1);
+    }
+
+    /* Smaller feature badges */
+    .feature-badge {
+      margin-top: 28px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .badge {
+      background: #f3ecf0;
+      padding: 5px 12px;
+      border-radius: 40px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #9C6A82;
+    }
+
+    @keyframes softFade {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .logo-area, .main-title, .tagline-item, .insight-card {
+      animation: softFade 0.6s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="screen-content">
+      
+      <!-- Main Logo - Now the strongest focus -->
+      <div class="logo-area">
+        <div class="logo-wrapper">
+          <div class="logo-symbol">
+            <span>📊</span>
+          </div>
+          <div class="logo-text-large">SHS TRACKER</div>
+        </div>
+      </div>
+
+      <!-- Minimized title -->
+      <div class="main-title">
+        ACADEMIC TRACKER
+      </div>
+
+      <!-- Compact tagline -->
+      <div class="tagline">
+        <div class="tagline-item">
+          <span>📍</span>
+          <span>TRACK</span>
+        </div>
+        <div class="tagline-item">
+          <span>🔮</span>
+          <span>PREDICT</span>
+        </div>
+        <div class="tagline-item">
+          <span>🏆</span>
+          <span>ACHIEVE</span>
+        </div>
+      </div>
+
+      <div class="accent-divider"></div>
+
+      <!-- Insight card (kept but smaller) -->
+      <div class="insight-card">
+        <div class="insight-text">
+          ✨ <span class="highlight">Smart analytics</span> for Senior High School
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-buttons">
+        <button class="btn-primary" id="getStartedBtn">Get Started →</button>
+        <button class="btn-outline" id="learnMoreBtn">Learn More</button>
+      </div>
+
+      <!-- Feature badges -->
+      <div class="feature-badge">
+        <span class="badge">📈 Grade Predictor</span>
+        <span class="badge">🎯 Goal Tracker</span>
+        <span class="badge">📚 SHS Ready</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const learnMoreBtn = document.getElementById('learnMoreBtn');
+
+    getStartedBtn.addEventListener('click', () => {
+      alert('🚀 Welcome to SHS Academic Tracker!\nTrack your grades, predict outcomes, and achieve academic excellence.');
+    });
+
+    learnMoreBtn.addEventListener('click', () => {
+      alert('📖 SHS Academic Tracker helps you monitor performance, forecast trends, and get personalized study recommendations.');
+    });
+  </script>
+</body>
+</html>
