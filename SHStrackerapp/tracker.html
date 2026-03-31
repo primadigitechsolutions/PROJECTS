@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Tracker | Academic Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f8f4fa;
+      color: #2c1e3f;
+      min-height: 100vh;
+      padding: 20px 16px;
+    }
+
+    .phone-frame {
+      max-width: 380px;
+      width: 100%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 48px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
+      overflow: hidden;
+      height: 780px;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 44px;
+      background: white;
+    }
+
+    .header {
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2c1e3f;
+    }
+
+    .back-btn {
+      font-size: 28px;
+      cursor: pointer;
+      color: #4E356F;
+    }
+
+    .container {
+      padding: 0 24px;
+      overflow-y: auto;
+      height: calc(100% - 120px);
+    }
+
+    .subject-select {
+      margin: 20px 0;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1.5px solid #ecdde6;
+      border-radius: 16px;
+      font-size: 16px;
+    }
+
+    .category-btns {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .category-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #ecdde6;
+      background: white;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .category-btn.active {
+      background: #4E356F;
+      color: white;
+      border-color: #4E356F;
+    }
+
+    .score-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .score-input input {
+      flex: 1;
+    }
+
+    button#addScore {
+      background: #4E356F;
+      color: white;
+      border: none;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .entries {
+      margin-top: 24px;
+    }
+
+    .entry {
+      background: #f8f4fa;
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary {
+      margin-top: 32px;
+      background: white;
+      border: 2px solid #4E356F;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .summary h3 {
+      color: #4E356F;
+      margin-bottom: 16px;
+    }
+
+    .final-grade {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4E356F;
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e9dee4;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 18px;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #9C6A82;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #4E356F;
+    }
+
+    .nav-icon {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    
+    <!-- Status Bar -->
+    <div class="status-bar"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
+      <div class="page-title">Grade Tracker</div>
+      <div style="width:28px;"></div> <!-- Spacer -->
+    </div>
+
+    <div class="container">
+      <div class="subject-select">
+        <select id="subjectSelect">
+          <option value="">Select Subject</option>
+          <option value="Mathematics">Mathematics - Advanced Algebra</option>
+          <option value="Biology">Biology - Human Anatomy</option>
+          <option value="English">English - Literature & Composition</option>
+          <option value="History">History - World Civilization</option>
+        </select>
+      </div>
+
+      <div class="category-btns">
+        <div class="category-btn active" data-category="WW">Written Works</div>
+        <div class="category-btn" data-category="PT">Performance Tasks</div>
+        <div class="category-btn" data-category="QA">Quarterly Assessment</div>
+      </div>
+
+      <div class="score-input">
+        <input type="number" id="score" placeholder="Score (e.g. 10)" step="0.01">
+        <input type="number" id="total" placeholder="Out of (e.g. 15)" step="0.01">
+      </div>
+
+      <button id="addScore">+ Add Score</button>
+
+      <div class="entries" id="entriesList">
+        <!-- Added scores will appear here -->
+      </div>
+
+      <div class="summary">
+        <h3>Current Summary</h3>
+        <div id="summaryContent">
+          <p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+      </div>
+      <div class="nav-item active">
+        <div class="nav-icon">📊</div>
+        <div>Tracker</div>
+      </div>
+      <div class="nav-item" onclick="alert('Reviewer section - Coming soon')">
+        <div class="nav-icon">📄</div>
+        <div>Reviewer</div>
+      </div>
+      <div class="nav-item" onclick="alert('Profile section - Coming soon')">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let scores = {
+      WW: [],
+      PT: [],
+      QA: []
+    };
+
+    const subjectSelect = document.getElementById('subjectSelect');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    let currentCategory = 'WW';
+
+    // Category button logic
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        categoryBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+      });
+    });
+
+    // Add score
+    document.getElementById('addScore').addEventListener('click', () => {
+      const score = parseFloat(document.getElementById('score').value);
+      const total = parseFloat(document.getElementById('total').value);
+
+      if (!subjectSelect.value) {
+        alert("Please select a subject first.");
+        return;
+      }
+      if (isNaN(score) || isNaN(total) || total <= 0) {
+        alert("Please enter valid score and total.");
+        return;
+      }
+
+      scores[currentCategory].push({ score, total });
+
+      document.getElementById('score').value = '';
+      document.getElementById('total').value = '';
+
+      renderEntries();
+      calculateGrades();
+    });
+
+    function renderEntries() {
+      const list = document.getElementById('entriesList');
+      list.innerHTML = '';
+
+      Object.keys(scores).forEach(cat => {
+        if (scores[cat].length > 0) {
+          const div = document.createElement('div');
+          div.innerHTML = `<strong>${getCategoryName(cat)}:</strong>`;
+          list.appendChild(div);
+
+          scores[cat].forEach((item, index) => {
+            const entry = document.createElement('div');
+            entry.className = 'entry';
+            entry.innerHTML = `
+              ${item.score} / ${item.total} 
+              <span style="color:#6b5a7a;">(${((item.score/item.total)*100).toFixed(1)}%)</span>
+            `;
+            list.appendChild(entry);
+          });
+        }
+      });
+    }
+
+    function getCategoryName(cat) {
+      if (cat === 'WW') return 'Written Works';
+      if (cat === 'PT') return 'Performance Tasks';
+      return 'Quarterly Assessment';
+    }
+
+    function calculateAverage(category) {
+      if (scores[category].length === 0) return 0;
+      let totalPercent = 0;
+      scores[category].forEach(item => {
+        totalPercent += (item.score / item.total) * 100;
+      });
+      return totalPercent / scores[category].length;
+    }
+
+    function getWeights() {
+      // You can change subject type here later if needed
+      // For now using Core Subjects as default (most common)
+      return {
+        WW: 0.25,
+        PT: 0.50,
+        QA: 0.25
+      };
+    }
+
+    function calculateGrades() {
+      const avgWW = calculateAverage('WW');
+      const avgPT = calculateAverage('PT');
+      const avgQA = calculateAverage('QA');
+
+      const weights = getWeights();
+
+      const finalGrade = 
+        (avgWW * weights.WW) + 
+        (avgPT * weights.PT) + 
+        (avgQA * weights.QA);
+
+      const summaryHTML = `
+        <div style="margin-bottom:12px;">
+          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(25%)</span>
+        </div>
+        <div style="margin-bottom:12px;">
+          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(50%)</span>
+        </div>
+        <div style="margin-bottom:12px;">
+          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(25%)</span>
+        </div>
+        <hr style="margin:16px 0; border-color:#ecdde6;">
+        <div class="final-grade">${finalGrade.toFixed(1)}%</div>
+        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade (Core Subject)</div>
+      `;
+
+      document.getElementById('summaryContent').innerHTML = summaryHTML;
+    }
+
+    // Initialize
+    renderEntries();
+    calculateGrades();
+  </script>
+</body>
+</html>
