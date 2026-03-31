@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Dashboard | Academic Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f8f4fa;
+      color: #2c1e3f;
+      min-height: 100vh;
+      padding: 20px 16px;
+    }
+
+    .phone-frame {
+      max-width: 380px;
+      width: 100%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 48px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
+      overflow: hidden;
+      height: 780px;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .content {
+      padding: 0 24px;
+      height: calc(100% - 110px);
+      overflow-y: auto;
+    }
+
+    .greeting {
+      margin-top: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #2c1e3f;
+    }
+
+    .greeting span {
+      color: #EF9875;
+    }
+
+    .sub-greeting {
+      font-size: 15px;
+      color: #6b5a7a;
+      margin-top: 4px;
+    }
+
+    .progress-card {
+      margin-top: 28px;
+      background: white;
+      border: 2px solid #4E356F;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 20px -8px rgba(78, 53, 111, 0.15);
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ribbon {
+      font-size: 28px;
+    }
+
+    .progress-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4E356F;
+    }
+
+    .progress-text {
+      font-size: 15px;
+      color: #2c1e3f;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .performance {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .circular-progress {
+      width: 90px;
+      height: 90px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .circular-progress .bg-circle {
+      fill: none;
+      stroke: #ecdde6;
+      stroke-width: 12;
+    }
+
+    .circular-progress .progress-circle {
+      fill: none;
+      stroke: #4E356F;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .progress-percentage {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2c1e3f;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: #6b5a7a;
+      margin-top: -2px;
+    }
+
+    .overall {
+      font-size: 14px;
+      color: #6b5a7a;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      color: #2c1e3f;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e9dee4;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 18px;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #9C6A82;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 4px;
+    }
+
+    .nav-item.active {
+      color: #4E356F;
+    }
+
+    .nav-icon {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div>09:41</div>
+      <div>●●●●● ●●●</div>
+    </div>
+
+    <div class="content">
+
+      <!-- Greeting -->
+      <div class="greeting">
+        Hi, Wina! <span>👋</span>
+      </div>
+      <div class="sub-greeting">Welcome back to your learning hub</div>
+
+      <!-- Progress Card -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="ribbon">🎖️</span>
+          <div class="progress-title">Your Progress</div>
+        </div>
+        
+        <div class="progress-text">
+          Keep up the great work!<br>
+          You're doing amazing.
+        </div>
+
+        <div class="performance">
+          <div class="circular-progress">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <!-- Background circle -->
+              <circle class="bg-circle" cx="45" cy="45" r="38"/>
+              <!-- Progress circle (90%) -->
+              <circle class="progress-circle" cx="45" cy="45" r="38" 
+                      stroke-dasharray="238.76" 
+                      stroke-dashoffset="23.876"/>
+            </svg>
+            <div class="progress-center">
+              <div class="progress-percentage">90%</div>
+              <div class="progress-label">Overall</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="overall">Overall Performance</div>
+            <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
+            <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 180px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Subjects -->
+      <div class="section-title">My Subjects</div>
+      <div style="text-align: center; color: #9C6A82; padding: 60px 20px; font-size: 15px;">
+        Your enrolled subjects will appear here.<br>
+        <small style="color:#c1adbb;">(Coming soon in full version)</small>
+      </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📊</div>
+        <div>Tracker</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📄</div>
+        <div>Reviewer</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Optional: Make the circular progress more dynamic in the future
+    console.log("Dashboard loaded for Wina.va");
+  </script>
+</body>
+</html>
