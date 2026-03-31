@@ -29,8 +29,8 @@
       border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      height: 100vh;           /* Adaptive to screen height */
-      min-height: 100dvh;      /* Better for mobile dynamic viewport */
+      height: 100vh;
+      min-height: 100dvh;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -90,6 +90,10 @@
     }
 
     /* Dropdown Menu */
+    .dropdown {
+      position: relative;
+    }
+
     .dropdown-content {
       display: none;
       position: absolute;
@@ -133,6 +137,73 @@
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 10px 20px -8px rgba(78, 53, 111, 0.15);
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ribbon {
+      font-size: 28px;
+    }
+
+    .progress-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4E356F;
+    }
+
+    .progress-text {
+      font-size: 15px;
+      color: #2c1e3f;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .performance {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .circular-progress {
+      width: 90px;
+      height: 90px;
+      position: relative;
+    }
+
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .circular-progress .bg-circle {
+      fill: none;
+      stroke: #ecdde6;
+      stroke-width: 12;
+    }
+
+    .circular-progress .progress-circle {
+      fill: none;
+      stroke: #4E356F;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .progress-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .progress-percentage {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2c1e3f;
     }
 
     .section-title {
@@ -183,15 +254,15 @@
       background: linear-gradient(90deg, #4E356F, #EF9875);
     }
 
-    /* Adaptive Scrollable Content */
+    /* Scrollable Main Content */
     .main-content {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 110px;   /* More space for bottom nav when zoomed */
+      padding-bottom: 110px;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Floating Bottom Navigation - More Adaptive */
+    /* Floating Bottom Navigation */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -199,7 +270,7 @@
       right: 0;
       background: white;
       border-top: 1px solid #e9dee4;
-      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3); /* Stronger floating effect */
+      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
       display: flex;
       justify-content: space-around;
       padding: 12px 0 22px;
@@ -215,7 +286,6 @@
       font-weight: 600;
       gap: 4px;
       cursor: pointer;
-      transition: color 0.2s;
     }
 
     .nav-item.active {
@@ -240,8 +310,10 @@
         <div class="sub-greeting">Welcome back to your learning hub</div>
       </div>
 
+      <!-- Profile with Dropdown -->
       <div class="profile-section dropdown">
         <div class="profile-circle" id="profileBtn">W</div>
+        
         <div class="dropdown-content" id="dropdownMenu">
           <div class="dropdown-item" onclick="alert('Profile settings coming soon')">👤 My Profile</div>
           <div class="dropdown-item" onclick="alert('Settings coming soon')">⚙️ Settings</div>
@@ -325,7 +397,7 @@
         <div class="nav-icon">📊</div>
         <div>Tracker</div>
       </div>
-<div class="nav-item" onclick="window.location.href='reviewer.html'">
+      <div class="nav-item" onclick="window.location.href='reviewer.html'">
         <div class="nav-icon">📄</div>
         <div>Reviewer</div>
       </div>
