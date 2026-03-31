@@ -1,3 +1,4 @@
+<DOCUMENT filename="dashboard (3).html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +36,7 @@
       height: 44px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center; /* Centered since we removed content */
       padding: 0 24px;
       font-size: 13px;
       color: #333;
@@ -289,11 +290,8 @@
 <body>
   <div class="phone-frame">
     
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <div>09:41</div>
-      <div>●●●●● ●●●</div>
-    </div>
+    <!-- Status Bar (Cleaned - no time or signal) -->
+    <div class="status-bar"></div>
 
     <!-- Header -->
     <div class="header">
@@ -418,17 +416,7 @@
         window.location.href = "index.html";
       }
     }
-
-    // Update time in status bar
-    function updateTime() {
-      const now = new Date();
-      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                      now.getMinutes().toString().padStart(2, '0');
-      document.querySelector('.status-bar div:first-child').textContent = timeStr;
-    }
-
-    setInterval(updateTime, 60000);
-    updateTime();
   </script>
 </body>
 </html>
+</DOCUMENT>
