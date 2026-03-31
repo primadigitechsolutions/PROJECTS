@@ -29,8 +29,8 @@
       border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      height: 100vh;           /* Adaptive to screen height */
-      min-height: 100dvh;      /* Better support when address bar hides */
+      height: 100vh;
+      min-height: 100dvh;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -67,7 +67,7 @@
     .main-content {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 110px;   /* Generous space for bottom nav even when zoomed */
+      padding-bottom: 110px;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -176,7 +176,7 @@
       right: 0;
       background: white;
       border-top: 1px solid #e9dee4;
-      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3); /* Strong floating effect */
+      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
       display: flex;
       justify-content: space-around;
       padding: 12px 0 22px;
@@ -192,7 +192,6 @@
       font-weight: 600;
       gap: 4px;
       cursor: pointer;
-      transition: color 0.2s;
     }
 
     .nav-item.active {
@@ -266,7 +265,7 @@
         <div class="nav-icon">📊</div>
         <div>Tracker</div>
       </div>
-<div class="nav-item" onclick="window.location.href='reviewer.html'">
+      <div class="nav-item" onclick="window.location.href='reviewer.html'">
         <div class="nav-icon">📄</div>
         <div>Reviewer</div>
       </div>
@@ -288,6 +287,7 @@
     const categoryBtns = document.querySelectorAll('.category-btn');
     let currentCategory = 'WW';
 
+    // Category button logic
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -296,6 +296,7 @@
       });
     });
 
+    // Add score button
     document.getElementById('addScore').addEventListener('click', () => {
       const score = parseFloat(document.getElementById('score').value);
       const total = parseFloat(document.getElementById('total').value);
@@ -357,26 +358,37 @@
     }
 
     function getWeights() {
-      return { WW: 0.25, PT: 0.50, QA: 0.25 };
+      return {
+        WW: 0.25,
+        PT: 0.50,
+        QA: 0.25
+      };
     }
 
     function calculateGrades() {
       const avgWW = calculateAverage('WW');
       const avgPT = calculateAverage('PT');
       const avgQA = calculateAverage('QA');
+
       const weights = getWeights();
 
-      const finalGrade = (avgWW * weights.WW) + (avgPT * weights.PT) + (avgQA * weights.QA);
+      const finalGrade = 
+        (avgWW * weights.WW) + 
+        (avgPT * weights.PT) + 
+        (avgQA * weights.QA);
 
       const summaryHTML = `
         <div style="margin-bottom:12px;">
-          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(50%)</span>
+          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(50%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% 
+          <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
