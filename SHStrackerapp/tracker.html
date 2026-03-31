@@ -29,6 +29,8 @@
       overflow: hidden;
       height: 780px;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .status-bar {
@@ -56,10 +58,15 @@
       color: #4E356F;
     }
 
+    /* Scrollable Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 100px; /* Space for floating bottom nav */
+    }
+
     .container {
       padding: 0 24px;
-      overflow-y: auto;
-      height: calc(100% - 120px);
     }
 
     .subject-select {
@@ -115,6 +122,7 @@
       border: none;
       font-weight: 700;
       margin-top: 8px;
+      padding: 14px;
     }
 
     .entries {
@@ -152,7 +160,7 @@
       margin: 12px 0;
     }
 
-    /* Bottom Navigation */
+    /* Floating Bottom Navigation */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -160,10 +168,11 @@
       right: 0;
       background: white;
       border-top: 1px solid #e9dee4;
+      box-shadow: 0 -8px 25px -10px rgba(78, 53, 111, 0.25); /* Floating elevated look */
       display: flex;
       justify-content: space-around;
-      padding: 12px 0 18px;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+      padding: 12px 0 20px;
+      z-index: 100;
     }
 
     .nav-item {
@@ -175,6 +184,7 @@
       font-weight: 600;
       gap: 4px;
       cursor: pointer;
+      transition: color 0.2s;
     }
 
     .nav-item.active {
@@ -199,43 +209,46 @@
       <div style="width:28px;"></div> <!-- Spacer -->
     </div>
 
-    <div class="container">
-      <div class="subject-select">
-        <select id="subjectSelect">
-          <option value="">Select Subject</option>
-          <option value="Mathematics">Mathematics - Advanced Algebra</option>
-          <option value="Biology">Biology - Human Anatomy</option>
-          <option value="English">English - Literature & Composition</option>
-          <option value="History">History - World Civilization</option>
-        </select>
-      </div>
+    <!-- Scrollable Main Content -->
+    <div class="main-content">
+      <div class="container">
+        <div class="subject-select">
+          <select id="subjectSelect">
+            <option value="">Select Subject</option>
+            <option value="Mathematics">Mathematics - Advanced Algebra</option>
+            <option value="Biology">Biology - Human Anatomy</option>
+            <option value="English">English - Literature & Composition</option>
+            <option value="History">History - World Civilization</option>
+          </select>
+        </div>
 
-      <div class="category-btns">
-        <div class="category-btn active" data-category="WW">Written Works</div>
-        <div class="category-btn" data-category="PT">Performance Tasks</div>
-        <div class="category-btn" data-category="QA">Quarterly Assessment</div>
-      </div>
+        <div class="category-btns">
+          <div class="category-btn active" data-category="WW">Written Works</div>
+          <div class="category-btn" data-category="PT">Performance Tasks</div>
+          <div class="category-btn" data-category="QA">Quarterly Assessment</div>
+        </div>
 
-      <div class="score-input">
-        <input type="number" id="score" placeholder="Score (e.g. 10)" step="0.01">
-        <input type="number" id="total" placeholder="Out of (e.g. 15)" step="0.01">
-      </div>
+        <div class="score-input">
+          <input type="number" id="score" placeholder="Score (e.g. 10)" step="0.01">
+          <input type="number" id="total" placeholder="Out of (e.g. 15)" step="0.01">
+        </div>
 
-      <button id="addScore">+ Add Score</button>
+        <button id="addScore">+ Add Score</button>
 
-      <div class="entries" id="entriesList">
-        <!-- Added scores will appear here -->
-      </div>
+        <div class="entries" id="entriesList">
+          <!-- Added scores will appear here -->
+        </div>
 
-      <div class="summary">
-        <h3>Current Summary</h3>
-        <div id="summaryContent">
-          <p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>
+        <div class="summary">
+          <h3>Current Summary</h3>
+          <div id="summaryContent">
+            <p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- Floating Bottom Navigation -->
     <div class="bottom-nav">
       <div class="nav-item" onclick="window.location.href='dashboard.html'">
         <div class="nav-icon">🏠</div>
@@ -338,8 +351,6 @@
     }
 
     function getWeights() {
-      // You can change subject type here later if needed
-      // For now using Core Subjects as default (most common)
       return {
         WW: 0.25,
         PT: 0.50,
