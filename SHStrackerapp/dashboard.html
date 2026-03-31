@@ -41,14 +41,15 @@
       color: #333;
     }
 
-    .content {
+    .header {
       padding: 0 24px;
-      height: calc(100% - 110px);
-      overflow-y: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
     }
 
     .greeting {
-      margin-top: 12px;
       font-size: 24px;
       font-weight: 700;
       color: #2c1e3f;
@@ -64,8 +65,71 @@
       margin-top: 4px;
     }
 
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .profile-circle {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #4E356F, #9C6A82);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(78, 53, 111, 0.3);
+      cursor: pointer;
+    }
+
+    /* Dropdown Menu */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      width: 180px;
+      overflow: hidden;
+      z-index: 100;
+      border: 1px solid #ecdde6;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 14px 20px;
+      font-size: 15px;
+      color: #2c1e3f;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: #f8f4fa;
+    }
+
+    .dropdown-item.logout {
+      color: #e07a5f;
+      font-weight: 600;
+      border-top: 1px solid #ecdde6;
+    }
+
     .progress-card {
-      margin-top: 28px;
+      margin: 24px 24px 0;
       background: white;
       border: 2px solid #4E356F;
       border-radius: 20px;
@@ -107,7 +171,6 @@
       width: 90px;
       height: 90px;
       position: relative;
-      flex-shrink: 0;
     }
 
     .circular-progress svg {
@@ -125,7 +188,6 @@
       stroke: #4E356F;
       stroke-width: 12;
       stroke-linecap: round;
-      transition: stroke-dashoffset 0.5s ease;
     }
 
     .progress-center {
@@ -142,22 +204,52 @@
       color: #2c1e3f;
     }
 
-    .progress-label {
-      font-size: 11px;
-      color: #6b5a7a;
-      margin-top: -2px;
-    }
-
-    .overall {
-      font-size: 14px;
-      color: #6b5a7a;
-    }
-
     .section-title {
       font-size: 20px;
       font-weight: 700;
-      margin: 32px 0 16px;
+      margin: 32px 24px 16px;
       color: #2c1e3f;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 0 24px;
+    }
+
+    .subject-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px 16px;
+      box-shadow: 0 6px 15px -6px rgba(78, 53, 111, 0.15);
+      border: 1.5px solid #ecdde6;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .subject-card:active {
+      transform: scale(0.96);
+      border-color: #EF9875;
+    }
+
+    .subject-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 8px;
+    }
+
+    .subject-progress {
+      height: 6px;
+      background: #ecdde6;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .subject-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4E356F, #EF9875);
     }
 
     /* Bottom Navigation */
@@ -182,6 +274,7 @@
       font-size: 11px;
       font-weight: 600;
       gap: 4px;
+      cursor: pointer;
     }
 
     .nav-item.active {
@@ -202,57 +295,86 @@
       <div>●●●●● ●●●</div>
     </div>
 
-    <div class="content">
-
-      <!-- Greeting -->
-      <div class="greeting">
-        Hi, Wina! <span>👋</span>
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="greeting">Hi, Wina! <span>👋</span></div>
+        <div class="sub-greeting">Welcome back to your learning hub</div>
       </div>
-      <div class="sub-greeting">Welcome back to your learning hub</div>
 
-      <!-- Progress Card -->
-      <div class="progress-card">
-        <div class="progress-header">
-          <span class="ribbon">🎖️</span>
-          <div class="progress-title">Your Progress</div>
-        </div>
+      <!-- Profile with Dropdown -->
+      <div class="profile-section dropdown">
+        <div class="profile-circle" id="profileBtn">W</div>
         
-        <div class="progress-text">
-          Keep up the great work!<br>
-          You're doing amazing.
-        </div>
-
-        <div class="performance">
-          <div class="circular-progress">
-            <svg width="90" height="90" viewBox="0 0 90 90">
-              <!-- Background circle -->
-              <circle class="bg-circle" cx="45" cy="45" r="38"/>
-              <!-- Progress circle (90%) -->
-              <circle class="progress-circle" cx="45" cy="45" r="38" 
-                      stroke-dasharray="238.76" 
-                      stroke-dashoffset="23.876"/>
-            </svg>
-            <div class="progress-center">
-              <div class="progress-percentage">90%</div>
-              <div class="progress-label">Overall</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="overall">Overall Performance</div>
-            <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
-            <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 180px;"></div>
-          </div>
+        <!-- Dropdown Menu -->
+        <div class="dropdown-content" id="dropdownMenu">
+          <div class="dropdown-item" onclick="alert('Profile settings coming soon')">👤 My Profile</div>
+          <div class="dropdown-item" onclick="alert('Settings coming soon')">⚙️ Settings</div>
+          <div class="dropdown-item logout" onclick="logout()">🚪 Logout</div>
         </div>
       </div>
+    </div>
 
-      <!-- My Subjects -->
-      <div class="section-title">My Subjects</div>
-      <div style="text-align: center; color: #9C6A82; padding: 60px 20px; font-size: 15px;">
-        Your enrolled subjects will appear here.<br>
-        <small style="color:#c1adbb;">(Coming soon in full version)</small>
+    <!-- Progress Card -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="ribbon">🎖️</span>
+        <div class="progress-title">Your Progress</div>
+      </div>
+      
+      <div class="progress-text">
+        Keep up the great work!<br>
+        You're doing amazing.
       </div>
 
+      <div class="performance">
+        <div class="circular-progress">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="bg-circle" cx="45" cy="45" r="38"/>
+            <circle class="progress-circle" cx="45" cy="45" r="38" 
+                    stroke-dasharray="238.76" stroke-dashoffset="23.876"/>
+          </svg>
+          <div class="progress-center">
+            <div class="progress-percentage">90%</div>
+            <div class="progress-label">Overall</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 14px; color: #6b5a7a;">Overall Performance</div>
+          <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
+          <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 170px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Subjects -->
+    <div class="section-title">My Subjects</div>
+
+    <div class="subject-grid">
+      <div class="subject-card" onclick="alert('Opening Mathematics...')">
+        <div class="subject-name">Mathematics</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Advanced Algebra</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:92%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening Biology...')">
+        <div class="subject-name">Biology</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Human Anatomy</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:78%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening English Literature...')">
+        <div class="subject-name">English</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Literature & Composition</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:95%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening History...')">
+        <div class="subject-name">History</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">World Civilization</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:65%"></div></div>
+      </div>
     </div>
 
     <!-- Bottom Navigation -->
@@ -261,15 +383,15 @@
         <div class="nav-icon">🏠</div>
         <div>Home</div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="alert('Tracker section - Coming soon')">
         <div class="nav-icon">📊</div>
         <div>Tracker</div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="alert('Reviewer section - Coming soon')">
         <div class="nav-icon">📄</div>
         <div>Reviewer</div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="alert('Profile section - Coming soon')">
         <div class="nav-icon">👤</div>
         <div>Profile</div>
       </div>
@@ -277,8 +399,36 @@
   </div>
 
   <script>
-    // Optional: Make the circular progress more dynamic in the future
-    console.log("Dashboard loaded for Wina.va");
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    // Toggle dropdown when clicking profile circle
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking anywhere else
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.remove('show');
+    });
+
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        window.location.href = "index.html";
+      }
+    }
+
+    // Update time in status bar
+    function updateTime() {
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0');
+      document.querySelector('.status-bar div:first-child').textContent = timeStr;
+    }
+
+    setInterval(updateTime, 60000);
+    updateTime();
   </script>
 </body>
 </html>
