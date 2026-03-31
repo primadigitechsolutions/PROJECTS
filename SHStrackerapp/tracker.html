@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <title>Tracker | Academic Portal</title>
   <style>
     * {
@@ -17,17 +17,20 @@
       color: #2c1e3f;
       min-height: 100vh;
       padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .phone-frame {
       max-width: 380px;
       width: 100%;
-      margin: 0 auto;
       background: white;
       border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      height: 780px;
+      height: 100vh;           /* Adaptive to screen height */
+      min-height: 100dvh;      /* Better support when address bar hides */
       position: relative;
       display: flex;
       flex-direction: column;
@@ -36,6 +39,7 @@
     .status-bar {
       height: 44px;
       background: white;
+      flex-shrink: 0;
     }
 
     .header {
@@ -44,6 +48,7 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
+      flex-shrink: 0;
     }
 
     .page-title {
@@ -62,7 +67,8 @@
     .main-content {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 100px; /* Space for floating bottom nav */
+      padding-bottom: 110px;   /* Generous space for bottom nav even when zoomed */
+      -webkit-overflow-scrolling: touch;
     }
 
     .container {
@@ -123,6 +129,8 @@
       font-weight: 700;
       margin-top: 8px;
       padding: 14px;
+      border-radius: 16px;
+      width: 100%;
     }
 
     .entries {
@@ -168,10 +176,10 @@
       right: 0;
       background: white;
       border-top: 1px solid #e9dee4;
-      box-shadow: 0 -8px 25px -10px rgba(78, 53, 111, 0.25); /* Floating elevated look */
+      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3); /* Strong floating effect */
       display: flex;
       justify-content: space-around;
-      padding: 12px 0 20px;
+      padding: 12px 0 22px;
       z-index: 100;
     }
 
@@ -206,7 +214,7 @@
     <div class="header">
       <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
       <div class="page-title">Grade Tracker</div>
-      <div style="width:28px;"></div> <!-- Spacer -->
+      <div style="width:28px;"></div>
     </div>
 
     <!-- Scrollable Main Content -->
@@ -280,7 +288,6 @@
     const categoryBtns = document.querySelectorAll('.category-btn');
     let currentCategory = 'WW';
 
-    // Category button logic
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -289,7 +296,6 @@
       });
     });
 
-    // Add score
     document.getElementById('addScore').addEventListener('click', () => {
       const score = parseFloat(document.getElementById('score').value);
       const total = parseFloat(document.getElementById('total').value);
@@ -322,7 +328,7 @@
           div.innerHTML = `<strong>${getCategoryName(cat)}:</strong>`;
           list.appendChild(div);
 
-          scores[cat].forEach((item, index) => {
+          scores[cat].forEach((item) => {
             const entry = document.createElement('div');
             entry.className = 'entry';
             entry.innerHTML = `
@@ -351,37 +357,26 @@
     }
 
     function getWeights() {
-      return {
-        WW: 0.25,
-        PT: 0.50,
-        QA: 0.25
-      };
+      return { WW: 0.25, PT: 0.50, QA: 0.25 };
     }
 
     function calculateGrades() {
       const avgWW = calculateAverage('WW');
       const avgPT = calculateAverage('PT');
       const avgQA = calculateAverage('QA');
-
       const weights = getWeights();
 
-      const finalGrade = 
-        (avgWW * weights.WW) + 
-        (avgPT * weights.PT) + 
-        (avgQA * weights.QA);
+      const finalGrade = (avgWW * weights.WW) + (avgPT * weights.PT) + (avgQA * weights.QA);
 
       const summaryHTML = `
         <div style="margin-bottom:12px;">
-          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(50%)</span>
+          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(50%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
