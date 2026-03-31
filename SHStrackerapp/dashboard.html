@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <title>Dashboard | Academic Portal</title>
   <style>
     * {
@@ -17,17 +17,20 @@
       color: #2c1e3f;
       min-height: 100vh;
       padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .phone-frame {
       max-width: 380px;
       width: 100%;
-      margin: 0 auto;
       background: white;
       border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      height: 780px;
+      height: 100vh;           /* Adaptive to screen height */
+      min-height: 100dvh;      /* Better for mobile dynamic viewport */
       position: relative;
       display: flex;
       flex-direction: column;
@@ -36,6 +39,7 @@
     .status-bar {
       height: 44px;
       background: white;
+      flex-shrink: 0;
     }
 
     .header {
@@ -44,6 +48,7 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
+      flex-shrink: 0;
     }
 
     .greeting {
@@ -85,10 +90,6 @@
     }
 
     /* Dropdown Menu */
-    .dropdown {
-      position: relative;
-    }
-
     .dropdown-content {
       display: none;
       position: absolute;
@@ -132,73 +133,6 @@
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 10px 20px -8px rgba(78, 53, 111, 0.15);
-    }
-
-    .progress-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .ribbon {
-      font-size: 28px;
-    }
-
-    .progress-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #4E356F;
-    }
-
-    .progress-text {
-      font-size: 15px;
-      color: #2c1e3f;
-      margin-bottom: 16px;
-      line-height: 1.4;
-    }
-
-    .performance {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .circular-progress {
-      width: 90px;
-      height: 90px;
-      position: relative;
-    }
-
-    .circular-progress svg {
-      transform: rotate(-90deg);
-    }
-
-    .circular-progress .bg-circle {
-      fill: none;
-      stroke: #ecdde6;
-      stroke-width: 12;
-    }
-
-    .circular-progress .progress-circle {
-      fill: none;
-      stroke: #4E356F;
-      stroke-width: 12;
-      stroke-linecap: round;
-    }
-
-    .progress-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-
-    .progress-percentage {
-      font-size: 22px;
-      font-weight: 800;
-      color: #2c1e3f;
     }
 
     .section-title {
@@ -249,14 +183,15 @@
       background: linear-gradient(90deg, #4E356F, #EF9875);
     }
 
-    /* Scrollable Content Area */
+    /* Adaptive Scrollable Content */
     .main-content {
       flex: 1;
       overflow-y: auto;
-      padding-bottom: 100px; /* Extra space so content doesn't hide under nav */
+      padding-bottom: 110px;   /* More space for bottom nav when zoomed */
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* Bottom Navigation - Floating & Fixed at Bottom */
+    /* Floating Bottom Navigation - More Adaptive */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -264,10 +199,10 @@
       right: 0;
       background: white;
       border-top: 1px solid #e9dee4;
-      box-shadow: 0 -8px 25px -10px rgba(78, 53, 111, 0.25); /* Elevated floating effect */
+      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3); /* Stronger floating effect */
       display: flex;
       justify-content: space-around;
-      padding: 12px 0 20px;
+      padding: 12px 0 22px;
       z-index: 100;
     }
 
@@ -305,11 +240,8 @@
         <div class="sub-greeting">Welcome back to your learning hub</div>
       </div>
 
-      <!-- Profile with Dropdown -->
       <div class="profile-section dropdown">
         <div class="profile-circle" id="profileBtn">W</div>
-        
-        <!-- Dropdown Menu -->
         <div class="dropdown-content" id="dropdownMenu">
           <div class="dropdown-item" onclick="alert('Profile settings coming soon')">👤 My Profile</div>
           <div class="dropdown-item" onclick="alert('Settings coming soon')">⚙️ Settings</div>
