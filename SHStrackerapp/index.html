@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>Login | Academic Portal</title>
+  <title>Dashboard | Academic Portal</title>
   <style>
     * {
       margin: 0;
@@ -12,304 +12,423 @@
     }
 
     body {
-      background: linear-gradient(145deg, #faf7fc 0%, #f3edf5 100%);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: #f8f4fa;
+      color: #2c1e3f;
       min-height: 100vh;
-      padding: 20px;
+      padding: 20px 16px;
     }
 
     .phone-frame {
       max-width: 380px;
       width: 100%;
       margin: 0 auto;
-      background-color: #ffffff;
+      background: white;
       border-radius: 48px;
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      transition: all 0.2s ease;
+      height: 780px;
+      position: relative;
     }
 
-    .screen-content {
-      padding: 32px 24px 40px;
-    }
-
-    .logo-area {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-    .logo-placeholder {
-      display: inline-flex;
+    .status-bar {
+      height: 44px;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 13px;
+      color: #333;
     }
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #4E356F 0%, #9C6A82 100%);
-      border-radius: 20px;
+
+    .header {
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .greeting {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2c1e3f;
+    }
+
+    .greeting span {
+      color: #EF9875;
+    }
+
+    .sub-greeting {
+      font-size: 15px;
+      color: #6b5a7a;
+      margin-top: 4px;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .profile-circle {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #4E356F, #9C6A82);
+      color: white;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
       font-weight: 700;
-      font-size: 20px;
-      box-shadow: 0 6px 12px -6px rgba(78, 53, 111, 0.3);
-    }
-    .logo-text {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(120deg, #4E356F 20%, #9C6A82 70%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(78, 53, 111, 0.3);
+      cursor: pointer;
     }
 
-    .input-group {
-      margin-bottom: 24px;
+    /* Dropdown Menu */
+    .dropdown {
+      position: relative;
     }
-    .input-label {
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      width: 180px;
+      overflow: hidden;
+      z-index: 100;
+      border: 1px solid #ecdde6;
+    }
+
+    .dropdown-content.show {
       display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: #4E356F;
-      margin-bottom: 8px;
-      letter-spacing: -0.2px;
     }
-    .input-field {
-      width: 100%;
-      padding: 16px 18px;
-      background-color: #fefafc;
-      border: 1.5px solid #ecdde6;
-      border-radius: 28px;
-      font-size: 16px;
-      font-weight: 500;
+
+    .dropdown-item {
+      padding: 14px 20px;
+      font-size: 15px;
       color: #2c1e3f;
-      transition: all 0.2s;
-      outline: none;
-      font-family: inherit;
-    }
-    .input-field:focus {
-      border-color: #EF9875;
-      box-shadow: 0 0 0 3px rgba(239, 152, 117, 0.2);
-      background-color: #ffffff;
-    }
-    .input-field::placeholder {
-      color: #c1adbb;
-      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.2s;
     }
 
-    .forgot-row {
-      text-align: right;
-      margin: 6px 0 28px 0;
-    }
-    .forgot-link {
-      font-size: 13px;
-      color: #9C6A82;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    .forgot-link:hover {
-      color: #EF9875;
-      text-decoration: underline;
+    .dropdown-item:hover {
+      background: #f8f4fa;
     }
 
-    .btn-primary {
-      width: 100%;
-      background: linear-gradient(100deg, #4E356F 0%, #7a538f 100%);
-      border: none;
-      padding: 16px 20px;
-      border-radius: 44px;
+    .dropdown-item.logout {
+      color: #e07a5f;
+      font-weight: 600;
+      border-top: 1px solid #ecdde6;
+    }
+
+    .progress-card {
+      margin: 24px 24px 0;
+      background: white;
+      border: 2px solid #4E356F;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 20px -8px rgba(78, 53, 111, 0.15);
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ribbon {
+      font-size: 28px;
+    }
+
+    .progress-title {
       font-size: 18px;
       font-weight: 700;
-      color: white;
-      cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 8px 18px -6px rgba(78, 53, 111, 0.35);
-      letter-spacing: 0.3px;
-      margin-bottom: 28px;
-    }
-    .btn-primary:active {
-      transform: scale(0.97);
-      background: linear-gradient(100deg, #3c2a55 0%, #684470 100%);
-      box-shadow: 0 4px 10px -4px rgba(78, 53, 111, 0.4);
+      color: #4E356F;
     }
 
-    .signup-row {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .signup-text {
-      color: #6b5a7a;
+    .progress-text {
       font-size: 15px;
-      font-weight: 500;
-    }
-    .signup-link {
-      color: #EF9875;
-      font-weight: 700;
-      text-decoration: none;
-      margin-left: 6px;
-      transition: all 0.2s;
-    }
-    .signup-link:hover {
-      color: #4E356F;
-      text-decoration: underline;
+      color: #2c1e3f;
+      margin-bottom: 16px;
+      line-height: 1.4;
     }
 
-    .divider {
+    .performance {
       display: flex;
       align-items: center;
+      gap: 20px;
+    }
+
+    .circular-progress {
+      width: 90px;
+      height: 90px;
+      position: relative;
+    }
+
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .circular-progress .bg-circle {
+      fill: none;
+      stroke: #ecdde6;
+      stroke-width: 12;
+    }
+
+    .circular-progress .progress-circle {
+      fill: none;
+      stroke: #4E356F;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .progress-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       text-align: center;
-      color: #bcabb9;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 28px;
-    }
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e9dee4;
-    }
-    .divider::before {
-      margin-right: 14px;
-    }
-    .divider::after {
-      margin-left: 14px;
     }
 
-    .social-login {
-      display: flex;
+    .progress-percentage {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2c1e3f;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 32px 24px 16px;
+      color: #2c1e3f;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
-      justify-content: center;
+      padding: 0 24px;
     }
-    .social-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: #ffffff;
+
+    .subject-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px 16px;
+      box-shadow: 0 6px 15px -6px rgba(78, 53, 111, 0.15);
       border: 1.5px solid #ecdde6;
-      border-radius: 48px;
-      padding: 12px 0;
-      font-weight: 600;
-      font-size: 14px;
-      color: #4E356F;
-      cursor: pointer;
       transition: all 0.2s;
-      background-color: #fefafc;
+      cursor: pointer;
     }
-    .social-btn:active {
-      background-color: #f7eef3;
+
+    .subject-card:active {
       transform: scale(0.96);
       border-color: #EF9875;
     }
-    .social-icon {
-      font-size: 20px;
-      font-weight: 600;
+
+    .subject-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 8px;
     }
 
-    .meta-info {
-      text-align: center;
-      margin-top: 28px;
+    .subject-progress {
+      height: 6px;
+      background: #ecdde6;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .subject-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4E356F, #EF9875);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e9dee4;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 18px;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #9C6A82;
       font-size: 11px;
-      color: #bcafbf;
+      font-weight: 600;
+      gap: 4px;
+      cursor: pointer;
     }
 
-    @media (max-width: 450px) {
-      .screen-content {
-        padding: 28px 20px 36px;
-      }
+    .nav-item.active {
+      color: #4E356F;
+    }
+
+    .nav-icon {
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
   <div class="phone-frame">
-    <div class="screen-content">
-      <!-- Logo section -->
-      <div class="logo-area">
-        <div class="logo-placeholder">
-          <div class="logo-icon">A</div>
-          <span class="logo-text">Academi</span>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div>09:41</div>
+      <div>●●●●● ●●●</div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="greeting">Hi, Wina! <span>👋</span></div>
+        <div class="sub-greeting">Welcome back to your learning hub</div>
+      </div>
+
+      <!-- Profile with Dropdown -->
+      <div class="profile-section dropdown">
+        <div class="profile-circle" id="profileBtn">W</div>
+        
+        <!-- Dropdown Menu -->
+        <div class="dropdown-content" id="dropdownMenu">
+          <div class="dropdown-item" onclick="alert('Profile settings coming soon')">👤 My Profile</div>
+          <div class="dropdown-item" onclick="alert('Settings coming soon')">⚙️ Settings</div>
+          <div class="dropdown-item logout" onclick="logout()">🚪 Logout</div>
         </div>
       </div>
+    </div>
 
-      <!-- Login form -->
-      <div class="input-group">
-        <label class="input-label" for="username">Username</label>
-        <input type="text" id="username" class="input-field" placeholder="wina.va" value="wina.va">
+    <!-- Progress Card -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="ribbon">🎖️</span>
+        <div class="progress-title">Your Progress</div>
+      </div>
+      
+      <div class="progress-text">
+        Keep up the great work!<br>
+        You're doing amazing.
       </div>
 
-      <div class="input-group">
-        <label class="input-label" for="password">Password</label>
-        <input type="password" id="password" class="input-field" placeholder="••••••••">
-      </div>
-
-      <div class="forgot-row">
-        <a href="#" class="forgot-link">Forgot Password?</a>
-      </div>
-
-      <button class="btn-primary" id="loginBtn">Login</button>
-
-      <div class="signup-row">
-        <span class="signup-text">Don't have an account?</span>
-        <a href="register.html" class="signup-link">Sign Up</a>
-      </div>
-
-      <div class="divider">or</div>
-
-      <div class="social-login">
-        <div class="social-btn" id="googleBtn">
-          <span class="social-icon">G</span>
-          <span>Google</span>
+      <div class="performance">
+        <div class="circular-progress">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="bg-circle" cx="45" cy="45" r="38"/>
+            <circle class="progress-circle" cx="45" cy="45" r="38" 
+                    stroke-dasharray="238.76" stroke-dashoffset="23.876"/>
+          </svg>
+          <div class="progress-center">
+            <div class="progress-percentage">90%</div>
+            <div class="progress-label">Overall</div>
+          </div>
         </div>
-        <div class="social-btn" id="appleBtn">
-          <span class="social-icon"></span>
-          <span>Apple</span>
+
+        <div>
+          <div style="font-size: 14px; color: #6b5a7a;">Overall Performance</div>
+          <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
+          <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 170px;"></div>
         </div>
       </div>
-      <div class="meta-info">
-        Secure login · Academic Tracker
+    </div>
+
+    <!-- My Subjects -->
+    <div class="section-title">My Subjects</div>
+
+    <div class="subject-grid">
+      <div class="subject-card" onclick="alert('Opening Mathematics...')">
+        <div class="subject-name">Mathematics</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Advanced Algebra</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:92%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening Biology...')">
+        <div class="subject-name">Biology</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Human Anatomy</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:78%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening English Literature...')">
+        <div class="subject-name">English</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Literature & Composition</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:95%"></div></div>
+      </div>
+
+      <div class="subject-card" onclick="alert('Opening History...')">
+        <div class="subject-name">History</div>
+        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">World Civilization</div>
+        <div class="subject-progress"><div class="subject-progress-bar" style="width:65%"></div></div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+      </div>
+      <div class="nav-item" onclick="alert('Tracker section - Coming soon')">
+        <div class="nav-icon">📊</div>
+        <div>Tracker</div>
+      </div>
+      <div class="nav-item" onclick="alert('Reviewer section - Coming soon')">
+        <div class="nav-icon">📄</div>
+        <div>Reviewer</div>
+      </div>
+      <div class="nav-item" onclick="alert('Profile section - Coming soon')">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
       </div>
     </div>
   </div>
 
   <script>
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
 
-      if (username === "wina.va" && password === "11111111") {
-        // Successful login - redirect to dashboard
-        window.location.href = "dashboard.html";
-      } 
-      else if (username === "" || password === "") {
-        alert("Please enter username and password");
+    // Toggle dropdown when clicking profile circle
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking anywhere else
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.remove('show');
+    });
+
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        window.location.href = "index.html";
       }
-      else {
-        alert("Invalid credentials!\n\nHint: Use\nUsername: wina.va\nPassword: 11111111");
-      }
-    });
+    }
 
-    // Keep other demo buttons
-    document.getElementById('googleBtn').addEventListener('click', () => {
-      alert('Social login: Google (demo)');
-    });
+    // Update time in status bar
+    function updateTime() {
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0');
+      document.querySelector('.status-bar div:first-child').textContent = timeStr;
+    }
 
-    document.getElementById('appleBtn').addEventListener('click', () => {
-      alert('Social login: Apple ID (demo)');
-    });
-
-    document.querySelector('.forgot-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('Password reset link sent to registered email');
-    });
+    setInterval(updateTime, 60000);
+    updateTime();
   </script>
 </body>
 </html>
