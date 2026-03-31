@@ -63,18 +63,18 @@
       color: #4E356F;
     }
 
-    /* Controls */
     .reviewer-controls {
       padding: 16px 24px 12px;
       background: white;
       border-bottom: 1px solid #ecdde6;
       display: flex;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .control-btn {
-      padding: 8px 16px;
+      padding: 8px 14px;
       border: 1.5px solid #ecdde6;
       background: white;
       border-radius: 12px;
@@ -96,7 +96,6 @@
       border: none;
     }
 
-    /* Notes Area */
     .main-content {
       flex: 1;
       overflow-y: auto;
@@ -107,24 +106,25 @@
 
     .notes-area {
       width: 100%;
-      min-height: 400px;
+      min-height: 420px;
       border: 2px solid #ecdde6;
       border-radius: 20px;
       padding: 20px;
-      font-size: 16px;
-      line-height: 1.6;
       background: #fffdf7;
-      box-shadow: inset 0 4px 10px rgba(0,0,0,0.03);
-      resize: none;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.03);
       font-family: 'Inter', serif;
-    }
-
-    .notes-area:focus {
+      line-height: 1.7;
+      font-size: 17px;
       outline: none;
-      border-color: #4E356F;
+      overflow-y: auto;
     }
 
-    /* Bottom Navigation */
+    .notes-area mark {
+      background-color: #FFEB3B;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -162,30 +162,27 @@
 <body>
   <div class="phone-frame">
     
-    <!-- Status Bar -->
     <div class="status-bar"></div>
 
-    <!-- Header -->
     <div class="header">
       <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
       <div class="page-title">Reviewer</div>
       <div style="width:28px;"></div>
     </div>
 
-    <!-- Controls: Text Size & Highlight -->
+    <!-- Controls -->
     <div class="reviewer-controls">
-      <div class="control-btn active" id="sizeSmall" onclick="changeFontSize(14)">A-</div>
-      <div class="control-btn" id="sizeMedium" onclick="changeFontSize(17)">A</div>
-      <div class="control-btn" id="sizeLarge" onclick="changeFontSize(20)">A+</div>
-      
-      <button class="control-btn highlight-btn" onclick="highlightSelectedText()">
-        Highlight
-      </button>
+      <div class="control-btn" onclick="formatText('small')">A-</div>
+      <div class="control-btn" onclick="formatText('medium')">A</div>
+      <div class="control-btn" onclick="formatText('large')">A+</div>
+      <button class="control-btn highlight-btn" onclick="highlightSelectedText()">Highlight</button>
     </div>
 
-    <!-- Main Notes Area -->
+    <!-- Notes Area -->
     <div class="main-content">
-      <textarea id="notesArea" class="notes-area" placeholder="Start writing your notes here...&#10;You can highlight important parts."></textarea>
+      <div id="notesArea" class="notes-area" contenteditable="true" 
+           placeholder="Start writing your notes here... Select any text and customize it individually.">
+      </div>
     </div>
 
     <!-- Floating Bottom Navigation -->
@@ -211,68 +208,86 @@
 
   <script>
     const notesArea = document.getElementById('notesArea');
-    let currentSize = 17;
 
-    // Change font size
-    function changeFontSize(size) {
-      currentSize = size;
-      notesArea.style.fontSize = size + 'px';
+    // Format selected text (individual letters/words)
+    function formatText(size) {
+      const selection = window.getSelection();
+      
+      if (selection.rangeCount === 0 || selection.toString().trim() === '') {
+        alert("Please select some text first to change its size.");
+        return;
+      }
 
-      // Update active button
-      document.querySelectorAll('.control-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if ((size === 14 && btn.id === 'sizeSmall') ||
-            (size === 17 && btn.id === 'sizeMedium') ||
-            (size === 20 && btn.id === 'sizeLarge')) {
-          btn.classList.add('active');
-        }
-      });
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+
+      if (!selectedText) return;
+
+      let fontSize;
+      if (size === 'small') fontSize = '14px';
+      else if (size === 'medium') fontSize = '17px';
+      else if (size === 'large') fontSize = '21px';
+
+      // Create a span with the desired font size
+      const span = document.createElement('span');
+      span.style.fontSize = fontSize;
+      span.textContent = selectedText;
+
+      // Replace selected text with the styled span
+      range.deleteContents();
+      range.insertNode(span);
+
+      // Save notes
+      saveNotes();
     }
 
     // Highlight selected text
     function highlightSelectedText() {
-      const textarea = notesArea;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-
-      if (start === end) {
+      const selection = window.getSelection();
+      
+      if (selection.rangeCount === 0 || selection.toString().trim() === '') {
         alert("Please select some text to highlight.");
         return;
       }
 
-      const text = textarea.value;
-      const selectedText = text.substring(start, end);
-      const highlighted = `<mark style="background-color: #FFEB3B; padding: 2px 4px; border-radius: 3px;">${selectedText}</mark>`;
+      const range = selection.getRangeAt(0);
+      const mark = document.createElement('mark');
+      mark.textContent = range.toString();
 
-      // For simplicity, we'll wrap with <mark> tag (works in contenteditable, but here we simulate)
-      // Since textarea doesn't support HTML, we'll show alert for now and suggest using contenteditable later if needed
+      range.deleteContents();
+      range.insertNode(mark);
 
-      alert("Highlight feature in textarea is limited.\n\nSelected text would be highlighted if we used a contenteditable div.\n\nFor now, you can manually add **important** notes.");
-      
-      // Optional: You can replace the text with bold or something
-      // textarea.value = text.substring(0, start) + "**" + selectedText + "**" + text.substring(end);
+      saveNotes();
     }
 
-    // Auto-save notes to localStorage
+    // Auto-save notes
     function saveNotes() {
-      localStorage.setItem('reviewerNotes', notesArea.value);
+      localStorage.setItem('reviewerNotes', notesArea.innerHTML);
     }
 
     // Load saved notes
     function loadNotes() {
       const saved = localStorage.getItem('reviewerNotes');
       if (saved) {
-        notesArea.value = saved;
+        notesArea.innerHTML = saved;
       }
     }
 
-    // Event listeners
-    notesArea.addEventListener('input', saveNotes);
+    // Save when user stops typing (debounced)
+    let timeout;
+    notesArea.addEventListener('input', () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(saveNotes, 800);
+    });
 
     // Initialize
     window.onload = () => {
       loadNotes();
-      changeFontSize(17); // Default medium size
+      
+      // Optional: Add placeholder behavior
+      if (!notesArea.innerHTML.trim()) {
+        notesArea.innerHTML = '<p style="color:#999;">Start writing your notes here...<br>Select any text and use the buttons above to customize font size or highlight.</p>';
+      }
     };
   </script>
 </body>
