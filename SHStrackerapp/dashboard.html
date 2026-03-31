@@ -1,4 +1,3 @@
-<DOCUMENT filename="dashboard (3).html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,16 +29,13 @@
       overflow: hidden;
       height: 780px;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .status-bar {
       height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center; /* Centered since we removed content */
-      padding: 0 24px;
-      font-size: 13px;
-      color: #333;
+      background: white;
     }
 
     .header {
@@ -253,7 +249,14 @@
       background: linear-gradient(90deg, #4E356F, #EF9875);
     }
 
-    /* Bottom Navigation */
+    /* Main Content - Scrollable */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px; /* Space for bottom navigation */
+    }
+
+    /* Bottom Navigation - Always Fixed */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -265,6 +268,7 @@
       justify-content: space-around;
       padding: 12px 0 18px;
       box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+      z-index: 10;
     }
 
     .nav-item {
@@ -290,7 +294,7 @@
 <body>
   <div class="phone-frame">
     
-    <!-- Status Bar (Cleaned - no time or signal) -->
+    <!-- Status Bar -->
     <div class="status-bar"></div>
 
     <!-- Header -->
@@ -313,78 +317,81 @@
       </div>
     </div>
 
-    <!-- Progress Card -->
-    <div class="progress-card">
-      <div class="progress-header">
-        <span class="ribbon">🎖️</span>
-        <div class="progress-title">Your Progress</div>
-      </div>
-      
-      <div class="progress-text">
-        Keep up the great work!<br>
-        You're doing amazing.
-      </div>
+    <!-- Scrollable Main Content -->
+    <div class="main-content">
+      <!-- Progress Card -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="ribbon">🎖️</span>
+          <div class="progress-title">Your Progress</div>
+        </div>
+        
+        <div class="progress-text">
+          Keep up the great work!<br>
+          You're doing amazing.
+        </div>
 
-      <div class="performance">
-        <div class="circular-progress">
-          <svg width="90" height="90" viewBox="0 0 90 90">
-            <circle class="bg-circle" cx="45" cy="45" r="38"/>
-            <circle class="progress-circle" cx="45" cy="45" r="38" 
-                    stroke-dasharray="238.76" stroke-dashoffset="23.876"/>
-          </svg>
-          <div class="progress-center">
-            <div class="progress-percentage">90%</div>
-            <div class="progress-label">Overall</div>
+        <div class="performance">
+          <div class="circular-progress">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle class="bg-circle" cx="45" cy="45" r="38"/>
+              <circle class="progress-circle" cx="45" cy="45" r="38" 
+                      stroke-dasharray="238.76" stroke-dashoffset="23.876"/>
+            </svg>
+            <div class="progress-center">
+              <div class="progress-percentage">90%</div>
+              <div class="progress-label">Overall</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 14px; color: #6b5a7a;">Overall Performance</div>
+            <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
+            <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 170px;"></div>
           </div>
         </div>
+      </div>
 
-        <div>
-          <div style="font-size: 14px; color: #6b5a7a;">Overall Performance</div>
-          <div style="font-size: 28px; font-weight: 800; color: #4E356F; margin-top: 4px;">90%</div>
-          <div style="height: 8px; background: linear-gradient(90deg, #4E356F, #EF9875); border-radius: 4px; margin-top: 12px; width: 170px;"></div>
+      <!-- My Subjects -->
+      <div class="section-title">My Subjects</div>
+
+      <div class="subject-grid">
+        <div class="subject-card" onclick="alert('Opening Mathematics...')">
+          <div class="subject-name">Mathematics</div>
+          <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Advanced Algebra</div>
+          <div class="subject-progress"><div class="subject-progress-bar" style="width:92%"></div></div>
+        </div>
+
+        <div class="subject-card" onclick="alert('Opening Biology...')">
+          <div class="subject-name">Biology</div>
+          <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Human Anatomy</div>
+          <div class="subject-progress"><div class="subject-progress-bar" style="width:78%"></div></div>
+        </div>
+
+        <div class="subject-card" onclick="alert('Opening English Literature...')">
+          <div class="subject-name">English</div>
+          <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Literature & Composition</div>
+          <div class="subject-progress"><div class="subject-progress-bar" style="width:95%"></div></div>
+        </div>
+
+        <div class="subject-card" onclick="alert('Opening History...')">
+          <div class="subject-name">History</div>
+          <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">World Civilization</div>
+          <div class="subject-progress"><div class="subject-progress-bar" style="width:65%"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- My Subjects -->
-    <div class="section-title">My Subjects</div>
-
-    <div class="subject-grid">
-      <div class="subject-card" onclick="alert('Opening Mathematics...')">
-        <div class="subject-name">Mathematics</div>
-        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Advanced Algebra</div>
-        <div class="subject-progress"><div class="subject-progress-bar" style="width:92%"></div></div>
-      </div>
-
-      <div class="subject-card" onclick="alert('Opening Biology...')">
-        <div class="subject-name">Biology</div>
-        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Human Anatomy</div>
-        <div class="subject-progress"><div class="subject-progress-bar" style="width:78%"></div></div>
-      </div>
-
-      <div class="subject-card" onclick="alert('Opening English Literature...')">
-        <div class="subject-name">English</div>
-        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">Literature & Composition</div>
-        <div class="subject-progress"><div class="subject-progress-bar" style="width:95%"></div></div>
-      </div>
-
-      <div class="subject-card" onclick="alert('Opening History...')">
-        <div class="subject-name">History</div>
-        <div style="font-size:13px; color:#6b5a7a; margin-bottom:8px;">World Civilization</div>
-        <div class="subject-progress"><div class="subject-progress-bar" style="width:65%"></div></div>
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation - Always Fixed -->
     <div class="bottom-nav">
       <div class="nav-item active">
         <div class="nav-icon">🏠</div>
         <div>Home</div>
       </div>
-<div class="nav-item" onclick="window.location.href='tracker.html'">
-  <div class="nav-icon">📊</div>
-  <div>Tracker</div>
-</div>
+      <div class="nav-item" onclick="window.location.href='tracker.html'">
+        <div class="nav-icon">📊</div>
+        <div>Tracker</div>
+      </div>
       <div class="nav-item" onclick="alert('Reviewer section - Coming soon')">
         <div class="nav-icon">📄</div>
         <div>Reviewer</div>
@@ -419,4 +426,3 @@
   </script>
 </body>
 </html>
-</DOCUMENT>
