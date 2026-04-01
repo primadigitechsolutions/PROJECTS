@@ -10,34 +10,41 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f8f4fa;
       color: #2c1e3f;
       min-height: 100vh;
-      padding: 20px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 20px 16px;
+      overflow: hidden; /* Prevent body scroll */
     }
+
     .phone-frame {
-      max-width: 380px;
       width: 100%;
+      max-width: 380px;
+      height: 100vh;
+      min-height: 100dvh;
+      max-height: 100dvh;
       background: white;
       border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
       overflow: hidden;
-      height: 100vh;
-      min-height: 100dvh;
-      position: relative;
       display: flex;
       flex-direction: column;
+      position: relative;
+      border: 12px solid #111; /* Optional: realistic phone border */
     }
+
     .status-bar {
       height: 44px;
       background: white;
       flex-shrink: 0;
     }
+
     .header {
       padding: 0 24px;
       display: flex;
@@ -46,25 +53,27 @@
       margin-top: 8px;
       flex-shrink: 0;
     }
+
     .greeting {
       font-size: 24px;
       font-weight: 700;
       color: #2c1e3f;
     }
+
     .greeting span {
       color: #EF9875;
     }
+
     .sub-greeting {
       font-size: 15px;
       color: #6b5a7a;
       margin-top: 4px;
     }
+
     .profile-section {
-      display: flex;
-      align-items: center;
-      gap: 12px;
       position: relative;
     }
+
     .profile-circle {
       width: 42px;
       height: 42px;
@@ -79,26 +88,26 @@
       box-shadow: 0 4px 10px rgba(78, 53, 111, 0.3);
       cursor: pointer;
     }
-    /* Dropdown Menu */
-    .dropdown {
-      position: relative;
-    }
+
+    /* Dropdown */
     .dropdown-content {
       display: none;
       position: absolute;
       right: 0;
-      top: 50px;
+      top: 52px;
       background: white;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       border-radius: 16px;
       width: 180px;
       overflow: hidden;
-      z-index: 100;
+      z-index: 1000;
       border: 1px solid #ecdde6;
     }
+
     .dropdown-content.show {
       display: block;
     }
+
     .dropdown-item {
       padding: 14px 20px;
       font-size: 15px;
@@ -106,9 +115,11 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+
     .dropdown-item:hover {
       background: #f8f4fa;
     }
+
     .dropdown-item.logout {
       color: #e07a5f;
       font-weight: 600;
@@ -122,51 +133,62 @@
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 10px 20px -8px rgba(78, 53, 111, 0.15);
+      flex-shrink: 0;
     }
+
     .progress-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 12px;
     }
+
     .ribbon {
       font-size: 28px;
     }
+
     .progress-title {
       font-size: 18px;
       font-weight: 700;
       color: #4E356F;
     }
+
     .progress-text {
       font-size: 15px;
       color: #2c1e3f;
       margin-bottom: 16px;
       line-height: 1.4;
     }
+
     .performance {
       display: flex;
       align-items: center;
       gap: 20px;
     }
+
     .circular-progress {
       width: 90px;
       height: 90px;
       position: relative;
     }
+
     .circular-progress svg {
       transform: rotate(-90deg);
     }
+
     .circular-progress .bg-circle {
       fill: none;
       stroke: #ecdde6;
       stroke-width: 12;
     }
+
     .circular-progress .progress-circle {
       fill: none;
       stroke: #4E356F;
       stroke-width: 12;
       stroke-linecap: round;
     }
+
     .progress-center {
       position: absolute;
       top: 50%;
@@ -174,23 +196,40 @@
       transform: translate(-50%, -50%);
       text-align: center;
     }
+
     .progress-percentage {
       font-size: 22px;
       font-weight: 800;
       color: #2c1e3f;
     }
+
     .section-title {
       font-size: 20px;
       font-weight: 700;
       margin: 32px 24px 16px;
       color: #2c1e3f;
+      flex-shrink: 0;
     }
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 20px;
+      scrollbar-width: none; /* Hide scrollbar */
+    }
+
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+
     .subject-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-      padding: 0 24px 20px;
+      padding: 0 24px;
     }
+
     .subject-card {
       background: white;
       border-radius: 20px;
@@ -200,32 +239,31 @@
       transition: all 0.2s;
       cursor: pointer;
     }
+
     .subject-card:active {
       transform: scale(0.96);
       border-color: #EF9875;
     }
+
     .subject-name {
       font-size: 16px;
       font-weight: 700;
       color: #4E356F;
       margin-bottom: 8px;
     }
+
     .subject-progress {
       height: 6px;
       background: #ecdde6;
       border-radius: 10px;
       overflow: hidden;
     }
+
     .subject-progress-bar {
       height: 100%;
       background: linear-gradient(90deg, #4E356F, #EF9875);
     }
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 110px;
-      -webkit-overflow-scrolling: touch;
-    }
+
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -238,7 +276,9 @@
       justify-content: space-around;
       padding: 12px 0 22px;
       z-index: 100;
+      flex-shrink: 0;
     }
+
     .nav-item {
       display: flex;
       flex-direction: column;
@@ -249,9 +289,11 @@
       gap: 4px;
       cursor: pointer;
     }
+
     .nav-item.active {
       color: #4E356F;
     }
+
     .nav-icon {
       font-size: 24px;
     }
@@ -259,7 +301,6 @@
 </head>
 <body>
   <div class="phone-frame">
-  
     <!-- Status Bar -->
     <div class="status-bar"></div>
 
@@ -273,7 +314,6 @@
       <!-- Profile with Dropdown -->
       <div class="profile-section dropdown">
         <div class="profile-circle" id="profileBtn">W</div>
-      
         <div class="dropdown-content" id="dropdownMenu">
           <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
           <div class="dropdown-item" onclick="alert('Settings coming soon')">⚙️ Settings</div>
@@ -303,7 +343,7 @@
             </svg>
             <div class="progress-center">
               <div class="progress-percentage">90%</div>
-              <div class="progress-label">Overall</div>
+              <div style="font-size:12px; color:#6b5a7a;">Overall</div>
             </div>
           </div>
           <div>
@@ -340,7 +380,7 @@
       </div>
     </div>
 
-    <!-- Floating Bottom Navigation -->
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
       <div class="nav-item active">
         <div class="nav-icon">🏠</div>
@@ -361,14 +401,10 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      signOut 
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -389,7 +425,6 @@
         const displayName = user.displayName || user.email?.split('@')[0] || "Student";
         document.getElementById('userName').textContent = displayName;
         document.getElementById('userEmail').textContent = user.email || "Welcome back";
-
         const firstLetter = displayName.charAt(0).toUpperCase();
         document.getElementById('profileBtn').textContent = firstLetter;
       } else {
@@ -408,7 +443,7 @@
       }
     }
 
-    // Dropdown
+    // Dropdown functionality
     const profileBtn = document.getElementById('profileBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
 
