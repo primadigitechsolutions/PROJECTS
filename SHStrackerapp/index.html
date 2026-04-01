@@ -264,29 +264,58 @@
 
       <div class="divider">or</div>
 
+      <!-- Social Login -->
       <div class="social-login">
         <div class="social-btn" id="googleBtn">
           <span class="social-icon">G</span>
-          <span>Google</span>
+          <span>Continue with Google</span>
         </div>
         <div class="social-btn" id="appleBtn">
           <span class="social-icon"></span>
           <span>Apple</span>
         </div>
       </div>
+
       <div class="meta-info">
         Secure login · Academic Tracker
       </div>
     </div>
   </div>
 
-  <script>
+  <!-- Firebase SDK - Modular v10 -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+      authDomain: "shstrackerapp.firebaseapp.com",
+      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+      projectId: "shstrackerapp",
+      storageBucket: "shstrackerapp.firebasestorage.app",
+      messagingSenderId: "807451936679",
+      appId: "1:807451936679:web:37fa86f3b272afe9505882",
+      measurementId: "G-Y8WM86KTCG"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Optional: Force account selection
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
+    // ====================== Email/Password Login ======================
     document.getElementById('loginBtn').addEventListener('click', () => {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
 
       if (username === "wina.va" && password === "11111111") {
-        // Successful login - redirect to dashboard
         window.location.href = "dashboard.html";
       } 
       else if (username === "" || password === "") {
@@ -297,18 +326,52 @@
       }
     });
 
-    // Keep other demo buttons
-    document.getElementById('googleBtn').addEventListener('click', () => {
-      alert('Social login: Google (demo)');
+    // ====================== Google Sign-In ======================
+    document.getElementById('googleBtn').addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        console.log("✅ Google Sign-In Successful!", {
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL
+        });
+
+        // Redirect to dashboard after successful Google login
+        window.location.href = "dashboard.html";
+
+      } catch (error) {
+        console.error("❌ Google Sign-In Error:", error);
+
+        if (error.code === 'auth/popup-blocked') {
+          alert("Popup was blocked by your browser.\nPlease allow popups for this site and try again.");
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          // User closed the popup manually
+          console.log("User cancelled Google sign-in");
+        } else {
+          alert("Google Sign-In failed.\n\n" + error.message);
+        }
+      }
     });
 
+    // ====================== Apple Button (Demo) ======================
     document.getElementById('appleBtn').addEventListener('click', () => {
-      alert('Social login: Apple ID (demo)');
+      alert('Apple Sign-In is not implemented yet (demo only)');
     });
 
+    // ====================== Forgot Password ======================
     document.querySelector('.forgot-link').addEventListener('click', (e) => {
       e.preventDefault();
       alert('Password reset link sent to registered email');
+    });
+
+    // ====================== Auth State Listener ======================
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User is already signed in:", user.email);
+        // You can auto-redirect here in the future if you want persistent login
+      }
     });
   </script>
 </body>
