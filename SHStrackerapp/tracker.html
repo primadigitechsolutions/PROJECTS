@@ -5,13 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <title>Tracker | Academic Portal</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: #f8f4fa;
       color: #2c1e3f;
       min-height: 100vh;
@@ -21,172 +17,67 @@
       justify-content: center;
     }
     .phone-frame {
-      max-width: 380px;
-      width: 100%;
-      background: white;
-      border-radius: 48px;
+      max-width: 380px; width: 100%; background: white; border-radius: 48px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
-      overflow: hidden;
-      height: 100vh;
-      min-height: 100dvh;
-      position: relative;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden; height: 100vh; position: relative; display: flex; flex-direction: column;
     }
-    .status-bar {
-      height: 44px;
-      background: white;
-      flex-shrink: 0;
-    }
+    .status-bar { height: 44px; background: white; flex-shrink: 0; }
     .header {
-      padding: 0 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      flex-shrink: 0;
+      padding: 0 24px; display: flex; justify-content: space-between; align-items: center;
+      margin-top: 8px; flex-shrink: 0;
     }
-    .page-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #2c1e3f;
-    }
-    .back-btn {
-      font-size: 28px;
-      cursor: pointer;
-      color: #4E356F;
-    }
-    .greeting {
-      font-size: 20px;
-      font-weight: 600;
-      color: #4E356F;
-      margin: 12px 24px 8px;
-    }
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 110px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .container {
-      padding: 0 24px;
-    }
-    .subject-select {
-      margin: 20px 0;
-    }
+    .page-title { font-size: 24px; font-weight: 700; color: #2c1e3f; }
+    .back-btn { font-size: 28px; cursor: pointer; color: #4E356F; }
+    .greeting { font-size: 20px; font-weight: 600; color: #4E356F; margin: 12px 24px 8px; }
+
+    .main-content { flex: 1; overflow-y: auto; padding-bottom: 110px; }
+    .container { padding: 0 24px; }
+
     select, input, button {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1.5px solid #ecdde6;
-      border-radius: 16px;
-      font-size: 16px;
+      width: 100%; padding: 14px; margin-bottom: 12px;
+      border: 1.5px solid #ecdde6; border-radius: 16px; font-size: 16px;
     }
     .category-btns {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
     }
     .category-btn {
-      flex: 1;
-      padding: 12px 16px;
-      border: 1.5px solid #ecdde6;
-      background: white;
-      border-radius: 16px;
-      text-align: center;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      flex: 1; padding: 12px 16px; border: 1.5px solid #ecdde6;
+      background: white; border-radius: 16px; text-align: center;
+      font-weight: 600; cursor: pointer;
     }
     .category-btn.active {
-      background: #4E356F;
-      color: white;
-      border-color: #4E356F;
+      background: #4E356F; color: white; border-color: #4E356F;
     }
-    .score-input {
-      display: flex;
-      gap: 10px;
+    .score-input { display: flex; gap: 10px; }
+    .score-input input { flex: 1; }
+    #addScore {
+      background: #4E356F; color: white; border: none; font-weight: 700;
+      padding: 14px; border-radius: 16px; width: 100%;
     }
-    .score-input input {
-      flex: 1;
-    }
-    button#addScore {
-      background: #4E356F;
-      color: white;
-      border: none;
-      font-weight: 700;
-      margin-top: 8px;
-      padding: 14px;
-      border-radius: 16px;
-      width: 100%;
-    }
-    .entries {
-      margin-top: 24px;
-    }
+    .entries { margin-top: 24px; }
     .entry {
-      background: #f8f4fa;
-      padding: 14px;
-      border-radius: 16px;
-      margin-bottom: 10px;
-      font-size: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #f8f4fa; padding: 14px; border-radius: 16px;
+      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
     }
-    .delete-btn {
-      color: #e07a5f;
-      font-weight: bold;
-      cursor: pointer;
-      padding: 0 8px;
-    }
+    .delete-btn { color: #e07a5f; font-weight: bold; cursor: pointer; padding: 0 8px; }
     .summary {
-      margin-top: 32px;
-      background: white;
-      border: 2px solid #4E356F;
-      border-radius: 20px;
-      padding: 20px;
-    }
-    .summary h3 {
-      color: #4E356F;
-      margin-bottom: 16px;
+      margin-top: 32px; background: white; border: 2px solid #4E356F;
+      border-radius: 20px; padding: 20px;
     }
     .final-grade {
-      font-size: 32px;
-      font-weight: 800;
-      color: #4E356F;
-      text-align: center;
-      margin: 12px 0;
+      font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 12px 0;
     }
     .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #e9dee4;
-      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0 22px;
-      z-index: 100;
+      position: absolute; bottom: 0; left: 0; right: 0; background: white;
+      border-top: 1px solid #e9dee4; box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
+      display: flex; justify-content: space-around; padding: 12px 0 22px; z-index: 100;
     }
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #9C6A82;
-      font-size: 11px;
-      font-weight: 600;
-      gap: 4px;
-      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center;
+      color: #9C6A82; font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer;
     }
-    .nav-item.active {
-      color: #4E356F;
-    }
-    .nav-icon {
-      font-size: 24px;
-    }
+    .nav-item.active { color: #4E356F; }
+    .nav-icon { font-size: 24px; }
   </style>
 </head>
 <body>
@@ -238,34 +129,17 @@
     </div>
 
     <div class="bottom-nav">
-      <div class="nav-item" onclick="window.location.href='dashboard.html'">
-        <div class="nav-icon">🏠</div>
-        <div>Home</div>
-      </div>
-      <div class="nav-item active">
-        <div class="nav-icon">📊</div>
-        <div>Tracker</div>
-      </div>
-      <div class="nav-item" onclick="window.location.href='reviewer.html'">
-        <div class="nav-icon">📄</div>
-        <div>Reviewer</div>
-      </div>
-      <div class="nav-item" onclick="window.location.href='profile.html'">
-        <div class="nav-icon">👤</div>
-        <div>Profile</div>
-      </div>
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div><div>Home</div></div>
+      <div class="nav-item active"><div class="nav-icon">📊</div><div>Tracker</div></div>
+      <div class="nav-item" onclick="window.location.href='reviewer.html'"><div class="nav-icon">📄</div><div>Reviewer</div></div>
+      <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">👤</div><div>Profile</div></div>
     </div>
   </div>
 
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      signOut 
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -275,8 +149,7 @@
       projectId: "shstrackerapp",
       storageBucket: "shstrackerapp.firebasestorage.app",
       messagingSenderId: "807451936679",
-      appId: "1:807451936679:web:37fa86f3b272afe9505882",
-      measurementId: "G-Y8WM86KTCG"
+      appId: "1:807451936679:web:37fa86f3b272afe9505882"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -290,13 +163,11 @@
     const categoryBtns = document.querySelectorAll('.category-btn');
     let currentCategory = 'WW';
 
-    // ====================== Account Sync ======================
+    // ====================== Auth & User Sync ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
-        const displayName = user.displayName || user.email?.split('@')[0] || "Student";
-        document.getElementById('userName').textContent = displayName;
-
+        document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || "Student";
         loadScoresFromFirebase();
       } else {
         window.location.href = "login.html";
@@ -306,18 +177,20 @@
     // ====================== Firebase Save / Load ======================
     function saveScoresToFirebase() {
       if (!currentUserId) return;
-      const scoresRef = ref(database, 'users/' + currentUserId + '/trackerScores');
+      const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
       set(scoresRef, scores);
     }
 
     function loadScoresFromFirebase() {
       if (!currentUserId) return;
-      const scoresRef = ref(database, 'users/' + currentUserId + '/trackerScores');
+      const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
 
       onValue(scoresRef, (snapshot) => {
-        const saved = snapshot.val();
-        if (saved) {
-          scores = saved;
+        const data = snapshot.val();
+        if (data) {
+          scores.WW = data.WW || [];
+          scores.PT = data.PT || [];
+          scores.QA = data.QA || [];
         } else {
           scores = { WW: [], PT: [], QA: [] };
         }
@@ -326,7 +199,7 @@
       });
     }
 
-    // ====================== Category Selection ======================
+    // ====================== Tracker Logic ======================
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -335,7 +208,6 @@
       });
     });
 
-    // ====================== Add Score ======================
     document.getElementById('addScore').addEventListener('click', () => {
       const scoreVal = parseFloat(document.getElementById('score').value);
       const totalVal = parseFloat(document.getElementById('total').value);
@@ -349,28 +221,25 @@
         return;
       }
 
-      // Add to current category
       scores[currentCategory].push({
         subject: subjectSelect.value,
         score: scoreVal,
         total: totalVal
       });
 
-      // Clear inputs
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
 
       renderEntries();
       calculateGrades();
-      saveScoresToFirebase();   // Save immediately
+      saveScoresToFirebase();
     });
 
-    // ====================== Render Entries ======================
     function renderEntries() {
       const list = document.getElementById('entriesList');
       list.innerHTML = '';
 
-      Object.keys(scores).forEach(cat => {
+      ['WW', 'PT', 'QA'].forEach(cat => {
         if (scores[cat] && scores[cat].length > 0) {
           const header = document.createElement('div');
           header.innerHTML = `<strong>${getCategoryName(cat)}:</strong>`;
@@ -390,7 +259,6 @@
       });
     }
 
-    // ====================== Delete Score ======================
     window.deleteScore = function(category, index) {
       if (confirm("Delete this score?")) {
         scores[category].splice(index, 1);
@@ -406,7 +274,6 @@
       return 'Quarterly Assessment';
     }
 
-    // ====================== Grade Calculation ======================
     function calculateAverage(category) {
       if (!scores[category] || scores[category].length === 0) return 0;
       let totalPercent = 0;
@@ -416,18 +283,13 @@
       return totalPercent / scores[category].length;
     }
 
-    function getWeights() {
-      return { WW: 0.25, PT: 0.50, QA: 0.25 };
-    }
-
     function calculateGrades() {
       const avgWW = calculateAverage('WW');
       const avgPT = calculateAverage('PT');
       const avgQA = calculateAverage('QA');
-      const weights = getWeights();
-      const finalGrade = (avgWW * weights.WW) + (avgPT * weights.PT) + (avgQA * weights.QA);
+      const finalGrade = (avgWW * 0.25) + (avgPT * 0.50) + (avgQA * 0.25);
 
-      const summaryHTML = `
+      document.getElementById('summaryContent').innerHTML = `
         <div style="margin-bottom:12px;">
           <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
         </div>
@@ -439,16 +301,13 @@
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade (Core Subject)</div>
+        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade</div>
       `;
-      document.getElementById('summaryContent').innerHTML = summaryHTML;
     }
 
     function logout() {
       if (confirm("Are you sure you want to logout?")) {
-        signOut(auth).then(() => {
-          window.location.href = "login.html";
-        });
+        signOut(auth).then(() => window.location.href = "login.html");
       }
     }
   </script>
