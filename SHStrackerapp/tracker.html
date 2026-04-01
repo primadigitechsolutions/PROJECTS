@@ -191,7 +191,6 @@
 </head>
 <body>
   <div class="phone-frame">
-   
     <div class="status-bar"></div>
 
     <div class="header">
@@ -304,7 +303,7 @@
       }
     });
 
-    // ====================== Firebase Functions ======================
+    // ====================== Firebase Save / Load ======================
     function saveScoresToFirebase() {
       if (!currentUserId) return;
       const scoresRef = ref(database, 'users/' + currentUserId + '/trackerScores');
@@ -327,7 +326,7 @@
       });
     }
 
-    // ====================== Tracker Logic ======================
+    // ====================== Category Selection ======================
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -336,6 +335,7 @@
       });
     });
 
+    // ====================== Add Score ======================
     document.getElementById('addScore').addEventListener('click', () => {
       const scoreVal = parseFloat(document.getElementById('score').value);
       const totalVal = parseFloat(document.getElementById('total').value);
@@ -349,12 +349,14 @@
         return;
       }
 
+      // Add to current category
       scores[currentCategory].push({
         subject: subjectSelect.value,
         score: scoreVal,
         total: totalVal
       });
 
+      // Clear inputs
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
 
@@ -363,6 +365,7 @@
       saveScoresToFirebase();   // Save immediately
     });
 
+    // ====================== Render Entries ======================
     function renderEntries() {
       const list = document.getElementById('entriesList');
       list.innerHTML = '';
@@ -387,6 +390,7 @@
       });
     }
 
+    // ====================== Delete Score ======================
     window.deleteScore = function(category, index) {
       if (confirm("Delete this score?")) {
         scores[category].splice(index, 1);
@@ -402,6 +406,7 @@
       return 'Quarterly Assessment';
     }
 
+    // ====================== Grade Calculation ======================
     function calculateAverage(category) {
       if (!scores[category] || scores[category].length === 0) return 0;
       let totalPercent = 0;
@@ -434,7 +439,7 @@
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade</div>
+        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade (Core Subject)</div>
       `;
       document.getElementById('summaryContent').innerHTML = summaryHTML;
     }
