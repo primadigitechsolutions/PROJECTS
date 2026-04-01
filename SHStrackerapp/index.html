@@ -269,7 +269,6 @@
 
   <!-- Firebase SDK - Modular v10 -->
   <script type="module">
-    // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { 
       getAuth, 
@@ -279,7 +278,7 @@
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-    // Your Firebase configuration
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
@@ -291,7 +290,6 @@
       measurementId: "G-Y8WM86KTCG"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
@@ -314,15 +312,17 @@
       }
     });
 
-    // ====================== Google Button Behavior ======================
+    // ====================== Google Button - Trigger Native Android Login ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
-      // If running inside Android native app → do nothing (native button will handle login)
-      if (typeof Android !== 'undefined') {
-        console.log("✅ Running in Android native app - Using native Google Sign-In");
+      
+      // If running inside Android app → call native Google Sign-In
+      if (typeof Android !== 'undefined' && typeof Android.requestGoogleSignIn === 'function') {
+        console.log("🔄 Android app detected - Requesting native Google Sign-In");
+        Android.requestGoogleSignIn();
         return;
       }
 
-      // Normal popup flow for web browsers
+      // Normal popup flow for browsers (when opened on computer or Chrome)
       try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
@@ -331,15 +331,14 @@
       } catch (error) {
         console.error("❌ Google Sign-In Error:", error);
         if (error.code === 'auth/popup-blocked') {
-          alert("Popup was blocked. Please allow popups and try again.");
+          alert("Popup was blocked by browser. Please allow popups and try again.");
         } else {
           alert("Google Sign-In failed.\n\n" + error.message);
         }
       }
     });
 
-    // ====================== Handle Native Android Google Login ======================
-    // This function is called automatically from the Android app after successful native sign-in
+    // ====================== Handle Native Android Google Login Response ======================
     window.handleNativeGoogleLogin = async (googleIdToken) => {
       if (!googleIdToken) {
         console.error("No Google ID Token received from Android");
@@ -347,7 +346,7 @@
       }
 
       try {
-        console.log("🔄 Received Google ID Token from Android native app");
+        console.log("🔄 Processing Google ID Token from Android...");
 
         const credential = GoogleAuthProvider.credential(googleIdToken);
         const result = await signInWithCredential(auth, credential);
@@ -355,12 +354,12 @@
 
         console.log("✅ Successfully signed in via Native Android!", user.email);
 
-        // Auto redirect to dashboard (same as original behavior)
+        // Auto redirect to dashboard
         window.location.href = "dashboard.html";
 
       } catch (error) {
         console.error("❌ Failed to sign in with native token:", error);
-        alert("Google Sign-In failed. Please try again.\n\n" + error.message);
+        alert("Google Sign-In failed. Please try again.");
       }
     };
 
@@ -379,8 +378,6 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("👤 User is already signed in:", user.email);
-        // Optional: Auto redirect if you want persistent login
-        // window.location.href = "dashboard.html";
       }
     });
   </script>
