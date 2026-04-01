@@ -10,7 +10,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f8f4fa;
@@ -21,7 +20,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .phone-frame {
       max-width: 380px;
       width: 100%;
@@ -35,13 +33,11 @@
       display: flex;
       flex-direction: column;
     }
-
     .status-bar {
       height: 44px;
       background: white;
       flex-shrink: 0;
     }
-
     .header {
       padding: 0 24px;
       display: flex;
@@ -50,19 +46,22 @@
       margin-top: 8px;
       flex-shrink: 0;
     }
-
     .page-title {
       font-size: 24px;
       font-weight: 700;
       color: #2c1e3f;
     }
-
     .back-btn {
       font-size: 28px;
       cursor: pointer;
       color: #4E356F;
     }
-
+    .greeting {
+      font-size: 20px;
+      font-weight: 600;
+      color: #4E356F;
+      margin-bottom: 8px;
+    }
     /* Scrollable Main Content */
     .main-content {
       flex: 1;
@@ -70,15 +69,12 @@
       padding-bottom: 110px;
       -webkit-overflow-scrolling: touch;
     }
-
     .container {
       padding: 0 24px;
     }
-
     .subject-select {
       margin: 20px 0;
     }
-
     select, input, button {
       width: 100%;
       padding: 14px;
@@ -87,14 +83,12 @@
       border-radius: 16px;
       font-size: 16px;
     }
-
     .category-btns {
       display: flex;
       gap: 8px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
     .category-btn {
       flex: 1;
       padding: 12px 16px;
@@ -106,22 +100,18 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-
     .category-btn.active {
       background: #4E356F;
       color: white;
       border-color: #4E356F;
     }
-
     .score-input {
       display: flex;
       gap: 10px;
     }
-
     .score-input input {
       flex: 1;
     }
-
     button#addScore {
       background: #4E356F;
       color: white;
@@ -132,11 +122,9 @@
       border-radius: 16px;
       width: 100%;
     }
-
     .entries {
       margin-top: 24px;
     }
-
     .entry {
       background: #f8f4fa;
       padding: 14px;
@@ -146,7 +134,6 @@
       display: flex;
       justify-content: space-between;
     }
-
     .summary {
       margin-top: 32px;
       background: white;
@@ -154,12 +141,10 @@
       border-radius: 20px;
       padding: 20px;
     }
-
     .summary h3 {
       color: #4E356F;
       margin-bottom: 16px;
     }
-
     .final-grade {
       font-size: 32px;
       font-weight: 800;
@@ -167,8 +152,7 @@
       text-align: center;
       margin: 12px 0;
     }
-
-    /* Floating Bottom Navigation */
+    /* Bottom Navigation */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -182,7 +166,6 @@
       padding: 12px 0 22px;
       z-index: 100;
     }
-
     .nav-item {
       display: flex;
       flex-direction: column;
@@ -193,11 +176,9 @@
       gap: 4px;
       cursor: pointer;
     }
-
     .nav-item.active {
       color: #4E356F;
     }
-
     .nav-icon {
       font-size: 24px;
     }
@@ -205,7 +186,7 @@
 </head>
 <body>
   <div class="phone-frame">
-    
+   
     <!-- Status Bar -->
     <div class="status-bar"></div>
 
@@ -214,6 +195,11 @@
       <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
       <div class="page-title">Grade Tracker</div>
       <div style="width:28px;"></div>
+    </div>
+
+    <!-- Greeting -->
+    <div class="container">
+      <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
     </div>
 
     <!-- Scrollable Main Content -->
@@ -242,9 +228,7 @@
 
         <button id="addScore">+ Add Score</button>
 
-        <div class="entries" id="entriesList">
-          <!-- Added scores will appear here -->
-        </div>
+        <div class="entries" id="entriesList"></div>
 
         <div class="summary">
           <h3>Current Summary</h3>
@@ -269,14 +253,49 @@
         <div class="nav-icon">📄</div>
         <div>Reviewer</div>
       </div>
-      <div class="nav-item" onclick="alert('Profile section - Coming soon')">
+      <div class="nav-item" onclick="window.location.href='profile.html'">
         <div class="nav-icon">👤</div>
         <div>Profile</div>
       </div>
     </div>
   </div>
 
-  <script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged, 
+      signOut 
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+      authDomain: "shstrackerapp.firebaseapp.com",
+      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+      projectId: "shstrackerapp",
+      storageBucket: "shstrackerapp.firebasestorage.app",
+      messagingSenderId: "807451936679",
+      appId: "1:807451936679:web:37fa86f3b272afe9505882",
+      measurementId: "G-Y8WM86KTCG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ====================== Account Sync ======================
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const displayName = user.displayName || user.email?.split('@')[0] || "Student";
+        document.getElementById('userName').textContent = displayName;
+        console.log("✅ Tracker loaded for user:", user.email);
+      } else {
+        console.log("❌ No user found, redirecting to login");
+        window.location.href = "login.html";
+      }
+    });
+
+    // ====================== Tracker Logic (Your Original Code) ======================
     let scores = {
       WW: [],
       PT: [],
@@ -287,7 +306,6 @@
     const categoryBtns = document.querySelectorAll('.category-btn');
     let currentCategory = 'WW';
 
-    // Category button logic
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -296,7 +314,6 @@
       });
     });
 
-    // Add score button
     document.getElementById('addScore').addEventListener('click', () => {
       const score = parseFloat(document.getElementById('score').value);
       const total = parseFloat(document.getElementById('total').value);
@@ -311,7 +328,6 @@
       }
 
       scores[currentCategory].push({ score, total });
-
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
 
@@ -333,7 +349,7 @@
             const entry = document.createElement('div');
             entry.className = 'entry';
             entry.innerHTML = `
-              ${item.score} / ${item.total} 
+              ${item.score} / ${item.total}
               <span style="color:#6b5a7a;">(${((item.score/item.total)*100).toFixed(1)}%)</span>
             `;
             list.appendChild(entry);
@@ -358,49 +374,48 @@
     }
 
     function getWeights() {
-      return {
-        WW: 0.25,
-        PT: 0.50,
-        QA: 0.25
-      };
+      return { WW: 0.25, PT: 0.50, QA: 0.25 };
     }
 
     function calculateGrades() {
       const avgWW = calculateAverage('WW');
       const avgPT = calculateAverage('PT');
       const avgQA = calculateAverage('QA');
-
       const weights = getWeights();
-
-      const finalGrade = 
-        (avgWW * weights.WW) + 
-        (avgPT * weights.PT) + 
-        (avgQA * weights.QA);
+      const finalGrade = (avgWW * weights.WW) + (avgPT * weights.PT) + (avgQA * weights.QA);
 
       const summaryHTML = `
         <div style="margin-bottom:12px;">
-          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(50%)</span>
+          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(50%)</span>
         </div>
         <div style="margin-bottom:12px;">
-          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% 
-          <span style="color:#6b5a7a;">(25%)</span>
+          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
         <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade (Core Subject)</div>
       `;
-
       document.getElementById('summaryContent').innerHTML = summaryHTML;
     }
 
     // Initialize
     renderEntries();
     calculateGrades();
+
+    // Logout function
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        signOut(auth).then(() => {
+          window.location.href = "login.html";
+        }).catch((error) => {
+          console.error("Logout error:", error);
+          alert("Failed to logout.");
+        });
+      }
+    }
   </script>
 </body>
 </html>
