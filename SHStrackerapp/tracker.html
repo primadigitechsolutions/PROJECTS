@@ -60,9 +60,8 @@
       font-size: 20px;
       font-weight: 600;
       color: #4E356F;
-      margin-bottom: 8px;
+      margin: 12px 24px 8px;
     }
-    /* Scrollable Main Content */
     .main-content {
       flex: 1;
       overflow-y: auto;
@@ -152,7 +151,6 @@
       text-align: center;
       margin: 12px 0;
     }
-    /* Bottom Navigation */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -187,20 +185,16 @@
 <body>
   <div class="phone-frame">
    
-    <!-- Status Bar -->
     <div class="status-bar"></div>
 
-    <!-- Header -->
     <div class="header">
       <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
       <div class="page-title">Grade Tracker</div>
       <div style="width:28px;"></div>
     </div>
 
-    <!-- Greeting -->
-    <div class="container">
-      <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
-    </div>
+    <!-- Dynamic Greeting -->
+    <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
     <!-- Scrollable Main Content -->
     <div class="main-content">
@@ -239,7 +233,7 @@
       </div>
     </div>
 
-    <!-- Floating Bottom Navigation -->
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
       <div class="nav-item" onclick="window.location.href='dashboard.html'">
         <div class="nav-icon">🏠</div>
@@ -269,6 +263,8 @@
       signOut 
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
+    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
@@ -282,30 +278,54 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const database = getDatabase(app);
 
-    // ====================== Account Sync ======================
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const displayName = user.displayName || user.email?.split('@')[0] || "Student";
-        document.getElementById('userName').textContent = displayName;
-        console.log("✅ Tracker loaded for user:", user.email);
-      } else {
-        console.log("❌ No user found, redirecting to login");
-        window.location.href = "login.html";
-      }
-    });
-
-    // ====================== Tracker Logic (Your Original Code) ======================
-    let scores = {
-      WW: [],
-      PT: [],
-      QA: []
-    };
+    let currentUserId = null;
+    let scores = { WW: [], PT: [], QA: [] };
 
     const subjectSelect = document.getElementById('subjectSelect');
     const categoryBtns = document.querySelectorAll('.category-btn');
     let currentCategory = 'WW';
 
+    // ====================== Account Sync ======================
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        const displayName = user.displayName || user.email?.split('@')[0] || "Student";
+        document.getElementById('userName').textContent = displayName;
+
+        console.log("✅ Tracker loaded for user:", user.email);
+
+        // Load saved scores from Firebase
+        loadScoresFromFirebase();
+
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // ====================== Firebase Save / Load Scores ======================
+    function saveScoresToFirebase() {
+      if (!currentUserId) return;
+      const scoresRef = ref(database, 'users/' + currentUserId + '/trackerScores');
+      set(scoresRef, scores);
+    }
+
+    function loadScoresFromFirebase() {
+      if (!currentUserId) return;
+      const scoresRef = ref(database, 'users/' + currentUserId + '/trackerScores');
+
+      onValue(scoresRef, (snapshot) => {
+        const savedScores = snapshot.val();
+        if (savedScores) {
+          scores = savedScores;
+        }
+        renderEntries();
+        calculateGrades();
+      });
+    }
+
+    // ====================== Tracker Logic ======================
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
@@ -327,12 +347,14 @@
         return;
       }
 
-      scores[currentCategory].push({ score, total });
+      scores[currentCategory].push({ score, total, subject: subjectSelect.value });
+
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
 
       renderEntries();
       calculateGrades();
+      saveScoresToFirebase();        // Auto-save to Firebase
     });
 
     function renderEntries() {
@@ -345,17 +367,27 @@
           div.innerHTML = `<strong>${getCategoryName(cat)}:</strong>`;
           list.appendChild(div);
 
-          scores[cat].forEach((item) => {
+          scores[cat].forEach((item, index) => {
             const entry = document.createElement('div');
             entry.className = 'entry';
             entry.innerHTML = `
-              ${item.score} / ${item.total}
+              ${item.subject ? item.subject + ' - ' : ''}${item.score} / ${item.total}
               <span style="color:#6b5a7a;">(${((item.score/item.total)*100).toFixed(1)}%)</span>
+              <span onclick="deleteScore('${cat}', ${index})" style="color:#e07a5f; margin-left:10px; cursor:pointer;">×</span>
             `;
             list.appendChild(entry);
           });
         }
       });
+    }
+
+    function deleteScore(category, index) {
+      if (confirm("Delete this score?")) {
+        scores[category].splice(index, 1);
+        renderEntries();
+        calculateGrades();
+        saveScoresToFirebase();
+      }
     }
 
     function getCategoryName(cat) {
@@ -401,17 +433,12 @@
       document.getElementById('summaryContent').innerHTML = summaryHTML;
     }
 
-    // Initialize
-    renderEntries();
-    calculateGrades();
-
     // Logout function
     function logout() {
       if (confirm("Are you sure you want to logout?")) {
         signOut(auth).then(() => {
           window.location.href = "login.html";
         }).catch((error) => {
-          console.error("Logout error:", error);
           alert("Failed to logout.");
         });
       }
