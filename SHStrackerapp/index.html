@@ -10,7 +10,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       background: linear-gradient(145deg, #faf7fc 0%, #f3edf5 100%);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -20,7 +19,6 @@
       min-height: 100vh;
       padding: 20px;
     }
-
     .phone-frame {
       max-width: 380px;
       width: 100%;
@@ -31,11 +29,9 @@
       overflow: hidden;
       transition: all 0.2s ease;
     }
-
     .screen-content {
       padding: 32px 24px 40px;
     }
-
     .logo-area {
       text-align: center;
       margin-bottom: 36px;
@@ -68,7 +64,6 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-
     .input-group {
       margin-bottom: 24px;
     }
@@ -102,7 +97,6 @@
       color: #c1adbb;
       font-weight: 400;
     }
-
     .forgot-row {
       text-align: right;
       margin: 6px 0 28px 0;
@@ -118,7 +112,6 @@
       color: #EF9875;
       text-decoration: underline;
     }
-
     .btn-primary {
       width: 100%;
       background: linear-gradient(100deg, #4E356F 0%, #7a538f 100%);
@@ -139,7 +132,6 @@
       background: linear-gradient(100deg, #3c2a55 0%, #684470 100%);
       box-shadow: 0 4px 10px -4px rgba(78, 53, 111, 0.4);
     }
-
     .signup-row {
       text-align: center;
       margin-bottom: 32px;
@@ -160,7 +152,6 @@
       color: #4E356F;
       text-decoration: underline;
     }
-
     .divider {
       display: flex;
       align-items: center;
@@ -182,7 +173,6 @@
     .divider::after {
       margin-left: 14px;
     }
-
     .social-login {
       display: flex;
       gap: 16px;
@@ -214,14 +204,12 @@
       font-size: 20px;
       font-weight: 600;
     }
-
     .meta-info {
       text-align: center;
       margin-top: 28px;
       font-size: 11px;
       color: #bcafbf;
     }
-
     @media (max-width: 450px) {
       .screen-content {
         padding: 28px 20px 36px;
@@ -245,16 +233,13 @@
         <label class="input-label" for="username">Username</label>
         <input type="text" id="username" class="input-field" placeholder="wina.va" value="wina.va">
       </div>
-
       <div class="input-group">
         <label class="input-label" for="password">Password</label>
         <input type="password" id="password" class="input-field" placeholder="••••••••">
       </div>
-
       <div class="forgot-row">
         <a href="#" class="forgot-link">Forgot Password?</a>
       </div>
-
       <button class="btn-primary" id="loginBtn">Login</button>
 
       <div class="signup-row">
@@ -284,9 +269,15 @@
 
   <!-- Firebase SDK - Modular v10 -->
   <script type="module">
-    // Import Firebase modules
+    // Import Firebase modules (added signInWithCredential)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { 
+      getAuth, 
+      signInWithPopup, 
+      GoogleAuthProvider, 
+      signInWithCredential,
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
     // Your Firebase configuration
     const firebaseConfig = {
@@ -305,7 +296,6 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Optional: Force account selection
     provider.setCustomParameters({
       prompt: 'select_account'
     });
@@ -317,38 +307,31 @@
 
       if (username === "wina.va" && password === "11111111") {
         window.location.href = "dashboard.html";
-      } 
-      else if (username === "" || password === "") {
+      } else if (username === "" || password === "") {
         alert("Please enter username and password");
-      }
-      else {
+      } else {
         alert("Invalid credentials!\n\nHint: Use\nUsername: wina.va\nPassword: 11111111");
       }
     });
 
     // ====================== Google Sign-In ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
+      // If running inside Android native app → do nothing (native button will handle it)
+      if (typeof Android !== 'undefined') {
+        console.log("✅ Running in Android native app - Using native Google Sign-In");
+        return;
+      }
+
+      // Normal browser popup flow
       try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-
-        console.log("✅ Google Sign-In Successful!", {
-          name: user.displayName,
-          email: user.email,
-          photo: user.photoURL
-        });
-
-        // Redirect to dashboard after successful Google login
+        console.log("✅ Google Sign-In Successful!", user.email);
         window.location.href = "dashboard.html";
-
       } catch (error) {
         console.error("❌ Google Sign-In Error:", error);
-
         if (error.code === 'auth/popup-blocked') {
-          alert("Popup was blocked by your browser.\nPlease allow popups for this site and try again.");
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          // User closed the popup manually
-          console.log("User cancelled Google sign-in");
+          alert("Popup was blocked by your browser.\nPlease allow popups and try again.");
         } else {
           alert("Google Sign-In failed.\n\n" + error.message);
         }
@@ -366,11 +349,41 @@
       alert('Password reset link sent to registered email');
     });
 
+    // ====================== Handle Native Android Google Login ======================
+    // This function is called automatically from Android after successful native sign-in
+    window.handleNativeGoogleLogin = async (googleIdToken) => {
+      if (!googleIdToken) {
+        console.error("No Google ID Token received");
+        return;
+      }
+
+      try {
+        console.log("🔄 Received Google ID Token from Android native app");
+        
+        const credential = GoogleAuthProvider.credential(googleIdToken);
+        const result = await signInWithCredential(auth, credential);
+        const user = result.user;
+
+        console.log("✅ Successfully signed in via Native Android!", {
+          email: user.email,
+          name: user.displayName
+        });
+
+        // Redirect to dashboard (same as popup)
+        window.location.href = "dashboard.html";
+
+      } catch (error) {
+        console.error("❌ Failed to sign in with native token:", error);
+        alert("Google Sign-In failed. Please try again.");
+      }
+    };
+
     // ====================== Auth State Listener ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User is already signed in:", user.email);
-        // You can auto-redirect here in the future if you want persistent login
+        // Optional: Auto redirect if you want persistent login
+        // window.location.href = "dashboard.html";
       }
     });
   </script>
