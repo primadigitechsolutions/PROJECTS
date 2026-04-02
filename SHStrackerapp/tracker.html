@@ -40,7 +40,6 @@
       font-size: 16px;
     }
 
-    /* Subject Row - Fixed Layout */
     .subject-row {
       display: flex; 
       gap: 10px; 
@@ -141,7 +140,6 @@
       margin: 12px 0;
     }
 
-    /* Modal */
     .modal {
       display: none; 
       position: fixed; 
@@ -236,8 +234,6 @@
 
     <div class="main-content">
       <div class="container">
-
-        <!-- Subject Row -->
         <div class="subject-row">
           <select id="subjectSelect" onchange="subjectChanged()">
             <option value="">Select Subject</option>
@@ -252,7 +248,6 @@
           <option value="Q4">4th Quarter</option>
         </select>
 
-        <!-- Score Type Buttons -->
         <div class="type-btns">
           <div class="type-btn active" data-type="Quiz">Quiz</div>
           <div class="type-btn" data-type="Activity">Activity</div>
@@ -286,18 +281,14 @@
     </div>
   </div>
 
-  <!-- Add Subject Modal -->
   <div id="addSubjectModal" class="modal">
     <div class="modal-content">
       <div class="modal-title">Add New Subject</div>
-      
       <input type="text" id="newSubjectName" placeholder="Subject Name (e.g. General Mathematics)">
-      
       <select id="newSubjectType">
         <option value="core">Core Subject</option>
         <option value="applied">Applied Subject</option>
       </select>
-
       <div class="modal-buttons">
         <button class="modal-btn cancel" onclick="hideAddSubjectModal()">Cancel</button>
         <button class="modal-btn save" onclick="addNewSubject()">Save Subject</button>
@@ -325,9 +316,8 @@
     const database = getDatabase(app);
 
     let currentUserId = null;
-    let subjects = {};        // Permanent subjects with type
+    let subjects = {};
     let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-
     let currentQuarter = 'Q1';
     let currentType = 'Quiz';
 
@@ -335,7 +325,6 @@
     const quarterSelect = document.getElementById('quarterSelect');
     const typeBtns = document.querySelectorAll('.type-btn');
 
-    // ====================== Auth & Load Data ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
@@ -348,14 +337,10 @@
 
     function loadUserData() {
       if (!currentUserId) return;
-
-      // Load Subjects
       onValue(ref(database, `users/${currentUserId}/subjects`), (snapshot) => {
         subjects = snapshot.val() || {};
         populateSubjectDropdown();
       });
-
-      // Load Scores
       onValue(ref(database, `users/${currentUserId}/trackerScores`), (snapshot) => {
         scores = snapshot.val() || { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
         renderEntries();
@@ -373,7 +358,7 @@
       });
     }
 
-    // ====================== Modal ======================
+    // Modal Functions
     function showAddSubjectModal() {
       document.getElementById('addSubjectModal').style.display = 'flex';
       document.getElementById('newSubjectName').value = '';
@@ -399,16 +384,11 @@
 
       subjects[name] = type;
       set(ref(database, `users/${currentUserId}/subjects`), subjects);
-
       populateSubjectDropdown();
       subjectSelect.value = name;
-
       hideAddSubjectModal();
-      renderEntries();
-      calculateGrades();
     }
 
-    // ====================== Event Listeners ======================
     typeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         typeBtns.forEach(b => b.classList.remove('active'));
@@ -442,41 +422,20 @@
         return;
       }
 
-      if (!scores[currentQuarter][subject]) {
-        scores[currentQuarter][subject] = {
-          type: subjects[subject],
-          Quiz: {}, Activity: {}, PETA: {}, Exam: {}
-        };
-      }
-
       const typeRef = ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${subject}/${currentType}`);
       const newScoreRef = push(typeRef);
-      const scoreData = { score: scoreVal, total: totalVal };
-
-      set(newScoreRef, scoreData);
-      scores[currentQuarter][subject][currentType][newScoreRef.key] = scoreData;
+      set(newScoreRef, { score: scoreVal, total: totalVal });
 
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
-
-      renderEntries();
-      calculateGrades();
     });
 
     window.deleteScore = function(quarter, subject, type, key) {
       if (confirm("Delete this score?")) {
         set(ref(database, `users/${currentUserId}/trackerScores/${quarter}/${subject}/${type}/${key}`), null);
-
-        if (scores[quarter]?.[subject]?.[type]) {
-          delete scores[quarter][subject][type][key];
-        }
-
-        renderEntries();
-        calculateGrades();
       }
     };
 
-    // ====================== Grade Calculation & Rendering ======================
     function getCategoryAverage(itemsObj) {
       if (!itemsObj || Object.keys(itemsObj).length === 0) return 0;
       let sum = 0, count = 0;
@@ -489,15 +448,14 @@
 
     function calculateGrades() {
       const subject = subjectSelect.value.trim();
-      if (!subject || !scores[currentQuarter][subject]) {
+      if (!subject || !scores[currentQuarter] || !scores[currentQuarter][subject]) {
         document.getElementById('summaryTitle').textContent = "Current Quarter Summary";
-        document.getElementById('summaryContent').innerHTML = 
-          `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
+        document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
         return;
       }
 
       const data = scores[currentQuarter][subject];
-      const isCore = data.type === 'core';
+      const isCore = subjects[subject] === 'core';
 
       const avgWW = (getCategoryAverage(data.Quiz) + getCategoryAverage(data.Activity)) / 2;
       const avgPT = getCategoryAverage(data.PETA);
@@ -509,34 +467,23 @@
 
       const finalGrade = (avgWW * wwWeight) + (avgPT * ptWeight) + (avgExam * examWeight);
 
-      document.getElementById('summaryTitle').textContent = 
-        `${currentQuarter} - ${subject} (${isCore ? 'Core' : 'Applied'})`;
-
+      document.getElementById('summaryTitle').textContent = `${currentQuarter} - ${subject}`;
       document.getElementById('summaryContent').innerHTML = `
-        <div style="margin-bottom:10px;">
-          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
-        </div>
-        <div style="margin-bottom:10px;">
-          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(${ptWeight*100}%)</span>
-        </div>
-        <div style="margin-bottom:10px;">
-          <strong>Exam:</strong> ${avgExam.toFixed(1)}% <span style="color:#6b5a7a;">(${examWeight*100}%)</span>
-        </div>
+        <div style="margin-bottom:10px;"><strong>Written Works:</strong> ${avgWW.toFixed(1)}% (25%)</div>
+        <div style="margin-bottom:10px;"><strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% (${ptWeight*100}%)</div>
+        <div style="margin-bottom:10px;"><strong>Exam:</strong> ${avgExam.toFixed(1)}% (${examWeight*100}%)</div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade • ${currentQuarter}</div>
       `;
     }
 
     function renderEntries() {
       const list = document.getElementById('entriesList');
       list.innerHTML = '';
-
       const subject = subjectSelect.value.trim();
-      if (!subject || !scores[currentQuarter][subject]) return;
+      if (!subject || !scores[currentQuarter] || !scores[currentQuarter][subject]) return;
 
       const data = scores[currentQuarter][subject];
-
       ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
         const items = data[type] || {};
         if (Object.keys(items).length > 0) {
@@ -549,22 +496,21 @@
             const percent = ((item.score / item.total) * 100).toFixed(1);
             const entry = document.createElement('div');
             entry.className = 'entry';
-            entry.innerHTML = `
-              ${item.score} / ${item.total} 
-              <span style="color:#6b5a7a;">(${percent}%)</span>
-              <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', '${key}')">×</span>
-            `;
+            entry.innerHTML = `${item.score} / ${item.total} <span style="color:#6b5a7a;">(${percent}%)</span>
+              <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', '${key}')">×</span>`;
             list.appendChild(entry);
           });
         }
       });
     }
 
-    // Initial render
-    setTimeout(() => {
-      renderEntries();
-      calculateGrades();
-    }, 600);
+    // CRITICAL FIX: Expose functions to global scope for HTML onclicks
+    window.showAddSubjectModal = showAddSubjectModal;
+    window.hideAddSubjectModal = hideAddSubjectModal;
+    window.addNewSubject = addNewSubject;
+    window.subjectChanged = subjectChanged;
+    window.quarterChanged = quarterChanged;
+
   </script>
 </body>
 </html>
