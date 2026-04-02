@@ -24,12 +24,12 @@
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
-    /* Header Section */
+    /* Header */
     .header { padding: 24px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
     .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; width: 40px; }
     .page-title { font-size: 20px; font-weight: 700; color: #2c1e3f; flex: 1; text-align: center; margin-right: 40px; }
 
-    /* Reviewer Toolbar */
+    /* Toolbar */
     .reviewer-controls {
       padding: 10px 24px;
       display: flex;
@@ -55,7 +55,7 @@
     .btn-primary { background: #4E356F; color: white; border: none; }
     .btn-accent { background: #EF9875; color: white; border: none; }
 
-    /* Main content / Editable Area */
+    /* Writing Area */
     .main-content {
       flex: 1;
       overflow-y: auto;
@@ -71,19 +71,19 @@
       line-height: 1.5;
     }
 
-    /* Professional Note Styling */
+    /* Custom Tag Styles */
     .notes-area h1 { font-size: 24px; font-weight: 800; margin: 10px 0 2px; color: #2c1e3f; display: block; }
     .notes-area p { font-size: 16px; font-weight: 400; color: #555; margin-bottom: 4px; }
     .notes-area ul { padding-left: 20px; margin: 0; }
     .notes-area li { color: #555; }
 
     .notes-area:empty:before {
-      content: "Start typing...";
+      content: "Loading your notes...";
       color: #9C6A82;
       opacity: 0.5;
     }
 
-    /* Navigation */
+    /* Bottom Navigation */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; background: white;
       border-top: 1px solid #e9dee4; display: flex; justify-content: space-around; padding: 10px 0 25px;
@@ -146,23 +146,37 @@
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUid = user.uid;
-      loadNotes();
-    } else { window.location.href = "login.html"; }
+      loadNotes(); 
+    } else { 
+      window.location.href = "login.html"; 
+    }
   });
 
   function loadNotes() {
-    onValue(ref(database, `users/${currentUid}/reviewerNotes`), (snapshot) => {
+    const notesRef = ref(database, `users/${currentUid}/reviewerNotes`);
+    onValue(notesRef, (snapshot) => {
       const data = snapshot.val();
-      if (data !== null && document.activeElement !== notesArea) {
-        notesArea.innerHTML = data;
+      // Only push data to UI if:
+      // 1. Data exists
+      // 2. User isn't currently typing (avoids cursor jump)
+      // 3. OR the area is currently empty (initial load)
+      if (data !== null) {
+        if (document.activeElement !== notesArea || notesArea.innerHTML === "") {
+          notesArea.innerHTML = data;
+        }
+      } else {
+        notesArea.setAttribute('placeholder', "Start typing your notes...");
       }
-    }, { onlyOnce: true });
+    });
   }
 
   function saveNotes() {
-    if (currentUid) set(ref(database, `users/${currentUid}/reviewerNotes`), notesArea.innerHTML);
+    if (currentUid) {
+      set(ref(database, `users/${currentUid}/reviewerNotes`), notesArea.innerHTML);
+    }
   }
 
+  // Auto-save logic
   let saveTimeout;
   notesArea.addEventListener('input', () => {
     clearTimeout(saveTimeout);
@@ -170,8 +184,6 @@
   });
 
   // --- BUTTON LOGIC ---
-
-  // Bullet Logic: Just toggles the list state without forcing breaks
   document.getElementById('btnBullet').onclick = () => {
     notesArea.focus();
     document.execCommand('insertUnorderedList', false, null);
@@ -196,24 +208,27 @@
   };
 
   document.getElementById('btnClear').onclick = () => {
-    if(confirm("Clear all?")) { notesArea.innerHTML = ''; saveNotes(); }
+    if(confirm("Clear all notes?")) { 
+      notesArea.innerHTML = ''; 
+      saveNotes(); 
+    }
   };
 
-  // --- ENTER KEY LOGIC ---
+  // --- KEYBOARD BEHAVIOR ---
   notesArea.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const selection = window.getSelection();
       const parent = selection.anchorNode.parentElement;
 
-      // Transition from Title to Body
+      // When finishing a Title, move to Body
       if (parent.tagName === 'H1') {
         setTimeout(() => document.execCommand('formatBlock', false, 'p'), 10);
       }
 
-      // Exit Bullet list on second enter
+      // Exit a bullet list by pressing enter on an empty bullet
       if (parent.tagName === 'LI' && parent.textContent.trim() === "") {
         e.preventDefault();
-        document.execCommand('insertUnorderedList', false, null); // This toggles it off
+        document.execCommand('insertUnorderedList', false, null);
         document.execCommand('formatBlock', false, 'p');
         saveNotes();
       }
