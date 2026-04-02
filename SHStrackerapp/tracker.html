@@ -120,16 +120,19 @@
 
   <div class="main-content">
     <div class="container">
+      <select id="semesterSelect">
+        <option value="S1">1st Semester</option>
+        <option value="S2">2nd Semester</option>
+      </select>
+
       <div class="subject-row">
         <select id="subjectSelect"><option value="">Select Subject</option></select>
         <button class="add-subject-btn" onclick="openModal('addSubjectModal')">+</button>
       </div>
 
       <select id="quarterSelect">
-        <option value="Q1">1st Quarter</option>
-        <option value="Q2">2nd Quarter</option>
-        <option value="Q3">3rd Quarter</option>
-        <option value="Q4">4th Quarter</option>
+        <option value="Q1">1st Quarter / Midterm</option>
+        <option value="Q2">2nd Quarter / Finals</option>
       </select>
 
       <div class="type-btns">
@@ -169,7 +172,8 @@
 <div id="addSubjectModal" class="modal">
   <div class="modal-content">
     <h3>New Subject</h3>
-    <input type="text" id="newSubjectName" placeholder="e.g. English" style="width: 100%; margin: 15px 0 10px;">
+    <p id="modalSemesterLabel" style="font-size:12px; color:#4E356F; margin-bottom:5px;"></p>
+    <input type="text" id="newSubjectName" placeholder="e.g. English" style="width: 100%; margin: 10px 0;">
     <select id="newSubjectType" style="width: 100%; margin-bottom: 10px;">
       <option value="core">Core Subject</option>
       <option value="applied">Applied Subject</option>
@@ -220,11 +224,15 @@
   const database = getDatabase(app);
 
   let currentUserId = null, subjects = {}, scores = {};
+  
+  // Persistent Settings
+  let currentSem = localStorage.getItem('lastSem') || 'S1';
   let currentQuarter = localStorage.getItem('lastQuarter') || 'Q1';
   let currentType = localStorage.getItem('lastType') || 'Quiz';
   const today = new Date().toISOString().split('T')[0];
   
   document.getElementById('testDate').value = today;
+  document.getElementById('semesterSelect').value = currentSem;
   document.getElementById('quarterSelect').value = currentQuarter;
 
   onAuthStateChanged(auth, (user) => {
@@ -236,28 +244,24 @@
   });
 
   function loadUserData() {
-    onValue(ref(database, `users/${currentUserId}/subjects`), (s) => { 
+    // Listen for subjects in the CURRENT semester only
+    onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (s) => { 
       subjects = s.val() || {}; 
       populateDropdown(); 
-      // Apply saved subject after dropdown is loaded
-      const lastSub = localStorage.getItem('lastSubject');
-      if (lastSub && subjects[lastSub]) {
-        document.getElementById('subjectSelect').value = lastSub;
-      }
+      const lastSub = localStorage.getItem(`lastSubject_${currentSem}`);
+      if (lastSub && subjects[lastSub]) document.getElementById('subjectSelect').value = lastSub;
       renderEntries(); 
       calculateGrades();
     });
 
-    onValue(ref(database, `users/${currentUserId}/trackerScores`), (s) => { 
+    // Listen for scores in the CURRENT semester only
+    onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (s) => { 
       scores = s.val() || {}; 
       renderEntries(); 
       calculateGrades(); 
     });
 
-    // Apply active state to saved type button
-    document.querySelectorAll('.type-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.type === currentType);
-    });
+    document.querySelectorAll('.type-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.type === currentType));
   }
 
   function populateDropdown() {
@@ -271,12 +275,18 @@
   }
 
   function savePreferences() {
-    localStorage.setItem('lastSubject', document.getElementById('subjectSelect').value);
+    localStorage.setItem('lastSem', currentSem);
     localStorage.setItem('lastQuarter', currentQuarter);
     localStorage.setItem('lastType', currentType);
+    localStorage.setItem(`lastSubject_${currentSem}`, document.getElementById('subjectSelect').value);
   }
 
-  window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+  window.openModal = (id) => {
+    if(id === 'addSubjectModal') {
+        document.getElementById('modalSemesterLabel').textContent = `Adding to: ${currentSem === 'S1' ? '1st' : '2nd'} Semester`;
+    }
+    document.getElementById(id).style.display = 'flex';
+  };
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
   
   function showCustomAlert(title, message) {
@@ -289,7 +299,9 @@
     const name = document.getElementById('newSubjectName').value.trim();
     const type = document.getElementById('newSubjectType').value;
     if (!name) return showCustomAlert("Required", "Please enter a subject name.");
-    set(ref(database, `users/${currentUserId}/subjects/${name}`), type);
+    
+    // Save under the specific semester
+    set(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects/${name}`), type);
     document.getElementById('newSubjectName').value = '';
     closeModal('addSubjectModal');
   };
@@ -303,20 +315,41 @@
     if (!sub) return showCustomAlert("Error", "Select a subject first.");
     if (isNaN(s) || isNaN(t)) return showCustomAlert("Error", "Enter valid scores.");
     
-    push(ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${sub}/${currentType}`), { 
+    // Path: trackerScores / S1 or S2 / Subject / Q1 or Q2 / Quiz or Activity
+    push(ref(database, `users/${currentUserId}/trackerScores/${currentSem}/${sub}/${currentQuarter}/${currentType}`), { 
       score: s, total: t, date: d 
     });
     document.getElementById('score').value = ''; 
     document.getElementById('total').value = '';
   };
 
-  window.deleteScore = (q, sub, type, key) => {
+  window.deleteScore = (sub, q, type, key) => {
     document.getElementById('confirmText').textContent = "This entry will be permanently deleted.";
     openModal('confirmModal');
     document.getElementById('btnConfirmAction').onclick = () => {
-      remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
+      remove(ref(database, `users/${currentUserId}/trackerScores/${currentSem}/${sub}/${q}/${type}/${key}`));
       closeModal('confirmModal');
     };
+  };
+
+  // Event Listeners
+  document.getElementById('semesterSelect').onchange = (e) => {
+    currentSem = e.target.value;
+    savePreferences();
+    loadUserData(); // Reload subject list for this semester
+  };
+
+  document.getElementById('quarterSelect').onchange = (e) => { 
+    currentQuarter = e.target.value; 
+    savePreferences();
+    renderEntries(); 
+    calculateGrades(); 
+  };
+
+  document.getElementById('subjectSelect').onchange = () => { 
+    savePreferences(); 
+    renderEntries(); 
+    calculateGrades(); 
   };
 
   document.querySelectorAll('.type-btn').forEach(b => b.onclick = () => {
@@ -327,23 +360,10 @@
     renderEntries();
   });
 
-  document.getElementById('subjectSelect').onchange = () => { 
-    savePreferences(); 
-    renderEntries(); 
-    calculateGrades(); 
-  };
-  
-  document.getElementById('quarterSelect').onchange = (e) => { 
-    currentQuarter = e.target.value; 
-    savePreferences();
-    renderEntries(); 
-    calculateGrades(); 
-  };
-
   function renderEntries() {
     const list = document.getElementById('entriesList'); list.innerHTML = '';
     const sub = document.getElementById('subjectSelect').value;
-    const data = scores[currentQuarter]?.[sub];
+    const data = scores[sub]?.[currentQuarter]; // Fixed nesting order
     if (!data) return;
 
     ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
@@ -354,7 +374,7 @@
           const i = data[type][k];
           const div = document.createElement('div'); div.className = 'entry';
           div.innerHTML = `<div class="entry-info"><span>${i.score} / ${i.total}</span><span class="entry-date">${i.date}</span></div>
-                           <span class="delete-btn" onclick="deleteScore('${currentQuarter}','${sub}','${type}','${k}')">×</span>`;
+                           <span class="delete-btn" onclick="deleteScore('${sub}','${currentQuarter}','${type}','${k}')">×</span>`;
           list.appendChild(div);
         });
       }
@@ -363,7 +383,7 @@
 
   function calculateGrades() {
     const sub = document.getElementById('subjectSelect').value;
-    const data = scores[currentQuarter]?.[sub];
+    const data = scores[sub]?.[currentQuarter];
     if (!sub || !data) {
       document.getElementById('summaryContent').innerHTML = '<p style="text-align:center; font-size:14px; color:#888;">No data found.</p>';
       return;
@@ -378,7 +398,7 @@
     const ptW = isCore ? 0.50 : 0.45, exW = isCore ? 0.25 : 0.30;
     const final = (ww * 0.25) + (pt * ptW) + (ex * exW);
 
-    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter}`;
+    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter === 'Q1' ? 'Midterm' : 'Finals'}`;
     document.getElementById('summaryContent').innerHTML = `
       <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>Written (25%)</span><strong>${ww.toFixed(1)}%</strong></div>
       <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>Performance (${ptW*100}%)</span><strong>${pt.toFixed(1)}%</strong></div>
