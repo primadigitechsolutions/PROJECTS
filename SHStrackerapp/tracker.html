@@ -157,211 +157,253 @@
   </div>
 
   <!-- Firebase SDK (same as before) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
-      authDomain: "shstrackerapp.firebaseapp.com",
-      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
-      projectId: "shstrackerapp",
-      storageBucket: "shstrackerapp.firebasestorage.app",
-      messagingSenderId: "807451936679",
-      appId: "1:807451936679:web:37fa86f3b272afe9505882"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+    authDomain: "shstrackerapp.firebaseapp.com",
+    databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+    projectId: "shstrackerapp",
+    storageBucket: "shstrackerapp.firebasestorage.app",
+    messagingSenderId: "807451936679",
+    appId: "1:807451936679:web:37fa86f3b272afe9505882"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
 
-    let currentUserId = null;
-    // Structure: scores[quarter][subject][type] = [{score, total}, ...]
-    let scores = {
-      Q1: {}, Q2: {}, Q3: {}, Q4: {}
-    };
+  let currentUserId = null;
+  let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
 
-    let currentQuarter = 'Q1';
-    let currentType = 'Quiz';
+  let currentQuarter = 'Q1';
+  let currentType = 'Quiz';
 
-    const subjectSelect = document.getElementById('subjectSelect');
-    const subjectTypeSelect = document.getElementById('subjectType');
-    const quarterSelect = document.getElementById('quarterSelect');
-    const typeBtns = document.querySelectorAll('.type-btn');
+  const subjectSelect = document.getElementById('subjectSelect');
+  const subjectTypeSelect = document.getElementById('subjectType');
+  const quarterSelect = document.getElementById('quarterSelect');
+  const typeBtns = document.querySelectorAll('.type-btn');
 
-    // ====================== Auth ======================
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUserId = user.uid;
-        document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || "Student";
-        loadScoresFromFirebase();
+  // ====================== Auth ======================
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || "Student";
+      loadScoresFromFirebase();
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  // ====================== Firebase ======================
+  function saveScoresToFirebase() {
+    if (!currentUserId) return;
+    const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
+    set(scoresRef, scores);
+  }
+
+  function loadScoresFromFirebase() {
+    if (!currentUserId) return;
+    const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
+
+    onValue(scoresRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        scores = {
+          Q1: data.Q1 || {},
+          Q2: data.Q2 || {},
+          Q3: data.Q3 || {},
+          Q4: data.Q4 || {}
+        };
       } else {
-        window.location.href = "login.html";
+        scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
       }
-    });
-
-    // ====================== Firebase ======================
-    function saveScoresToFirebase() {
-      if (!currentUserId) return;
-      const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
-      set(scoresRef, scores);
-    }
-
-    function loadScoresFromFirebase() {
-      if (!currentUserId) return;
-      const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
-
-      onValue(scoresRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) scores = data;
-        else scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-        renderEntries();
-        calculateGrades();
-      });
-    }
-
-    // ====================== UI Event Listeners ======================
-    typeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        typeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentType = btn.dataset.type;
-      });
-    });
-
-    quarterSelect.addEventListener('change', () => {
-      currentQuarter = quarterSelect.value;
       renderEntries();
       calculateGrades();
     });
+  }
 
-    document.getElementById('addScore').addEventListener('click', () => {
-      const scoreVal = parseFloat(document.getElementById('score').value);
-      const totalVal = parseFloat(document.getElementById('total').value);
-      const subject = subjectSelect.value;
-      const subjType = subjectTypeSelect.value;
-
-      if (!subject) {
-        alert("Please select a subject.");
-        return;
-      }
-      if (isNaN(scoreVal) || isNaN(totalVal) || totalVal <= 0) {
-        alert("Please enter valid score and total.");
-        return;
-      }
-
-      if (!scores[currentQuarter][subject]) {
-        scores[currentQuarter][subject] = { type: subjType, Quiz: [], Activity: [], PETA: [], Exam: [] };
-      } else if (scores[currentQuarter][subject].type !== subjType) {
-        if (!confirm("This subject already has a different type (Core/Applied). Changing it will clear previous scores for this subject. Continue?")) return;
-        scores[currentQuarter][subject] = { type: subjType, Quiz: [], Activity: [], PETA: [], Exam: [] };
-      }
-
-      scores[currentQuarter][subject][currentType].push({ score: scoreVal, total: totalVal });
-
-      document.getElementById('score').value = '';
-      document.getElementById('total').value = '';
-
-      renderEntries();
-      calculateGrades();
-      saveScoresToFirebase();
+  // ====================== UI Listeners ======================
+  typeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      typeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentType = btn.dataset.type;
     });
+  });
 
-    window.deleteScore = function(quarter, subject, type, index) {
-      if (confirm("Delete this score?")) {
-        scores[quarter][subject][type].splice(index, 1);
-        renderEntries();
-        calculateGrades();
-        saveScoresToFirebase();
-      }
-    };
+  quarterSelect.addEventListener('change', () => {
+    currentQuarter = quarterSelect.value;
+    renderEntries();
+    calculateGrades();
+  });
 
-    function getCategoryAverage(items) {
-      if (!items || items.length === 0) return 0;
-      let sum = 0;
-      items.forEach(item => sum += (item.score / item.total) * 100);
-      return sum / items.length;
+  document.getElementById('addScore').addEventListener('click', () => {
+    const scoreVal = parseFloat(document.getElementById('score').value);
+    const totalVal = parseFloat(document.getElementById('total').value);
+    const subject = subjectSelect.value.trim();
+    const subjType = subjectTypeSelect.value;
+
+    if (!subject) {
+      alert("Please select a subject.");
+      return;
+    }
+    if (isNaN(scoreVal) || isNaN(totalVal) || totalVal <= 0) {
+      alert("Please enter valid score and total.");
+      return;
     }
 
-    function calculateGrades() {
-      const subject = subjectSelect.value;
-      if (!subject || !scores[currentQuarter][subject]) {
-        document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
+    // Initialize subject if not exists
+    if (!scores[currentQuarter][subject]) {
+      scores[currentQuarter][subject] = {
+        type: subjType,
+        Quiz: {},
+        Activity: {},
+        PETA: {},
+        Exam: {}
+      };
+    } 
+    // Check type consistency
+    else if (scores[currentQuarter][subject].type !== subjType) {
+      if (!confirm(`This subject is already set as ${scores[currentQuarter][subject].type === 'core' ? 'Core' : 'Applied'}. Changing it will clear all previous scores for this subject in this quarter. Continue?`)) {
         return;
       }
-
-      const data = scores[currentQuarter][subject];
-      const isCore = data.type === 'core';
-
-      const avgWW = (getCategoryAverage(data.Quiz) + getCategoryAverage(data.Activity)) / 2;
-      const avgPT = getCategoryAverage(data.PETA);
-      const avgExam = getCategoryAverage(data.Exam);
-
-      const wwWeight = 0.25;
-      const ptWeight = isCore ? 0.50 : 0.45;
-      const examWeight = isCore ? 0.25 : 0.30;
-
-      const finalGrade = (avgWW * wwWeight) + (avgPT * ptWeight) + (avgExam * examWeight);
-
-      document.getElementById('summaryTitle').textContent = `${currentQuarter} - ${subject} (${isCore ? 'Core' : 'Applied'})`;
-
-      document.getElementById('summaryContent').innerHTML = `
-        <div style="margin-bottom:10px;">
-          <strong>Written Works (Quiz + Activity):</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
-        </div>
-        <div style="margin-bottom:10px;">
-          <strong>Performance Tasks (PETA):</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(${ptWeight*100}%)</span>
-        </div>
-        <div style="margin-bottom:10px;">
-          <strong>Exam:</strong> ${avgExam.toFixed(1)}% <span style="color:#6b5a7a;">(${examWeight*100}%)</span>
-        </div>
-        <hr style="margin:16px 0; border-color:#ecdde6;">
-        <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade for this Quarter</div>
-      `;
+      scores[currentQuarter][subject] = {
+        type: subjType,
+        Quiz: {},
+        Activity: {},
+        PETA: {},
+        Exam: {}
+      };
     }
 
-    function renderEntries() {
-      const list = document.getElementById('entriesList');
-      list.innerHTML = '';
+    // Add score using Firebase push key (best practice)
+    const typeRef = ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${subject}/${currentType}`);
+    const newScoreRef = push(typeRef);
+    set(newScoreRef, { score: scoreVal, total: totalVal });
 
-      const subject = subjectSelect.value;
-      if (!subject || !scores[currentQuarter][subject]) return;
+    // Also update local object immediately for UI
+    scores[currentQuarter][subject][currentType][newScoreRef.key] = { score: scoreVal, total: totalVal };
 
-      const data = scores[currentQuarter][subject];
+    // Clear inputs
+    document.getElementById('score').value = '';
+    document.getElementById('total').value = '';
 
-      ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
-        if (data[type] && data[type].length > 0) {
-          const header = document.createElement('div');
-          header.innerHTML = `<strong>${type}:</strong>`;
-          list.appendChild(header);
+    renderEntries();
+    calculateGrades();
+    // saveScoresToFirebase() is called via the direct set above, but we still save full structure occasionally
+    saveScoresToFirebase();
+  });
 
-          data[type].forEach((item, index) => {
-            const percent = ((item.score / item.total) * 100).toFixed(1);
-            const entry = document.createElement('div');
-            entry.className = 'entry';
-            entry.innerHTML = `
-              ${item.score} / ${item.total} 
-              <span style="color:#6b5a7a;">(${percent}%)</span>
-              <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', ${index})">×</span>
-            `;
-            list.appendChild(entry);
-          });
-        }
-      });
-    }
+  window.deleteScore = function(quarter, subject, type, key) {
+    if (confirm("Delete this score?")) {
+      // Remove from Firebase
+      const itemRef = ref(database, `users/${currentUserId}/trackerScores/${quarter}/${subject}/${type}/${key}`);
+      set(itemRef, null);   // null removes the node
 
-    function updateWeightsDisplay() {
-      // Optional: You can show a small note about weights if you want
-      calculateGrades();
-    }
+      // Remove from local
+      if (scores[quarter] && scores[quarter][subject] && scores[quarter][subject][type]) {
+        delete scores[quarter][subject][type][key];
+      }
 
-    // Initial render
-    setTimeout(() => {
       renderEntries();
       calculateGrades();
-    }, 500);
-  </script>
+    }
+  };
+
+  function getCategoryAverage(itemsObj) {
+    if (!itemsObj || Object.keys(itemsObj).length === 0) return 0;
+    let sum = 0;
+    let count = 0;
+    Object.values(itemsObj).forEach(item => {
+      sum += (item.score / item.total) * 100;
+      count++;
+    });
+    return sum / count;
+  }
+
+  function calculateGrades() {
+    const subject = subjectSelect.value.trim();
+    if (!subject || !scores[currentQuarter][subject]) {
+      document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
+      return;
+    }
+
+    const data = scores[currentQuarter][subject];
+    const isCore = data.type === 'core';
+
+    const avgWW = (getCategoryAverage(data.Quiz) + getCategoryAverage(data.Activity)) / 2;
+    const avgPT = getCategoryAverage(data.PETA);
+    const avgExam = getCategoryAverage(data.Exam);
+
+    const wwWeight = 0.25;
+    const ptWeight = isCore ? 0.50 : 0.45;
+    const examWeight = isCore ? 0.25 : 0.30;
+
+    const finalGrade = (avgWW * wwWeight) + (avgPT * ptWeight) + (avgExam * examWeight);
+
+    document.getElementById('summaryTitle').textContent = `${currentQuarter} - ${subject} (${isCore ? 'Core' : 'Applied'})`;
+
+    document.getElementById('summaryContent').innerHTML = `
+      <div style="margin-bottom:10px;">
+        <strong>Written Works (Quiz + Activity):</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <strong>Performance Tasks (PETA):</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(${ (ptWeight*100).toFixed(0) }%)</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <strong>Exam:</strong> ${avgExam.toFixed(1)}% <span style="color:#6b5a7a;">(${ (examWeight*100).toFixed(0) }%)</span>
+      </div>
+      <hr style="margin:16px 0; border-color:#ecdde6;">
+      <div class="final-grade">${finalGrade.toFixed(1)}%</div>
+      <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade for this Quarter</div>
+    `;
+  }
+
+  function renderEntries() {
+    const list = document.getElementById('entriesList');
+    list.innerHTML = '';
+
+    const subject = subjectSelect.value.trim();
+    if (!subject || !scores[currentQuarter][subject]) return;
+
+    const data = scores[currentQuarter][subject];
+
+    ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
+      const items = data[type] || {};
+      if (Object.keys(items).length > 0) {
+        const header = document.createElement('div');
+        header.innerHTML = `<strong>${type}:</strong>`;
+        list.appendChild(header);
+
+        Object.keys(items).forEach(key => {
+          const item = items[key];
+          const percent = ((item.score / item.total) * 100).toFixed(1);
+          const entry = document.createElement('div');
+          entry.className = 'entry';
+          entry.innerHTML = `
+            ${item.score} / ${item.total} 
+            <span style="color:#6b5a7a;">(${percent}%)</span>
+            <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', '${key}')">×</span>
+          `;
+          list.appendChild(entry);
+        });
+      }
+    });
+  }
+
+  function updateWeightsDisplay() {
+    calculateGrades();
+  }
+
+  // Initial render
+  setTimeout(() => {
+    renderEntries();
+    calculateGrades();
+  }, 600);
+</script>
 </body>
 </html>
