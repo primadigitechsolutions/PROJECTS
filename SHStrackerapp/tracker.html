@@ -131,8 +131,10 @@
       </div>
 
       <select id="quarterSelect">
-        <option value="Q1">Midterm / 1st Quarter</option>
-        <option value="Q2">Finals / 2nd Quarter</option>
+        <option value="Q1">1st Quarter</option>
+        <option value="Q2">2nd Quarter</option>
+        <option value="Q3">3rd Quarter</option>
+        <option value="Q4">4th Quarter</option>
       </select>
 
       <div class="type-btns">
@@ -173,7 +175,7 @@
   <div class="modal-content">
     <h3>New Subject</h3>
     <p id="modalSemDisplay" style="font-size:12px; color:#4E356F; margin-bottom:10px;"></p>
-    <input type="text" id="newSubjectName" placeholder="e.g. Statistics" style="width: 100%; margin-bottom: 10px;">
+    <input type="text" id="newSubjectName" placeholder="e.g. Science" style="width: 100%; margin-bottom: 10px;">
     <select id="newSubjectType" style="width: 100%; margin-bottom: 10px;">
       <option value="core">Core Subject</option>
       <option value="applied">Applied Subject</option>
@@ -225,7 +227,6 @@
 
   let currentUserId = null, subjects = {}, scores = {};
   
-  // Persistence Initialization
   let currentSem = localStorage.getItem('lastSem') || 'S1';
   let currentQuarter = localStorage.getItem('lastQuarter') || 'Q1';
   let currentType = localStorage.getItem('lastType') || 'Quiz';
@@ -244,25 +245,21 @@
   });
 
   function loadUserData() {
-    // 1. Load subjects for the current semester
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (s) => { 
       subjects = s.val() || {}; 
       populateDropdown(); 
-      // Apply last selected subject for this specific semester
       const lastSub = localStorage.getItem(`lastSub_${currentSem}`);
       if (lastSub && subjects[lastSub]) document.getElementById('subjectSelect').value = lastSub;
       renderEntries(); 
       calculateGrades();
     });
 
-    // 2. Load score records for the current semester
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (s) => { 
       scores = s.val() || {}; 
       renderEntries(); 
       calculateGrades(); 
     });
 
-    // 3. Highlight last selected category button
     document.querySelectorAll('.type-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.type === currentType);
     });
@@ -297,8 +294,6 @@
     openModal('alertModal');
   }
 
-  // --- ACTIONS ---
-
   document.getElementById('btnSaveSubject').onclick = () => {
     const name = document.getElementById('newSubjectName').value.trim();
     const type = document.getElementById('newSubjectType').value;
@@ -317,7 +312,6 @@
     if (!sub) return showCustomAlert("Error", "Select a subject.");
     if (isNaN(s) || isNaN(t)) return showCustomAlert("Error", "Enter valid scores.");
     
-    // DB Structure: trackerScores / Sem / Subject / Quarter / Type
     push(ref(database, `users/${currentUserId}/trackerScores/${currentSem}/${sub}/${currentQuarter}/${currentType}`), { 
       score: s, total: t, date: d 
     });
@@ -334,12 +328,10 @@
     };
   };
 
-  // --- SELECTOR HANDLERS ---
-
   document.getElementById('semesterSelect').onchange = (e) => {
     currentSem = e.target.value;
     savePreferences();
-    loadUserData(); // Switching semester changes subject list and scores
+    loadUserData();
   };
 
   document.getElementById('quarterSelect').onchange = (e) => { 
@@ -357,8 +349,6 @@
     currentType = b.dataset.type;
     savePreferences(); renderEntries();
   });
-
-  // --- RENDER & CALCULATE ---
 
   function renderEntries() {
     const list = document.getElementById('entriesList'); list.innerHTML = '';
@@ -398,7 +388,7 @@
     const ptW = isCore ? 0.50 : 0.45, exW = isCore ? 0.25 : 0.30;
     const final = (ww * 0.25) + (pt * ptW) + (ex * exW);
 
-    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter === 'Q1' ? 'Midterm' : 'Finals'}`;
+    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter}`;
     document.getElementById('summaryContent').innerHTML = `
       <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;"><span>WW (25%)</span><strong>${ww.toFixed(1)}%</strong></div>
       <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;"><span>PT (${ptW*100}%)</span><strong>${pt.toFixed(1)}%</strong></div>
