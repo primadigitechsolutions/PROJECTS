@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <title>Grade Tracker | Academic Portal</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: #f8f4fa;
       color: #2c1e3f;
       min-height: 100vh;
@@ -19,153 +19,88 @@
     }
 
     .phone-frame {
-      max-width: 400px; 
-      width: 100%; 
-      background: white; 
-      border-radius: 40px;
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; 
-      height: 92vh; 
-      position: relative; 
-      display: flex; 
-      flex-direction: column;
+      max-width: 400px; width: 100%; background: white; 
+      border-radius: 40px; box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden; height: 92vh; position: relative; 
+      display: flex; flex-direction: column;
     }
 
+    /* Header */
     .header {
-      padding: 20px 24px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
+      padding: 20px 24px 10px; display: flex;
+      justify-content: space-between; align-items: center; flex-shrink: 0;
     }
-
     .page-title { font-size: 22px; font-weight: 700; color: #2c1e3f; }
-    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; text-decoration: none; }
+    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; text-decoration: none; padding: 5px; }
     .greeting { font-size: 18px; font-weight: 600; color: #4E356F; margin: 0 24px 15px; }
 
-    .main-content { 
-      flex: 1; 
-      overflow-y: auto; 
-      padding: 0 20px 100px; 
-    }
+    .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
+    .container { display: flex; flex-direction: column; gap: 12px; }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px; 
-    }
-
+    /* Inputs */
     select, input, button {
-      padding: 14px; 
-      border: 1.5px solid #ecdde6; 
-      border-radius: 16px; 
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s;
+      padding: 14px; border: 1.5px solid #ecdde6; border-radius: 16px; 
+      font-size: 15px; outline: none; transition: all 0.2s;
     }
+    select:focus, input:focus { border-color: #4E356F; background: #fff; }
 
-    select:focus, input:focus { border-color: #4E356F; }
-
-    .subject-row {
-      display: flex; 
-      gap: 10px; 
-      align-items: center;
-    }
+    .subject-row { display: flex; gap: 10px; align-items: center; }
     .subject-row select { flex: 1; }
 
     .add-subject-btn {
-      background: #4E356F; 
-      color: white; 
-      border: none; 
-      width: 50px; 
-      height: 50px;
-      font-size: 24px;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: #4E356F; color: white; border: none; width: 50px; 
+      height: 50px; font-size: 24px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .type-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .type-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .type-btn {
-      padding: 12px; 
-      border: 1.5px solid #ecdde6;
-      background: white; 
-      border-radius: 14px; 
-      text-align: center;
-      font-weight: 600; 
-      cursor: pointer; 
-      font-size: 14px;
+      padding: 12px; border: 1.5px solid #ecdde6; background: white; 
+      border-radius: 14px; text-align: center; font-weight: 600; 
+      cursor: pointer; font-size: 14px;
     }
-    .type-btn.active {
-      background: #4E356F; 
-      color: white; 
-      border-color: #4E356F;
-    }
+    .type-btn.active { background: #4E356F; color: white; border-color: #4E356F; }
 
-    .score-input { 
-      display: flex; 
-      gap: 10px; 
-    }
-    .score-input input { 
-      flex: 1; 
-      min-width: 0; 
-    }
+    #addScore { background: #4E356F; color: white; border: none; font-weight: 700; cursor: pointer; margin-top: 5px; }
+    #addScore:active { transform: scale(0.98); opacity: 0.9; }
 
-    #addScore {
-      background: #4E356F; 
-      color: white; 
-      border: none; 
-      font-weight: 700;
-      cursor: pointer;
-    }
-
+    /* Entries List */
     .entries { margin-top: 10px; }
     .entry {
-      background: #fcfaff; 
-      padding: 14px; 
-      border-radius: 14px;
-      margin-bottom: 8px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      border: 1px solid #f0e6f0;
+      background: #fcfaff; padding: 14px; border-radius: 14px;
+      margin-bottom: 8px; display: flex; justify-content: space-between; 
+      align-items: center; border: 1px solid #f0e6f0;
     }
     .entry-info { display: flex; flex-direction: column; }
     .entry-date { font-size: 11px; color: #9C6A82; margin-top: 2px; }
-    .delete-btn { color: #e07a5f; cursor: pointer; font-size: 18px; padding: 0 5px; }
+    .delete-btn { color: #e07a5f; cursor: pointer; font-size: 22px; padding: 0 5px; }
 
+    /* Summary Card */
     .summary {
-      background: white; 
-      border: 2px solid #4E356F;
-      border-radius: 20px; 
-      padding: 18px;
-      margin-top: 15px;
-      margin-bottom: 20px;
+      background: white; border: 2px solid #4E356F; border-radius: 20px; 
+      padding: 18px; margin-top: 15px; margin-bottom: 20px;
     }
-    .final-grade {
-      font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 10px 0;
-    }
+    .final-grade { font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 10px 0; }
 
+    /* MODAL SYSTEM */
     .modal {
       display: none; position: fixed; top: 0; left: 0; 
       width: 100%; height: 100%; background: rgba(0,0,0,0.6); 
-      align-items: center; justify-content: center; z-index: 1000;
+      align-items: center; justify-content: center; z-index: 2000;
+      padding: 20px; backdrop-filter: blur(2px);
     }
     .modal-content {
-      background: white; width: 85%; max-width: 320px; 
-      border-radius: 24px; padding: 25px;
+      background: white; width: 100%; max-width: 320px; 
+      border-radius: 24px; padding: 25px; text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
-    .modal-btn { flex: 1; border: none; cursor: pointer; padding: 12px; border-radius: 12px; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn { flex: 1; border: none; cursor: pointer; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 14px; }
     .modal-btn.cancel { background: #f0e6f0; color: #4E356F; }
-    .modal-btn.save { background: #4E356F; color: white; }
+    .modal-btn.confirm { background: #4E356F; color: white; }
+    .modal-btn.danger { background: #e07a5f; color: white; }
 
+    /* Bottom Nav */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; 
       background: white; border-top: 1px solid #e9dee4; 
@@ -190,10 +125,8 @@
   <div class="main-content">
     <div class="container">
       <div class="subject-row">
-        <select id="subjectSelect">
-          <option value="">Select Subject</option>
-        </select>
-        <button class="add-subject-btn" onclick="showAddSubjectModal()">+</button>
+        <select id="subjectSelect"><option value="">Select Subject</option></select>
+        <button class="add-subject-btn" onclick="openModal('addSubjectModal')">+</button>
       </div>
 
       <select id="quarterSelect">
@@ -240,16 +173,35 @@
 
 <div id="addSubjectModal" class="modal">
   <div class="modal-content">
-    <h3 style="margin-bottom: 15px; text-align: center;">New Subject</h3>
-    <input type="text" id="newSubjectName" placeholder="e.g. General Math" style="width: 100%; margin-bottom: 10px;">
-    <select id="newSubjectType" style="width: 100%; margin-bottom: 20px;">
+    <h3 style="color: #4E356F;">New Subject</h3>
+    <input type="text" id="newSubjectName" placeholder="e.g. Gen Math" style="width: 100%; margin: 15px 0 10px;">
+    <select id="newSubjectType" style="width: 100%; margin-bottom: 10px;">
       <option value="core">Core Subject</option>
       <option value="applied">Applied Subject</option>
     </select>
     <div class="modal-buttons">
-      <button class="modal-btn cancel" onclick="hideAddSubjectModal()">Cancel</button>
-      <button class="modal-btn save" onclick="addNewSubject()">Save</button>
+      <button class="modal-btn cancel" onclick="closeModal('addSubjectModal')">Cancel</button>
+      <button class="modal-btn confirm" id="btnSaveSubject">Save</button>
     </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+    <h3 id="confirmTitle" style="color: #2c1e3f;">Are you sure?</h3>
+    <p id="confirmText" style="margin-top: 10px; font-size: 14px; color: #666;"></p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="modal-btn danger" id="btnConfirmAction">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="alertModal" class="modal">
+  <div class="modal-content">
+    <h3 id="alertTitle" style="color: #4E356F;">Notice</h3>
+    <p id="alertText" style="margin: 15px 0; font-size: 14px; color: #666;"></p>
+    <button class="modal-btn confirm" style="width: 100%;" onclick="closeModal('alertModal')">Got it</button>
   </div>
 </div>
 
@@ -272,160 +224,116 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
-  let currentUserId = null;
-  let subjects = {};
-  let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-  let currentQuarter = 'Q1';
-  let currentType = 'Quiz';
-
-  const subjectSelect = document.getElementById('subjectSelect');
-  const quarterSelect = document.getElementById('quarterSelect');
-  const testDateInput = document.getElementById('testDate');
-  const typeBtns = document.querySelectorAll('.type-btn');
-
-  // Set default date to today
+  let currentUserId = null, subjects = {}, scores = {}, currentQuarter = 'Q1', currentType = 'Quiz';
   const today = new Date().toISOString().split('T')[0];
-  testDateInput.value = today;
+  document.getElementById('testDate').value = today;
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUserId = user.uid;
       document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0];
       loadUserData();
-    } else {
-      window.location.href = "login.html";
-    }
+    } else { window.location.href = "login.html"; }
   });
 
   function loadUserData() {
-    onValue(ref(database, `users/${currentUserId}/subjects`), (snap) => {
-      subjects = snap.val() || {};
-      populateDropdown();
-    });
-    onValue(ref(database, `users/${currentUserId}/trackerScores`), (snap) => {
-      scores = snap.val() || { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-      renderEntries();
-      calculateGrades();
+    onValue(ref(database, `users/${currentUserId}/subjects`), (s) => { subjects = s.val() || {}; populateDropdown(); });
+    onValue(ref(database, `users/${currentUserId}/trackerScores`), (s) => { 
+      scores = s.val() || {}; renderEntries(); calculateGrades(); 
     });
   }
 
   function populateDropdown() {
-    const currentVal = subjectSelect.value;
-    subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-    Object.keys(subjects).sort().forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      subjectSelect.appendChild(opt);
+    const sel = document.getElementById('subjectSelect');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Select Subject</option>';
+    Object.keys(subjects).sort().forEach(n => {
+      const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o);
     });
-    if(currentVal) subjectSelect.value = currentVal;
+    if(cur) sel.value = cur;
   }
 
-  window.showAddSubjectModal = () => document.getElementById('addSubjectModal').style.display = 'flex';
-  window.hideAddSubjectModal = () => document.getElementById('addSubjectModal').style.display = 'none';
+  // --- MODAL CONTROLLERS ---
+  window.openModal = (id) => { document.getElementById(id).style.display = 'flex'; };
+  window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
+  
+  function showCustomAlert(title, message) {
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertText').textContent = message;
+    openModal('alertModal');
+  }
 
-  window.addNewSubject = () => {
+  // --- LOGIC ---
+  document.getElementById('btnSaveSubject').onclick = () => {
     const name = document.getElementById('newSubjectName').value.trim();
     const type = document.getElementById('newSubjectType').value;
-    if (!name) return alert("Enter name");
+    if (!name) return showCustomAlert("Required", "Please enter a subject name.");
     set(ref(database, `users/${currentUserId}/subjects/${name}`), type);
     document.getElementById('newSubjectName').value = '';
-    hideAddSubjectModal();
+    closeModal('addSubjectModal');
   };
 
-  typeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      typeBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentType = btn.dataset.type;
-    });
-  });
-
-  subjectSelect.onchange = () => { renderEntries(); calculateGrades(); };
-  quarterSelect.onchange = () => { currentQuarter = quarterSelect.value; renderEntries(); calculateGrades(); };
-
-  document.getElementById('addScore').addEventListener('click', () => {
+  document.getElementById('addScore').onclick = () => {
     const s = parseFloat(document.getElementById('score').value);
     const t = parseFloat(document.getElementById('total').value);
-    const date = testDateInput.value;
-    const sub = subjectSelect.value;
-    if (!sub || isNaN(s) || isNaN(t) || !date) return alert("Fill all fields");
-
-    const newRef = push(ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${sub}/${currentType}`));
-    set(newRef, { score: s, total: t, date: date });
+    const d = document.getElementById('testDate').value;
+    const sub = document.getElementById('subjectSelect').value;
     
-    document.getElementById('score').value = '';
+    if (!sub) return showCustomAlert("Subject Missing", "Please select a subject first.");
+    if (isNaN(s) || isNaN(t)) return showCustomAlert("Invalid Score", "Please enter valid numbers for score and total.");
+    
+    push(ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${sub}/${currentType}`), { 
+      score: s, total: t, date: d 
+    });
+    document.getElementById('score').value = ''; 
     document.getElementById('total').value = '';
-    testDateInput.value = today; // Reset to today
-  });
-
-  window.deleteScore = (q, sub, type, key) => {
-    if (confirm("Delete this record?")) {
-        remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
-    }
+    document.getElementById('testDate').value = today;
   };
 
-  function getCategoryAvg(obj) {
-    if (!obj) return 0;
-    const vals = Object.values(obj);
-    if (vals.length === 0) return 0;
-    return vals.reduce((acc, curr) => acc + (curr.score / curr.total), 0) / vals.length * 100;
-  }
+  window.deleteScore = (q, sub, type, key) => {
+    document.getElementById('confirmTitle').textContent = "Delete Record?";
+    document.getElementById('confirmText').textContent = "This score entry will be permanently removed from your history.";
+    openModal('confirmModal');
+    
+    document.getElementById('btnConfirmAction').onclick = () => {
+      remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
+      closeModal('confirmModal');
+    };
+  };
 
-  function calculateGrades() {
-    const sub = subjectSelect.value;
-    if (!sub || !scores[currentQuarter]?.[sub]) {
-        document.getElementById('summaryContent').innerHTML = '<p style="color:#6b5a7a; text-align:center; font-size: 14px; margin-top: 10px;">No data for this quarter</p>';
-        return;
-    }
-    const data = scores[currentQuarter][sub];
-    const isCore = subjects[sub] === 'core';
+  // --- UI LISTENERS ---
+  document.querySelectorAll('.type-btn').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+    b.classList.add('active'); currentType = b.dataset.type;
+  });
 
-    const ww = (getCategoryAvg(data.Quiz) + getCategoryAvg(data.Activity)) / 2;
-    const pt = getCategoryAvg(data.PETA);
-    const ex = getCategoryAvg(data.Exam);
-
-    const ptW = isCore ? 0.50 : 0.45;
-    const exW = isCore ? 0.25 : 0.30;
-    const final = (ww * 0.25) + (pt * ptW) + (ex * exW);
-
-    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter}`;
-    document.getElementById('summaryContent').innerHTML = `
-      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Written Works (25%)</span> <strong>${ww.toFixed(1)}%</strong>
-      </div>
-      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Performance (${ptW*100}%)</span> <strong>${pt.toFixed(1)}%</strong>
-      </div>
-      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Exam (${exW*100}%)</span> <strong>${ex.toFixed(1)}%</strong>
-      </div>
-      <div class="final-grade">${final.toFixed(1)}%</div>
-    `;
-  }
+  document.getElementById('subjectSelect').onchange = () => { renderEntries(); calculateGrades(); };
+  document.getElementById('quarterSelect').onchange = (e) => { 
+    currentQuarter = e.target.value; 
+    renderEntries(); 
+    calculateGrades(); 
+  };
 
   function renderEntries() {
-    const list = document.getElementById('entriesList');
-    list.innerHTML = '';
-    const sub = subjectSelect.value;
-    if (!sub || !scores[currentQuarter]?.[sub]) return;
+    const list = document.getElementById('entriesList'); list.innerHTML = '';
+    const sub = document.getElementById('subjectSelect').value;
+    const data = scores[currentQuarter]?.[sub];
+    if (!data) return;
 
-    const data = scores[currentQuarter][sub];
     ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
-      const items = data[type];
-      if (items) {
-        const header = document.createElement('div');
-        header.style = "font-size: 12px; font-weight: bold; margin-top: 10px; color: #4E356F;";
-        header.textContent = type.toUpperCase();
-        list.appendChild(header);
-
-        Object.keys(items).forEach(k => {
-          const i = items[k];
-          const div = document.createElement('div');
-          div.className = 'entry';
+      if (data[type]) {
+        const h = document.createElement('div'); 
+        h.style = "font-size: 12px; font-weight: 800; margin-top: 15px; margin-bottom: 5px; color: #4E356F; text-transform: uppercase; letter-spacing: 0.5px;";
+        h.textContent = type; 
+        list.appendChild(h);
+        
+        Object.keys(data[type]).forEach(k => {
+          const i = data[type][k];
+          const div = document.createElement('div'); div.className = 'entry';
           div.innerHTML = `
             <div class="entry-info">
-                <span>${i.score}/${i.total} <small>(${(i.score/i.total*100).toFixed(0)}%)</small></span>
-                <span class="entry-date">${i.date || 'No Date'}</span>
+              <span style="font-weight:700;">${i.score} / ${i.total} <small style="font-weight:400; color:#4E356F;">(${(i.score/i.total*100).toFixed(0)}%)</small></span>
+              <span class="entry-date">${i.date}</span>
             </div>
             <span class="delete-btn" onclick="deleteScore('${currentQuarter}','${sub}','${type}','${k}')">×</span>`;
           list.appendChild(div);
@@ -433,7 +341,36 @@
       }
     });
   }
-</script>
 
+  function calculateGrades() {
+    const sub = document.getElementById('subjectSelect').value;
+    const data = scores[currentQuarter]?.[sub];
+    const summary = document.getElementById('summaryContent');
+
+    if (!sub || !data) {
+      summary.innerHTML = '<p style="text-align:center; font-size:14px; color:#9C6A82; margin-top:10px;">No records for this quarter yet.</p>';
+      return;
+    }
+
+    const getAvg = (o) => {
+      if(!o) return 0; const v = Object.values(o);
+      return (v.reduce((a,b) => a + (b.score/b.total), 0) / v.length) * 100;
+    };
+
+    const isCore = subjects[sub] === 'core';
+    const ww = (getAvg(data.Quiz) + getAvg(data.Activity)) / 2;
+    const pt = getAvg(data.PETA), ex = getAvg(data.Exam);
+    const ptW = isCore ? 0.50 : 0.45, exW = isCore ? 0.25 : 0.30;
+    const final = (ww * 0.25) + (pt * ptW) + (ex * exW);
+
+    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter}`;
+    summary.innerHTML = `
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; color:#4E356F;"><span>Written Works (25%)</span><strong>${ww.toFixed(1)}%</strong></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; color:#4E356F;"><span>Performance (${ptW*100}%)</span><strong>${pt.toFixed(1)}%</strong></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; color:#4E356F;"><span>Quarterly Exam (${exW*100}%)</span><strong>${ex.toFixed(1)}%</strong></div>
+      <div style="height:1px; background:#ecdde6; margin:10px 0;"></div>
+      <div class="final-grade">${final.toFixed(1)}%</div>`;
+  }
+</script>
 </body>
 </html>
