@@ -30,6 +30,7 @@
       position: relative;
     }
 
+    /* Header & Greeting */
     .header {
       padding: 30px 24px 15px;
       display: flex;
@@ -37,7 +38,6 @@
       align-items: flex-start;
       flex-shrink: 0;
     }
-
     .greeting { font-size: 24px; font-weight: 700; line-height: 1.2; }
     .greeting .name { color: #EF9875; }
     .user-email { font-size: 14px; color: #888; margin-top: 4px; }
@@ -54,6 +54,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 0 24px 100px;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Progress Card */
@@ -65,7 +66,6 @@
       margin-bottom: 25px;
       border: 1px solid #f0e6f5;
     }
-
     .progress-wrapper { display: flex; align-items: center; gap: 20px; }
     .circular-progress { position: relative; width: 100px; height: 100px; }
     .circular-progress svg { transform: rotate(-90deg); }
@@ -74,7 +74,6 @@
       fill: none; stroke: #4E356F; stroke-width: 12;
       stroke-linecap: round; transition: stroke-dashoffset 0.5s ease;
     }
-
     .progress-center {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%); text-align: center;
@@ -88,21 +87,24 @@
     .progress-bar-bg { height: 8px; background: #f0e6f5; border-radius: 10px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #4E356F, #EF9875); transition: width 0.5s ease; }
 
-    .section-title { font-size: 20px; font-weight: 700; color: #2c1e3f; margin-bottom: 15px; }
+    .section-title { font-size: 20px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
+    .tip-text { font-size: 11px; color: #9C6A82; margin-bottom: 15px; }
 
-    /* Dynamic Subject Grid */
+    /* Subject Grid */
     .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .subject-card {
       background: white; border-radius: 18px; padding: 18px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      border: 1px solid #f0e6f5; transition: transform 0.2s; cursor: pointer;
+      border: 1px solid #f0e6f5; cursor: pointer;
+      user-select: none; -webkit-user-select: none;
+      transition: transform 0.1s;
     }
-    .subject-card:active { transform: scale(0.95); }
+    .subject-card:active { transform: scale(0.96); background: #faf8fb; }
     .subject-name { font-size: 15px; font-weight: 700; color: #2c1e3f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .subject-subtitle { font-size: 12px; color: #9C6A82; margin: 4px 0 12px; }
+    .subject-subtitle { font-size: 12px; color: #9C6A82; margin: 4px 0 12px; text-transform: capitalize; }
     .subject-grade-val { font-size: 16px; font-weight: 800; color: #4E356F; margin-top: 8px; }
 
-    /* Nav */
+    /* Bottom Nav */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0;
       background: white; border-top: 1px solid #eee;
@@ -122,6 +124,21 @@
     .dropdown-content.show { display: block; }
     .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; }
     .dropdown-item.logout { color: #e07a5f; border-top: 1px solid #f0e6f5; }
+
+    /* Delete Modal */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; 
+      width: 100%; height: 100%; background: rgba(0,0,0,0.6); 
+      align-items: center; justify-content: center; z-index: 2000;
+    }
+    .modal-content {
+      background: white; width: 85%; max-width: 320px; 
+      border-radius: 24px; padding: 25px; text-align: center;
+    }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+    .btn-cancel { background: #f0e6f0; color: #4E356F; }
+    .btn-delete { background: #e07a5f; color: white; }
   </style>
 </head>
 <body>
@@ -165,8 +182,8 @@
     </div>
 
     <div class="section-title">My Subjects</div>
-    <div class="subject-grid" id="subjectGrid">
-      </div>
+    <div class="tip-text">Hold to delete subject</div>
+    <div class="subject-grid" id="subjectGrid"></div>
   </div>
 
   <div class="bottom-nav">
@@ -177,10 +194,21 @@
   </div>
 </div>
 
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color: #2c1e3f;">Delete Subject?</h3>
+    <p style="font-size: 14px; color: #666; margin: 10px 0;">This will remove all grades for <br><b id="targetSubDisplay"></b>.</p>
+    <div class="modal-buttons">
+      <button class="modal-btn btn-cancel" id="cancelDelete">Cancel</button>
+      <button class="modal-btn btn-delete" id="confirmDelete">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -196,8 +224,14 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
+  let currentUid = null;
+  let subjectToDel = null;
+  let longPressTriggered = false;
+  let timer;
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      currentUid = user.uid;
       const name = user.displayName || user.email?.split('@')[0] || "Student";
       document.getElementById('userName').textContent = name;
       document.getElementById('userEmail').textContent = user.email;
@@ -209,38 +243,51 @@
   });
 
   function loadData(uid) {
-    // Listen for subjects and scores simultaneously
     onValue(ref(database, `users/${uid}`), (snapshot) => {
-      const userData = snapshot.val() || {};
-      const subjects = userData.subjects || {};
-      const scores = userData.trackerScores || {};
-      renderDashboard(subjects, scores);
+      const data = snapshot.val() || {};
+      renderDashboard(data.subjects || {}, data.trackerScores || {});
     });
   }
 
   function renderDashboard(subjects, scores) {
     const grid = document.getElementById('subjectGrid');
     grid.innerHTML = '';
-    
-    let totalGrades = 0;
-    let count = 0;
+    let totalGrades = 0, count = 0;
 
     Object.keys(subjects).forEach(subName => {
       const type = subjects[subName];
       const grade = calculateGrade(subName, type, scores);
-      
       totalGrades += grade;
       count++;
 
       const card = document.createElement('div');
       card.className = 'subject-card';
-      card.onclick = () => window.location.href = 'tracker.html';
+      
+      // Long Press Events
+      const handleStart = (e) => {
+        longPressTriggered = false;
+        timer = setTimeout(() => {
+          longPressTriggered = true;
+          subjectToDel = subName;
+          document.getElementById('targetSubDisplay').textContent = subName;
+          document.getElementById('deleteModal').style.display = 'flex';
+        }, 700);
+      };
+
+      const handleEnd = () => {
+        clearTimeout(timer);
+        if (!longPressTriggered) window.location.href = 'tracker.html';
+      };
+
+      card.addEventListener('touchstart', handleStart);
+      card.addEventListener('touchend', handleEnd);
+      card.addEventListener('mousedown', handleStart);
+      card.addEventListener('mouseup', handleEnd);
+
       card.innerHTML = `
         <div class="subject-name">${subName}</div>
         <div class="subject-subtitle">${type}</div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: ${grade}%"></div>
-        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${grade}%"></div></div>
         <div class="subject-grade-val">${grade.toFixed(1)}%</div>
       `;
       grid.appendChild(card);
@@ -259,41 +306,44 @@
         const pt = getAvg(data.PETA);
         const ex = getAvg(data.Exam);
         const isCore = type === 'core';
-        const final = (ww * 0.25) + (pt * (isCore ? 0.50 : 0.45)) + (ex * (isCore ? 0.25 : 0.30));
-        if (final > 0) qGrades.push(final);
+        const res = (ww * 0.25) + (pt * (isCore ? 0.50 : 0.45)) + (ex * (isCore ? 0.25 : 0.30));
+        if (res > 0) qGrades.push(res);
       }
     });
-    return qGrades.length > 0 ? (qGrades.reduce((a,b) => a+b) / qGrades.length) : 0;
+    return qGrades.length > 0 ? (qGrades.reduce((a,b)=>a+b) / qGrades.length) : 0;
   }
 
   function getAvg(obj) {
     if (!obj) return 0;
-    const items = Object.values(obj);
-    return items.length ? (items.reduce((a,b) => a + (b.score/b.total), 0) / items.length) * 100 : 0;
+    const vals = Object.values(obj);
+    return vals.length ? (vals.reduce((a,b)=>a+(b.score/b.total), 0)/vals.length)*100 : 0;
   }
 
   function updateUI(avg) {
-    const display = avg.toFixed(0) + '%';
-    document.getElementById('overallPct').textContent = display;
-    document.getElementById('overallBigNum').textContent = display;
-    document.getElementById('overallBar').style.width = display;
-    
-    const circle = document.getElementById('overallCircle');
-    const radius = 42;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (avg / 100) * circumference;
-    circle.style.strokeDashoffset = offset;
+    const val = avg.toFixed(0) + '%';
+    document.getElementById('overallPct').textContent = val;
+    document.getElementById('overallBigNum').textContent = val;
+    document.getElementById('overallBar').style.width = val;
+    const offset = 263.89 - (avg / 100) * 263.89;
+    document.getElementById('overallCircle').style.strokeDashoffset = offset;
   }
 
-  // UI Handlers
-  document.getElementById('profileBtn').onclick = (e) => {
-    e.stopPropagation();
-    document.getElementById('dropdownMenu').classList.toggle('show');
+  // Delete Actions
+  document.getElementById('confirmDelete').onclick = async () => {
+    if (!subjectToDel) return;
+    await remove(ref(database, `users/${currentUid}/subjects/${subjectToDel}`));
+    ['Q1','Q2','Q3','Q4'].forEach(q => {
+      remove(ref(database, `users/${currentUid}/trackerScores/${q}/${subjectToDel}`));
+    });
+    document.getElementById('deleteModal').style.display = 'none';
   };
+
+  document.getElementById('cancelDelete').onclick = () => document.getElementById('deleteModal').style.display = 'none';
+
+  // Profile/Logout
+  document.getElementById('profileBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('show'); };
   document.addEventListener('click', () => document.getElementById('dropdownMenu').classList.remove('show'));
-  document.getElementById('logoutBtn').onclick = () => {
-    if(confirm("Logout?")) signOut(auth).then(() => window.location.href="login.html");
-  };
+  document.getElementById('logoutBtn').onclick = () => { if(confirm("Logout?")) signOut(auth).then(()=>window.location.href="login.html"); };
 </script>
 </body>
 </html>
