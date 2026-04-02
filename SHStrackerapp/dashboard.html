@@ -24,7 +24,7 @@
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
-    /* Header Section */
+    /* Header */
     .header {
       padding: 24px 24px 10px;
       display: flex; justify-content: space-between; align-items: center;
@@ -41,7 +41,7 @@
       font-weight: 700; cursor: pointer;
     }
 
-    /* Professional Segmented Control (Semester Switcher) */
+    /* Professional Segmented Control */
     .sem-toggle-wrapper { padding: 0 24px 20px; }
     .segmented-control {
       background: #f0e6f5; padding: 4px; border-radius: 14px;
@@ -63,7 +63,7 @@
       z-index: 1;
     }
 
-    /* Main Scrollable Area */
+    /* Main Content */
     .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
 
     .progress-card {
@@ -95,7 +95,6 @@
     .section-title { font-size: 18px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
     .tip-text { font-size: 11px; color: #9C6A82; margin-bottom: 15px; }
 
-    /* Grid Layout */
     .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .subject-card {
       background: white; border-radius: 18px; padding: 16px;
@@ -107,7 +106,7 @@
     .subject-subtitle { font-size: 11px; color: #9C6A82; margin: 4px 0 10px; text-transform: capitalize; }
     .subject-grade-val { font-size: 15px; font-weight: 800; color: #4E356F; margin-top: 8px; }
 
-    /* Navigation */
+    /* Nav */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; background: white;
       border-top: 1px solid #e9dee4; display: flex; justify-content: space-around; padding: 10px 0 25px;
@@ -116,7 +115,7 @@
     .nav-item.active { color: #4E356F; font-weight: 700; }
     .nav-icon { font-size: 22px; margin-bottom: 4px; }
 
-    /* Popups & Modals */
+    /* Modals */
     .dropdown-content {
       display: none; position: absolute; right: 20px; top: 75px;
       background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -173,7 +172,7 @@
           </div>
         </div>
         <div class="performance-right">
-          <div class="label" id="perfLabel">Performance Overall</div>
+          <div class="label" id="perfLabel">1st Sem Performance</div>
           <div class="big-number" id="overallBigNum">0%</div>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="overallBar" style="width: 0%"></div>
@@ -225,20 +224,30 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
-  let currentUid = null, subjectToDel = null, timer, currentSem = localStorage.getItem('lastSem') || 'S1';
+  let currentUid = null, subjectToDel = null, timer;
+  let currentSem = localStorage.getItem('lastSem') || 'S1';
+
+  // --- DATE LOGIC ---
+  // resets on reload because we don't save to sessionStorage here, 
+  // but the logic below in initToggle/loadData clears it if needed.
+  const getTodayStr = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  };
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUid = user.uid;
-      document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+      const name = user.displayName || user.email.split('@')[0];
+      document.getElementById('userName').textContent = name;
       document.getElementById('userEmail').textContent = user.email;
-      document.getElementById('profileBtn').textContent = (user.displayName || user.email)[0].toUpperCase();
+      document.getElementById('profileBtn').textContent = name[0].toUpperCase();
+      
       initToggle();
       loadData();
     } else { window.location.href = "login.html"; }
   });
 
-  // PROFESSIONAL TOGGLE LOGIC
   function initToggle() {
     const segments = document.querySelectorAll('.segment');
     const glider = document.getElementById('glider');
@@ -262,9 +271,7 @@
     document.getElementById('perfLabel').textContent = `${currentSem === 'S1' ? '1st' : '2nd'} Sem Performance`;
     onValue(ref(database, `users/${currentUid}`), (snapshot) => {
       const data = snapshot.val() || {};
-      const semesterSubjects = data.semesters?.[currentSem]?.subjects || {};
-      const semesterScores = data.trackerScores?.[currentSem] || {};
-      renderDashboard(semesterSubjects, semesterScores);
+      renderDashboard(data.semesters?.[currentSem]?.subjects || {}, data.trackerScores?.[currentSem] || {});
     });
   }
 
@@ -280,8 +287,7 @@
       const card = document.createElement('div');
       card.className = 'subject-card';
       
-      // Long Press for Mobile Delete
-      const startTimer = () => {
+      card.onmousedown = card.ontouchstart = () => {
         timer = setTimeout(() => {
           subjectToDel = subName;
           document.getElementById('targetSubDisplay').textContent = subName;
@@ -289,16 +295,14 @@
         }, 700);
       };
 
-      const clearTimer = (e) => {
+      card.onmouseup = card.ontouchend = () => {
         clearTimeout(timer);
         if (!subjectToDel) {
           localStorage.setItem(`lastSub_${currentSem}`, subName);
           window.location.href = 'tracker.html';
         }
+        subjectToDel = null;
       };
-
-      card.onmousedown = card.ontouchstart = startTimer;
-      card.onmouseup = card.ontouchend = clearTimer;
 
       card.innerHTML = `
         <div class="subject-name">${subName}</div>
@@ -333,10 +337,6 @@
     });
     return qs.length ? (qs.reduce((a,b)=>a+b)/qs.length) : 0;
   }
-
-  // Date Sync Logic for Tracker Navigation
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   document.getElementById('confirmDelete').onclick = async () => {
     if(!subjectToDel) return;
