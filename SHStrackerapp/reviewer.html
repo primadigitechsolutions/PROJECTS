@@ -24,7 +24,7 @@
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
-    /* Modal Styling */
+    /* Professional Modals */
     .modal-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(44, 30, 63, 0.4); backdrop-filter: blur(5px);
@@ -32,27 +32,28 @@
     }
     .modal {
       width: 85%; background: white; border-radius: 24px; padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: translateY(0);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
-    .modal h3 { font-size: 18px; color: #2c1e3f; margin-bottom: 16px; font-weight: 800; }
+    .modal h3 { font-size: 18px; color: #2c1e3f; margin-bottom: 12px; font-weight: 800; }
+    .modal p { font-size: 14px; color: #9C6A82; margin-bottom: 20px; line-height: 1.4; }
+    
     .modal input {
       width: 100%; padding: 14px; border: 1.5px solid #f0e6f5; border-radius: 12px;
       outline: none; font-size: 16px; margin-bottom: 20px; font-family: inherit;
     }
     .modal-actions { display: flex; gap: 10px; }
-    .modal-btn {
-      flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px;
-    }
+    .modal-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; }
+    
     .btn-cancel { background: #f8f4fa; color: #9C6A82; }
     .btn-confirm { background: #4E356F; color: white; }
+    .btn-danger { background: #e07a5f; color: white; }
 
-    /* Header */
+    /* Header & Subject Navigator */
     .header { padding: 20px 24px 5px; display: flex; justify-content: space-between; align-items: center; }
     .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; width: 40px; }
     .add-page-btn { font-size: 22px; color: #4E356F; cursor: pointer; background: #f0e6f5; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: 0.2s; }
     .add-page-btn:active { transform: scale(0.9); }
 
-    /* Subject Navigator */
     .page-navigator {
       padding: 10px 24px;
       display: flex;
@@ -62,6 +63,7 @@
       background: #fff;
     }
     .page-navigator::-webkit-scrollbar { display: none; }
+
     .page-tab {
       padding: 8px 18px;
       background: #f8f4fa;
@@ -71,11 +73,15 @@
       color: #9C6A82;
       white-space: nowrap;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: 0.3s;
     }
-    .page-tab.active { background: #4E356F; color: white; box-shadow: 0 4px 12px rgba(78, 53, 111, 0.15); }
+    .page-tab.active {
+      background: #4E356F;
+      color: white;
+      box-shadow: 0 4px 12px rgba(78, 53, 111, 0.15);
+    }
 
-    /* Word Symbol Toolbar */
+    /* Formatting Toolbar (Word Symbols) */
     .reviewer-controls {
       padding: 12px 24px;
       display: flex;
@@ -97,11 +103,11 @@
     .main-content { flex: 1; overflow-y: auto; padding: 20px 24px 120px; }
     .notes-area { width: 100%; min-height: 100%; color: #2c1e3f; outline: none; font-size: 16px; line-height: 1.6; }
     .notes-area h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; color: #2c1e3f; }
-    .notes-area p { font-size: 16px; color: #555; }
+    .notes-area p { color: #555; }
     .notes-area ul { padding-left: 22px; margin: 8px 0; }
     .notes-area li { color: #555; }
 
-    /* Navigation */
+    /* Bottom Navigation */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; background: white;
       border-top: 1px solid #e9dee4; display: flex; justify-content: space-around; padding: 10px 0 25px;
@@ -114,31 +120,42 @@
 <body>
 
 <div class="phone-frame">
-  <div class="modal-overlay" id="modalOverlay">
+  <div class="modal-overlay" id="addModal">
     <div class="modal">
       <h3>New Subject</h3>
-      <input type="text" id="subjectInput" placeholder="Enter Subject (e.g. Anatomy)">
+      <input type="text" id="subjectInput" placeholder="Subject Name (e.g. Anatomy)">
       <div class="modal-actions">
-        <button class="modal-btn btn-cancel" id="closeModal">Cancel</button>
-        <button class="modal-btn btn-confirm" id="confirmSubject">Save Subject</button>
+        <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
+        <button class="modal-btn btn-confirm" id="confirmAdd">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>Delete Subject?</h3>
+      <p id="deleteMsg">Are you sure you want to delete this subject and all its notes?</p>
+      <div class="modal-actions">
+        <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
+        <button class="modal-btn btn-danger" id="confirmDelete">Delete</button>
       </div>
     </div>
   </div>
 
   <div class="header">
     <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
-    <div id="addPage" class="add-page-btn" title="New Page">＋</div>
+    <div class="add-page-btn" onclick="openAddModal()">＋</div>
   </div>
 
   <div class="page-navigator" id="pageTabs"></div>
 
   <div class="reviewer-controls">
     <button class="control-btn" id="btnH1" title="Heading"><b>H</b></button>
-    <button class="control-btn" id="btnBody" title="Body Text">¶</button>
-    <button class="control-btn" id="btnBullet" title="Bullets">≡</button>
+    <button class="control-btn" id="btnBody" title="Normal Text">¶</button>
+    <button class="control-btn" id="btnBullet" title="Bullet List">≡</button>
     <button class="control-btn" id="btnHighlight" title="Highlight">🖍️</button>
     <div class="divider"></div>
-    <button class="control-btn" id="btnDeletePage" style="color: #e07a5f;" title="Delete Subject">🗑️</button>
+    <button class="control-btn" onclick="openDeleteModal()" style="color: #e07a5f;" title="Delete Subject">🗑️</button>
   </div>
 
   <div class="main-content">
@@ -172,23 +189,35 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
-  let currentUid = null;
-  let currentPageId = "General";
+  let currentUid = null, currentPageId = "General";
   const notesArea = document.getElementById('notesArea');
   const tabsContainer = document.getElementById('pageTabs');
-  const modal = document.getElementById('modalOverlay');
-  const subjectInput = document.getElementById('subjectInput');
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUid = user.uid;
-      loadPageList();
-    } else { window.location.href = "login.html"; }
+  onAuthStateChanged(auth, user => {
+    if (user) { currentUid = user.uid; loadPageList(); }
+    else { window.location.href = "login.html"; }
   });
 
-  // --- PAGE MANAGEMENT ---
+  // --- MODAL CONTROLS ---
+  window.openAddModal = () => { 
+    document.getElementById('addModal').style.display = 'flex'; 
+    document.getElementById('subjectInput').focus();
+  };
+  
+  window.openDeleteModal = () => {
+    if(currentPageId === "General") return alert("The General page is permanent.");
+    document.getElementById('deleteMsg').innerText = `Permanently delete "${currentPageId}" and its notes?`;
+    document.getElementById('deleteModal').style.display = 'flex';
+  };
+
+  window.closeModals = () => {
+    document.getElementById('addModal').style.display = 'none';
+    document.getElementById('deleteModal').style.display = 'none';
+  };
+
+  // --- DATA OPERATIONS ---
   function loadPageList() {
-    onValue(ref(database, `users/${currentUid}/notesPages`), (snapshot) => {
+    onValue(ref(database, `users/${currentUid}/notesPages`), snapshot => {
       const pages = snapshot.val() || { "General": { title: "General" } };
       renderTabs(pages);
       switchPage(currentPageId);
@@ -208,11 +237,8 @@
 
   function switchPage(id) {
     currentPageId = id;
-    onValue(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`), (snapshot) => {
-      const data = snapshot.val();
-      if (document.activeElement !== notesArea) {
-        notesArea.innerHTML = data || "";
-      }
+    onValue(ref(database, `users/${currentUid}/reviewerNotes/${id}`), snap => {
+      if (document.activeElement !== notesArea) notesArea.innerHTML = snap.val() || "";
     }, { onlyOnce: true });
     
     document.querySelectorAll('.page-tab').forEach(t => {
@@ -220,59 +246,44 @@
     });
   }
 
-  // --- MODAL ACTIONS ---
-  document.getElementById('addPage').onclick = () => {
-    modal.style.display = 'flex';
-    subjectInput.focus();
-  };
-
-  document.getElementById('closeModal').onclick = () => {
-    modal.style.display = 'none';
-    subjectInput.value = "";
-  };
-
-  document.getElementById('confirmSubject').onclick = () => {
-    const title = subjectInput.value.trim();
+  document.getElementById('confirmAdd').onclick = () => {
+    const title = document.getElementById('subjectInput').value.trim();
     if (title) {
       set(ref(database, `users/${currentUid}/notesPages/${title}`), { title: title });
       currentPageId = title;
-      modal.style.display = 'none';
-      subjectInput.value = "";
+      closeModals();
+      document.getElementById('subjectInput').value = "";
     }
   };
 
-  document.getElementById('btnDeletePage').onclick = () => {
-    if(currentPageId === "General") return alert("Base page cannot be deleted.");
-    if(confirm(`Delete "${currentPageId}" and all its contents?`)) {
-      remove(ref(database, `users/${currentUid}/notesPages/${currentPageId}`));
-      remove(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`));
-      currentPageId = "General";
-    }
+  document.getElementById('confirmDelete').onclick = () => {
+    remove(ref(database, `users/${currentUid}/notesPages/${currentPageId}`));
+    remove(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`));
+    currentPageId = "General";
+    closeModals();
   };
 
-  // --- SAVE LOGIC ---
-  function saveNotes() {
-    if (currentUid) {
-      set(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`), notesArea.innerHTML);
-    }
+  // --- AUTO-SAVE ---
+  function saveNotes() { 
+    if (currentUid) set(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`), notesArea.innerHTML); 
   }
-
+  
   let saveTimeout;
   notesArea.addEventListener('input', () => {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveNotes, 800);
   });
 
-  // --- WORD COMMANDS ---
+  // --- EDITOR TOOLS ---
   document.getElementById('btnH1').onclick = () => { notesArea.focus(); document.execCommand('formatBlock', false, 'h1'); saveNotes(); };
   document.getElementById('btnBody').onclick = () => { notesArea.focus(); document.execCommand('formatBlock', false, 'p'); saveNotes(); };
   document.getElementById('btnBullet').onclick = () => { notesArea.focus(); document.execCommand('insertUnorderedList'); saveNotes(); };
   document.getElementById('btnHighlight').onclick = () => { document.execCommand('hiliteColor', false, '#FFEB3B'); saveNotes(); };
 
-  notesArea.addEventListener('keydown', (e) => {
+  // Smooth transitions between headings and body text
+  notesArea.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      const selection = window.getSelection();
-      const parent = selection.anchorNode.parentElement;
+      const parent = window.getSelection().anchorNode.parentElement;
       if (parent.tagName === 'H1') {
         setTimeout(() => document.execCommand('formatBlock', false, 'p'), 10);
       }
