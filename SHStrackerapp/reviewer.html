@@ -68,17 +68,17 @@
       color: #2c1e3f;
       outline: none;
       font-size: 16px;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     /* Professional Note Styling */
-    .notes-area h1 { font-size: 24px; font-weight: 800; margin: 12px 0 4px; color: #2c1e3f; display: block; }
-    .notes-area p { font-size: 16px; font-weight: 400; color: #555; margin-bottom: 8px; }
-    .notes-area ul { padding-left: 22px; margin: 5px 0 10px; }
-    .notes-area li { margin-bottom: 4px; color: #555; }
+    .notes-area h1 { font-size: 24px; font-weight: 800; margin: 10px 0 2px; color: #2c1e3f; display: block; }
+    .notes-area p { font-size: 16px; font-weight: 400; color: #555; margin-bottom: 4px; }
+    .notes-area ul { padding-left: 20px; margin: 0; }
+    .notes-area li { color: #555; }
 
     .notes-area:empty:before {
-      content: "Start typing... Use 'Title' for topics like Anatomy.";
+      content: "Start typing...";
       color: #9C6A82;
       opacity: 0.5;
     }
@@ -169,88 +169,52 @@
     saveTimeout = setTimeout(saveNotes, 1000);
   });
 
-  // --- REFINED BULLET & FORMATTING LOGIC ---
+  // --- BUTTON LOGIC ---
 
-  // 1. Bullet Logic (No extra gaps)
+  // Bullet Logic: Just toggles the list state without forcing breaks
   document.getElementById('btnBullet').onclick = () => {
     notesArea.focus();
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      
-      const ul = document.createElement('ul');
-      const li = document.createElement('li');
-      li.innerHTML = '&#8203;'; // Zero-width space to hold cursor
-      ul.appendChild(li);
-
-      range.deleteContents();
-      range.insertNode(ul);
-
-      // Move cursor inside the <li>
-      const newRange = document.createRange();
-      newRange.setStart(li, 0);
-      newRange.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
-    }
+    document.execCommand('insertUnorderedList', false, null);
     saveNotes();
   };
 
-  // 2. Title (H1) Logic
   document.getElementById('btnH1').onclick = () => {
     notesArea.focus();
     document.execCommand('formatBlock', false, 'h1');
     saveNotes();
   };
 
-  // 3. Body Logic
   document.getElementById('btnBody').onclick = () => {
     notesArea.focus();
     document.execCommand('formatBlock', false, 'p');
     saveNotes();
   };
 
-  // 4. Highlight
   document.getElementById('btnHighlight').onclick = () => {
     document.execCommand('hiliteColor', false, '#FFEB3B');
     saveNotes();
   };
 
-  // 5. Clear All
   document.getElementById('btnClear').onclick = () => {
-    if(confirm("Delete all your notes?")) {
-      notesArea.innerHTML = '';
-      saveNotes();
-    }
+    if(confirm("Clear all?")) { notesArea.innerHTML = ''; saveNotes(); }
   };
 
-  // 6. Smart Enter Keys
+  // --- ENTER KEY LOGIC ---
   notesArea.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const selection = window.getSelection();
       const parent = selection.anchorNode.parentElement;
 
-      // Rule: If in H1, pressing enter makes next line a Paragraph (Plain Text)
+      // Transition from Title to Body
       if (parent.tagName === 'H1') {
         setTimeout(() => document.execCommand('formatBlock', false, 'p'), 10);
       }
 
-      // Rule: If in an empty LI, pressing enter breaks out of the list
+      // Exit Bullet list on second enter
       if (parent.tagName === 'LI' && parent.textContent.trim() === "") {
         e.preventDefault();
-        const ul = parent.parentElement;
-        const p = document.createElement('p');
-        p.innerHTML = '&#8203;';
-        ul.parentNode.insertBefore(p, ul.nextSibling);
-
-        const newRange = document.createRange();
-        newRange.setStart(p, 0);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        
-        parent.remove();
-        if (ul.children.length === 0) ul.remove();
+        document.execCommand('insertUnorderedList', false, null); // This toggles it off
+        document.execCommand('formatBlock', false, 'p');
         saveNotes();
       }
     }
