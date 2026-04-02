@@ -34,85 +34,189 @@
     .container { padding: 0 24px; }
 
     select, input, button {
-      width: 100%; padding: 14px; margin-bottom: 12px;
-      border: 1.5px solid #ecdde6; border-radius: 16px; font-size: 16px;
+      padding: 14px; 
+      border: 1.5px solid #ecdde6; 
+      border-radius: 16px; 
+      font-size: 16px;
     }
 
+    /* Subject Row - Fixed Layout */
     .subject-row {
-      display: flex; gap: 8px; margin-bottom: 12px;
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 16px;
+      align-items: center;
     }
-    .subject-row select { flex: 1; }
-
+    .subject-row select {
+      flex: 1;
+      margin-bottom: 0;
+    }
     .add-subject-btn {
-      background: #4E356F; color: white; border: none; font-weight: 700;
-      padding: 14px 18px; border-radius: 16px; cursor: pointer; white-space: nowrap;
+      background: #4E356F; 
+      color: white; 
+      border: none; 
+      font-weight: 700;
+      font-size: 20px;
+      width: 52px; 
+      height: 52px;
+      border-radius: 16px; 
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .type-btns {
-      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+      display: flex; 
+      gap: 8px; 
+      margin-bottom: 20px; 
+      flex-wrap: wrap;
     }
     .type-btn {
-      flex: 1; padding: 12px 16px; border: 1.5px solid #ecdde6;
-      background: white; border-radius: 16px; text-align: center;
-      font-weight: 600; cursor: pointer; font-size: 14px;
+      flex: 1; 
+      padding: 12px 14px; 
+      border: 1.5px solid #ecdde6;
+      background: white; 
+      border-radius: 16px; 
+      text-align: center;
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 14px;
     }
     .type-btn.active {
-      background: #4E356F; color: white; border-color: #4E356F;
+      background: #4E356F; 
+      color: white; 
+      border-color: #4E356F;
     }
 
-    .score-input { display: flex; gap: 10px; }
-    .score-input input { flex: 1; }
+    .score-input { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 12px;
+    }
+    .score-input input { 
+      flex: 1; 
+    }
 
     #addScore {
-      background: #4E356F; color: white; border: none; font-weight: 700;
-      padding: 14px; border-radius: 16px; width: 100%; margin-top: 8px;
+      background: #4E356F; 
+      color: white; 
+      border: none; 
+      font-weight: 700;
+      padding: 14px; 
+      border-radius: 16px; 
+      width: 100%;
     }
 
     .entries { margin-top: 24px; }
     .entry {
-      background: #f8f4fa; padding: 14px; border-radius: 16px;
-      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+      background: #f8f4fa; 
+      padding: 14px; 
+      border-radius: 16px;
+      margin-bottom: 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
     }
-    .delete-btn { color: #e07a5f; font-weight: bold; cursor: pointer; padding: 0 8px; }
+    .delete-btn { 
+      color: #e07a5f; 
+      font-weight: bold; 
+      cursor: pointer; 
+      padding: 0 8px; 
+    }
 
     .summary {
-      margin-top: 32px; background: white; border: 2px solid #4E356F;
-      border-radius: 20px; padding: 20px;
+      margin-top: 32px; 
+      background: white; 
+      border: 2px solid #4E356F;
+      border-radius: 20px; 
+      padding: 20px;
     }
     .final-grade {
-      font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 12px 0;
+      font-size: 32px; 
+      font-weight: 800; 
+      color: #4E356F; 
+      text-align: center; 
+      margin: 12px 0;
     }
 
-    /* Modal Styles */
+    /* Modal */
     .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000;
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65); 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 1000;
     }
     .modal-content {
-      background: white; width: 90%; max-width: 340px; border-radius: 20px;
-      padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      background: white; 
+      width: 90%; 
+      max-width: 340px; 
+      border-radius: 24px;
+      padding: 28px 24px; 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
     }
-    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+    .modal-title { 
+      font-size: 21px; 
+      font-weight: 700; 
+      margin-bottom: 24px; 
+      text-align: center; 
+      color: #2c1e3f;
+    }
     .modal input, .modal select {
+      width: 100%;
       margin-bottom: 16px;
+      padding: 14px;
+      border: 1.5px solid #ecdde6;
+      border-radius: 16px;
+      font-size: 16px;
     }
     .modal-buttons {
-      display: flex; gap: 12px; margin-top: 20px;
+      display: flex; 
+      gap: 12px; 
+      margin-top: 10px;
     }
     .modal-btn {
-      flex: 1; padding: 14px; border-radius: 16px; font-weight: 600; cursor: pointer;
+      flex: 1; 
+      padding: 14px; 
+      border-radius: 16px; 
+      font-weight: 600; 
+      cursor: pointer;
+      border: none;
     }
-    .modal-btn.cancel { background: #f0e6f0; color: #4E356F; border: none; }
-    .modal-btn.save { background: #4E356F; color: white; border: none; }
+    .modal-btn.cancel { 
+      background: #f0e6f0; 
+      color: #4E356F; 
+    }
+    .modal-btn.save { 
+      background: #4E356F; 
+      color: white; 
+    }
 
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; background: white;
-      border-top: 1px solid #e9dee4; box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
-      display: flex; justify-content: space-around; padding: 12px 0 22px; z-index: 100;
+      position: absolute; 
+      bottom: 0; left: 0; right: 0; 
+      background: white;
+      border-top: 1px solid #e9dee4; 
+      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
+      display: flex; 
+      justify-content: space-around; 
+      padding: 12px 0 22px; 
+      z-index: 100;
     }
     .nav-item {
-      display: flex; flex-direction: column; align-items: center;
-      color: #9C6A82; font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
+      color: #9C6A82; 
+      font-size: 11px; 
+      font-weight: 600; 
+      gap: 4px; 
+      cursor: pointer;
     }
     .nav-item.active { color: #4E356F; }
     .nav-icon { font-size: 24px; }
@@ -133,22 +237,22 @@
     <div class="main-content">
       <div class="container">
 
-        <!-- Subject Selection + Add Button -->
+        <!-- Subject Row -->
         <div class="subject-row">
-          <select id="subjectSelect" onchange="loadSubjectType()">
+          <select id="subjectSelect" onchange="subjectChanged()">
             <option value="">Select Subject</option>
           </select>
           <button class="add-subject-btn" onclick="showAddSubjectModal()">+</button>
         </div>
 
-        <select id="quarterSelect">
+        <select id="quarterSelect" onchange="quarterChanged()">
           <option value="Q1">1st Quarter</option>
           <option value="Q2">2nd Quarter</option>
           <option value="Q3">3rd Quarter</option>
           <option value="Q4">4th Quarter</option>
         </select>
 
-        <!-- Input Types -->
+        <!-- Score Type Buttons -->
         <div class="type-btns">
           <div class="type-btn active" data-type="Quiz">Quiz</div>
           <div class="type-btn" data-type="Activity">Activity</div>
@@ -221,7 +325,7 @@
     const database = getDatabase(app);
 
     let currentUserId = null;
-    let subjects = {};        // { "General Mathematics": "core", ... }
+    let subjects = {};        // Permanent subjects with type
     let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
 
     let currentQuarter = 'Q1';
@@ -231,19 +335,18 @@
     const quarterSelect = document.getElementById('quarterSelect');
     const typeBtns = document.querySelectorAll('.type-btn');
 
-    // ====================== Auth ======================
+    // ====================== Auth & Load Data ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
         document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || "Student";
-        loadUserDataFromFirebase();
+        loadUserData();
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // ====================== Load All Data ======================
-    function loadUserDataFromFirebase() {
+    function loadUserData() {
       if (!currentUserId) return;
 
       // Load Subjects
@@ -262,23 +365,23 @@
 
     function populateSubjectDropdown() {
       subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-      Object.keys(subjects).sort().forEach(subj => {
-        const option = document.createElement('option');
-        option.value = subj;
-        option.textContent = subj;
-        subjectSelect.appendChild(option);
+      Object.keys(subjects).sort().forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        subjectSelect.appendChild(opt);
       });
     }
 
-    // ====================== Modal Functions ======================
+    // ====================== Modal ======================
     function showAddSubjectModal() {
       document.getElementById('addSubjectModal').style.display = 'flex';
+      document.getElementById('newSubjectName').value = '';
       document.getElementById('newSubjectName').focus();
     }
 
     function hideAddSubjectModal() {
       document.getElementById('addSubjectModal').style.display = 'none';
-      document.getElementById('newSubjectName').value = '';
     }
 
     function addNewSubject() {
@@ -290,24 +393,22 @@
         return;
       }
       if (subjects[name]) {
-        alert("This subject already exists.");
+        alert("This subject already exists!");
         return;
       }
 
       subjects[name] = type;
-
-      // Save to Firebase
       set(ref(database, `users/${currentUserId}/subjects`), subjects);
 
       populateSubjectDropdown();
       subjectSelect.value = name;
-      hideAddSubjectModal();
 
+      hideAddSubjectModal();
       renderEntries();
       calculateGrades();
     }
 
-    // ====================== Other Event Listeners ======================
+    // ====================== Event Listeners ======================
     typeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         typeBtns.forEach(b => b.classList.remove('active'));
@@ -316,16 +417,16 @@
       });
     });
 
-    quarterSelect.addEventListener('change', () => {
+    function quarterChanged() {
       currentQuarter = quarterSelect.value;
       renderEntries();
       calculateGrades();
-    });
+    }
 
-    subjectSelect.addEventListener('change', () => {
+    function subjectChanged() {
       renderEntries();
       calculateGrades();
-    });
+    }
 
     document.getElementById('addScore').addEventListener('click', () => {
       const scoreVal = parseFloat(document.getElementById('score').value);
@@ -333,7 +434,7 @@
       const subject = subjectSelect.value.trim();
 
       if (!subject) {
-        alert("Please select a subject.");
+        alert("Please select a subject first.");
         return;
       }
       if (isNaN(scoreVal) || isNaN(totalVal) || totalVal <= 0) {
@@ -341,25 +442,18 @@
         return;
       }
 
-      // Initialize subject data if not exists
       if (!scores[currentQuarter][subject]) {
         scores[currentQuarter][subject] = {
-          type: subjects[subject],   // Use permanently saved type
-          Quiz: {},
-          Activity: {},
-          PETA: {},
-          Exam: {}
+          type: subjects[subject],
+          Quiz: {}, Activity: {}, PETA: {}, Exam: {}
         };
       }
 
-      // Add score using push key
       const typeRef = ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${subject}/${currentType}`);
       const newScoreRef = push(typeRef);
       const scoreData = { score: scoreVal, total: totalVal };
 
       set(newScoreRef, scoreData);
-
-      // Update local data
       scores[currentQuarter][subject][currentType][newScoreRef.key] = scoreData;
 
       document.getElementById('score').value = '';
@@ -371,10 +465,9 @@
 
     window.deleteScore = function(quarter, subject, type, key) {
       if (confirm("Delete this score?")) {
-        const itemRef = ref(database, `users/${currentUserId}/trackerScores/${quarter}/${subject}/${type}/${key}`);
-        set(itemRef, null);
+        set(ref(database, `users/${currentUserId}/trackerScores/${quarter}/${subject}/${type}/${key}`), null);
 
-        if (scores[quarter] && scores[quarter][subject] && scores[quarter][subject][type]) {
+        if (scores[quarter]?.[subject]?.[type]) {
           delete scores[quarter][subject][type][key];
         }
 
@@ -383,11 +476,7 @@
       }
     };
 
-    function loadSubjectType() {
-      // Optional: You can show the subject type somewhere if needed
-      calculateGrades();
-    }
-
+    // ====================== Grade Calculation & Rendering ======================
     function getCategoryAverage(itemsObj) {
       if (!itemsObj || Object.keys(itemsObj).length === 0) return 0;
       let sum = 0, count = 0;
@@ -401,8 +490,9 @@
     function calculateGrades() {
       const subject = subjectSelect.value.trim();
       if (!subject || !scores[currentQuarter][subject]) {
-        document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
         document.getElementById('summaryTitle').textContent = "Current Quarter Summary";
+        document.getElementById('summaryContent').innerHTML = 
+          `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
         return;
       }
 
@@ -434,7 +524,7 @@
         </div>
         <hr style="margin:16px 0; border-color:#ecdde6;">
         <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade for this Quarter</div>
+        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade • ${currentQuarter}</div>
       `;
     }
 
@@ -474,7 +564,7 @@
     setTimeout(() => {
       renderEntries();
       calculateGrades();
-    }, 500);
+    }, 600);
   </script>
 </body>
 </html>
