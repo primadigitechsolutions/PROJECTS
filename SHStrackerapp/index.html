@@ -5,269 +5,198 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Login | Academic Portal</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body {
-      background: linear-gradient(145deg, #faf7fc 0%, #f3edf5 100%);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f8f4fa; /* Matches Profile/Reviewer Background */
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 10px;
     }
+
+    /* Standardized Container - Matches Profile.html */
     .phone-frame {
-      max-width: 380px;
-      width: 100%;
-      margin: 0 auto;
-      background-color: #ffffff;
-      border-radius: 48px;
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      transition: all 0.2s ease;
+      width: 100%; 
+      max-width: 400px; 
+      height: 92vh;
+      background: white; 
+      border-radius: 40px; /* Matched 40px rounding */
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative;
     }
+
+    /* Initial hidden state to prevent flicker during Auth check */
+    #mainWrapper {
+      display: none; 
+      flex-direction: column;
+      height: 100%;
+    }
+
     .screen-content {
-      padding: 32px 24px 40px;
+      padding: 40px 28px;
+      flex: 1;
+      overflow-y: auto;
     }
+
+    /* Logo Styling */
     .logo-area {
       text-align: center;
-      margin-bottom: 36px;
-    }
-    .logo-placeholder {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      margin-bottom: 45px;
+      margin-top: 20px;
     }
     .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #4E356F 0%, #9C6A82 100%);
-      border-radius: 20px;
+      width: 54px;
+      height: 54px;
+      background: #4E356F;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-weight: 700;
-      font-size: 20px;
-      box-shadow: 0 6px 12px -6px rgba(78, 53, 111, 0.3);
+      font-weight: 800;
+      font-size: 26px;
+      margin: 0 auto 15px;
+      box-shadow: 0 8px 20px rgba(78, 53, 111, 0.2);
     }
     .logo-text {
       font-size: 26px;
       font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(120deg, #4E356F 20%, #9C6A82 70%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
+      color: #2c1e3f;
+      letter-spacing: -0.8px;
     }
-    .input-group {
-      margin-bottom: 24px;
-    }
+
+    /* Input Styling */
+    .input-group { margin-bottom: 22px; }
     .input-label {
       display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: #4E356F;
+      font-size: 11px;
+      font-weight: 800;
+      color: #9C6A82;
       margin-bottom: 8px;
-      letter-spacing: -0.2px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
     }
     .input-field {
       width: 100%;
-      padding: 16px 18px;
-      background-color: #fefafc;
-      border: 1.5px solid #ecdde6;
-      border-radius: 28px;
+      padding: 16px 20px;
+      background-color: #fcfaff;
+      border: 1px solid #f0e6f5;
+      border-radius: 20px;
       font-size: 16px;
-      font-weight: 500;
       color: #2c1e3f;
-      transition: all 0.2s;
       outline: none;
-      font-family: inherit;
+      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .input-field:focus {
-      border-color: #EF9875;
-      box-shadow: 0 0 0 3px rgba(239, 152, 117, 0.2);
-      background-color: #ffffff;
+      border-color: #4E356F;
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(78, 53, 111, 0.05);
     }
-    .input-field::placeholder {
-      color: #c1adbb;
-      font-weight: 400;
-    }
-    .forgot-row {
-      text-align: right;
-      margin: 6px 0 28px 0;
-    }
+
+    .forgot-row { text-align: right; margin-bottom: 28px; }
     .forgot-link {
       font-size: 13px;
       color: #9C6A82;
       text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
+      font-weight: 600;
     }
-    .forgot-link:hover {
-      color: #EF9875;
-      text-decoration: underline;
-    }
+
+    /* Primary Button */
     .btn-primary {
       width: 100%;
-      background: linear-gradient(100deg, #4E356F 0%, #7a538f 100%);
+      background: #4E356F;
       border: none;
-      padding: 16px 20px;
-      border-radius: 44px;
-      font-size: 18px;
+      padding: 18px;
+      border-radius: 22px;
+      font-size: 16px;
       font-weight: 700;
       color: white;
       cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 8px 18px -6px rgba(78, 53, 111, 0.35);
-      letter-spacing: 0.3px;
-      margin-bottom: 28px;
+      box-shadow: 0 10px 25px rgba(78, 53, 111, 0.25);
+      margin-bottom: 24px;
+      transition: 0.3s;
     }
-    .btn-primary:active {
-      transform: scale(0.97);
-      background: linear-gradient(100deg, #3c2a55 0%, #684470 100%);
-      box-shadow: 0 4px 10px -4px rgba(78, 53, 111, 0.4);
-    }
-    .signup-row {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .signup-text {
-      color: #6b5a7a;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    .signup-link {
-      color: #EF9875;
-      font-weight: 700;
-      text-decoration: none;
-      margin-left: 6px;
-      transition: all 0.2s;
-    }
-    .signup-link:hover {
-      color: #4E356F;
-      text-decoration: underline;
-    }
+    .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+    .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #9C6A82; }
+    .signup-link { color: #4E356F; font-weight: 800; text-decoration: none; margin-left: 5px; }
+
     .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: #bcabb9;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 28px;
+      display: flex; align-items: center; text-align: center;
+      color: #bcabb9; font-size: 11px; font-weight: 700; margin-bottom: 28px;
+      letter-spacing: 1px;
     }
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e9dee4;
-    }
-    .divider::before {
-      margin-right: 14px;
-    }
-    .divider::after {
-      margin-left: 14px;
-    }
-    .social-login {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-    }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #f0e6f5; }
+    .divider::before { margin-right: 15px; }
+    .divider::after { margin-left: 15px; }
+
+    /* Social Button */
     .social-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: #ffffff;
-      border: 1.5px solid #ecdde6;
-      border-radius: 48px;
-      padding: 12px 0;
-      font-weight: 600;
-      font-size: 14px;
-      color: #4E356F;
-      cursor: pointer;
-      transition: all 0.2s;
-      background-color: #fefafc;
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: white; border: 1px solid #f0e6f5; border-radius: 20px;
+      padding: 15px; font-weight: 700; font-size: 14px; color: #2c1e3f; cursor: pointer;
+      transition: 0.2s;
     }
-    .social-btn:active {
-      background-color: #f7eef3;
-      transform: scale(0.96);
-      border-color: #EF9875;
-    }
-    .social-icon {
-      font-size: 20px;
-      font-weight: 600;
-    }
-    .meta-info {
-      text-align: center;
-      margin-top: 28px;
-      font-size: 11px;
-      color: #bcafbf;
-    }
-    @media (max-width: 450px) {
-      .screen-content {
-        padding: 28px 20px 36px;
-      }
-    }
+    .social-btn:active { background: #fcfaff; transform: translateY(1px); }
+    .social-icon { font-size: 18px; font-weight: 800; }
+
+    .meta-info { text-align: center; margin-top: 35px; font-size: 11px; color: #bcafbf; font-weight: 500; }
   </style>
 </head>
 <body>
+
   <div class="phone-frame">
-    <div class="screen-content">
-      <!-- Logo section -->
-      <div class="logo-area">
-        <div class="logo-placeholder">
+    <div id="mainWrapper">
+      <div class="screen-content">
+        <div class="logo-area">
           <div class="logo-icon">A</div>
-          <span class="logo-text">Academi</span>
+          <div class="logo-text">Academic Portal</div>
         </div>
-      </div>
 
-      <!-- Login form -->
-      <div class="input-group">
-        <label class="input-label" for="username">Username</label>
-        <input type="text" id="username" class="input-field" placeholder="wina.va" value="wina.va">
-      </div>
-      <div class="input-group">
-        <label class="input-label" for="password">Password</label>
-        <input type="password" id="password" class="input-field" placeholder="••••••••">
-      </div>
-      <div class="forgot-row">
-        <a href="#" class="forgot-link">Forgot Password?</a>
-      </div>
-      <button class="btn-primary" id="loginBtn">Login</button>
-
-      <div class="signup-row">
-        <span class="signup-text">Don't have an account?</span>
-        <a href="register.html" class="signup-link">Sign Up</a>
-      </div>
-
-      <div class="divider">or</div>
-
-      <!-- Social Login -->
-      <div class="social-login">
-        <div class="social-btn" id="googleBtn">
-          <span class="social-icon">G</span>
-          <span>Continue with Google</span>
+        <div class="input-group">
+          <label class="input-label">Username</label>
+          <input type="text" id="username" class="input-field" placeholder="wina.va" value="wina.va">
         </div>
-        <div class="social-btn" id="appleBtn">
-          <span class="social-icon"></span>
-          <span>Apple</span>
+        
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input type="password" id="password" class="input-field" placeholder="••••••••">
         </div>
-      </div>
+        
+        <div class="forgot-row">
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+        
+        <button class="btn-primary" id="loginBtn">Login</button>
 
-      <div class="meta-info">
-        Secure login · Academic Tracker
+        <div class="signup-row">
+          <span>New here?</span>
+          <a href="register.html" class="signup-link">Create Account</a>
+        </div>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="social-login">
+          <div class="social-btn" id="googleBtn">
+            <span class="social-icon">G</span>
+            <span>Sign in with Google</span>
+          </div>
+        </div>
+
+        <div class="meta-info">
+          Secure Academic Tracker • v2.1.0
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase SDK - Modular v10 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { 
@@ -278,7 +207,6 @@
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
@@ -286,102 +214,66 @@
       projectId: "shstrackerapp",
       storageBucket: "shstrackerapp.firebasestorage.app",
       messagingSenderId: "807451936679",
-      appId: "1:807451936679:web:37fa86f3b272afe9505882",
-      measurementId: "G-Y8WM86KTCG"
+      appId: "1:807451936679:web:37fa86f3b272afe9505882"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    const wrapper = document.getElementById('mainWrapper');
 
-    provider.setCustomParameters({
-      prompt: 'select_account'
-    });
-
-    // ====================== Email/Password Login ======================
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (username === "wina.va" && password === "11111111") {
+    // ====================== AUTH GUARD & AUTO-REDIRECT ======================
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is logged in, skip login page
         window.location.href = "dashboard.html";
-      } else if (username === "" || password === "") {
-        alert("Please enter username and password");
       } else {
-        alert("Invalid credentials!\n\nHint: Use\nUsername: wina.va\nPassword: 11111111");
+        // No user, show the login UI
+        wrapper.style.display = "flex";
       }
     });
 
-    // ====================== Google Button - Trigger Native Android Login ======================
+    // ====================== Manual Login Logic ======================
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+
+      // Demo credentials check
+      if (u === "wina.va" && p === "11111111") {
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Invalid credentials. Try wina.va / 11111111");
+      }
+    });
+
+    // ====================== Google Login Logic ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
-      
-      // If running inside Android app → call native Google Sign-In
+      // Android Native Bridge Support
       if (typeof Android !== 'undefined' && typeof Android.requestGoogleSignIn === 'function') {
-        console.log("🔄 Android app detected - Requesting native Google Sign-In");
         Android.requestGoogleSignIn();
         return;
       }
 
-      // Normal popup flow for browsers
       try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        console.log("✅ Google Sign-In Successful via Popup!", user.email);
+        await signInWithPopup(auth, provider);
         window.location.href = "dashboard.html";
       } catch (error) {
-        console.error("❌ Google Sign-In Error:", error);
-        if (error.code === 'auth/popup-blocked') {
-          alert("Popup was blocked by browser. Please allow popups and try again.");
-        } else {
-          alert("Google Sign-In failed.\n\n" + error.message);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          alert("Login failed: " + error.message);
         }
       }
     });
 
-    // ====================== Handle Native Android Google Login (Improved) ======================
-    window.handleNativeGoogleLogin = async (googleIdToken) => {
-      if (!googleIdToken) {
-        console.error("No Google ID Token received from Android");
-        return;
-      }
-
+    // Handle Native Android Bridge Result
+    window.handleNativeGoogleLogin = async (token) => {
       try {
-        console.log("🔄 Received Google ID Token from Android. Length:", googleIdToken.length);
-
-        const credential = GoogleAuthProvider.credential(googleIdToken);
-        const result = await signInWithCredential(auth, credential);
-        const user = result.user;
-
-        console.log("✅ Successfully signed in via Native Android!", user.email);
-
-        // Small delay to prevent race condition and ensure smooth redirect
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 1000);
-
+        const credential = GoogleAuthProvider.credential(token);
+        await signInWithCredential(auth, credential);
+        window.location.href = "dashboard.html";
       } catch (error) {
-        console.error("❌ Failed to sign in with native token:", error);
-        alert("Google Sign-In failed on first attempt.\nPlease try clicking the Google button again.");
+        console.error("Native Auth Error:", error);
       }
     };
-
-    // ====================== Apple Button (Demo) ======================
-    document.getElementById('appleBtn').addEventListener('click', () => {
-      alert('Apple Sign-In is not implemented yet (demo only)');
-    });
-
-    // ====================== Forgot Password ======================
-    document.querySelector('.forgot-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('Password reset link sent to registered email');
-    });
-
-    // ====================== Auth State Listener ======================
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("👤 User is already signed in:", user.email);
-      }
-    });
   </script>
 </body>
 </html>
