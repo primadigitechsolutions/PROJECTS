@@ -46,16 +46,15 @@
     .main-content { 
       flex: 1; 
       overflow-y: auto; 
-      padding: 0 20px 100px; /* Space for bottom nav */
+      padding: 0 20px 100px; 
     }
 
     .container {
       display: flex;
       flex-direction: column;
-      gap: 16px; /* Consistent vertical spacing */
+      gap: 12px; 
     }
 
-    /* Input & Select Styling */
     select, input, button {
       padding: 14px; 
       border: 1.5px solid #ecdde6; 
@@ -67,7 +66,6 @@
 
     select:focus, input:focus { border-color: #4E356F; }
 
-    /* Layout Fixes */
     .subject-row {
       display: flex; 
       gap: 10px; 
@@ -89,10 +87,9 @@
       justify-content: center;
     }
 
-    /* Category Buttons Grid Fix */
     .type-btns {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* 2 columns for better mobile alignment */
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
     .type-btn {
@@ -111,14 +108,13 @@
       border-color: #4E356F;
     }
 
-    /* Score Input Row Fix */
     .score-input { 
       display: flex; 
       gap: 10px; 
     }
     .score-input input { 
       flex: 1; 
-      min-width: 0; /* Allows inputs to shrink equally */
+      min-width: 0; 
     }
 
     #addScore {
@@ -129,7 +125,6 @@
       cursor: pointer;
     }
 
-    /* Results styling */
     .entries { margin-top: 10px; }
     .entry {
       background: #fcfaff; 
@@ -141,6 +136,8 @@
       align-items: center;
       border: 1px solid #f0e6f0;
     }
+    .entry-info { display: flex; flex-direction: column; }
+    .entry-date { font-size: 11px; color: #9C6A82; margin-top: 2px; }
     .delete-btn { color: #e07a5f; cursor: pointer; font-size: 18px; padding: 0 5px; }
 
     .summary {
@@ -148,13 +145,13 @@
       border: 2px solid #4E356F;
       border-radius: 20px; 
       padding: 18px;
+      margin-top: 15px;
       margin-bottom: 20px;
     }
     .final-grade {
       font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 10px 0;
     }
 
-    /* Modal Styling */
     .modal {
       display: none; position: fixed; top: 0; left: 0; 
       width: 100%; height: 100%; background: rgba(0,0,0,0.6); 
@@ -165,7 +162,7 @@
       border-radius: 24px; padding: 25px;
     }
     .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
-    .modal-btn { flex: 1; border: none; cursor: pointer; }
+    .modal-btn { flex: 1; border: none; cursor: pointer; padding: 12px; border-radius: 12px; }
     .modal-btn.cancel { background: #f0e6f0; color: #4E356F; }
     .modal-btn.save { background: #4E356F; color: white; }
 
@@ -193,13 +190,13 @@
   <div class="main-content">
     <div class="container">
       <div class="subject-row">
-        <select id="subjectSelect" onchange="subjectChanged()">
+        <select id="subjectSelect">
           <option value="">Select Subject</option>
         </select>
         <button class="add-subject-btn" onclick="showAddSubjectModal()">+</button>
       </div>
 
-      <select id="quarterSelect" onchange="quarterChanged()">
+      <select id="quarterSelect">
         <option value="Q1">1st Quarter</option>
         <option value="Q2">2nd Quarter</option>
         <option value="Q3">3rd Quarter</option>
@@ -212,6 +209,8 @@
         <div class="type-btn" data-type="PETA">PETA</div>
         <div class="type-btn" data-type="Exam">Exam</div>
       </div>
+
+      <input type="date" id="testDate">
 
       <div class="score-input">
         <input type="number" id="score" placeholder="Score" step="0.01">
@@ -281,7 +280,12 @@
 
   const subjectSelect = document.getElementById('subjectSelect');
   const quarterSelect = document.getElementById('quarterSelect');
+  const testDateInput = document.getElementById('testDate');
   const typeBtns = document.querySelectorAll('.type-btn');
+
+  // Set default date to today
+  const today = new Date().toISOString().split('T')[0];
+  testDateInput.value = today;
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -306,27 +310,28 @@
   }
 
   function populateDropdown() {
+    const currentVal = subjectSelect.value;
     subjectSelect.innerHTML = '<option value="">Select Subject</option>';
     Object.keys(subjects).sort().forEach(name => {
       const opt = document.createElement('option');
       opt.value = name; opt.textContent = name;
       subjectSelect.appendChild(opt);
     });
+    if(currentVal) subjectSelect.value = currentVal;
   }
 
-  function showAddSubjectModal() { document.getElementById('addSubjectModal').style.display = 'flex'; }
-  function hideAddSubjectModal() { document.getElementById('addSubjectModal').style.display = 'none'; }
+  window.showAddSubjectModal = () => document.getElementById('addSubjectModal').style.display = 'flex';
+  window.hideAddSubjectModal = () => document.getElementById('addSubjectModal').style.display = 'none';
 
-  function addNewSubject() {
+  window.addNewSubject = () => {
     const name = document.getElementById('newSubjectName').value.trim();
     const type = document.getElementById('newSubjectType').value;
     if (!name) return alert("Enter name");
-    
     set(ref(database, `users/${currentUserId}/subjects/${name}`), type);
+    document.getElementById('newSubjectName').value = '';
     hideAddSubjectModal();
-  }
+  };
 
-  // Category selection logic
   typeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       typeBtns.forEach(b => b.classList.remove('active'));
@@ -335,23 +340,28 @@
     });
   });
 
-  function quarterChanged() { currentQuarter = quarterSelect.value; renderEntries(); calculateGrades(); }
-  function subjectChanged() { renderEntries(); calculateGrades(); }
+  subjectSelect.onchange = () => { renderEntries(); calculateGrades(); };
+  quarterSelect.onchange = () => { currentQuarter = quarterSelect.value; renderEntries(); calculateGrades(); };
 
   document.getElementById('addScore').addEventListener('click', () => {
     const s = parseFloat(document.getElementById('score').value);
     const t = parseFloat(document.getElementById('total').value);
+    const date = testDateInput.value;
     const sub = subjectSelect.value;
-    if (!sub || isNaN(s) || isNaN(t)) return alert("Fill all fields");
+    if (!sub || isNaN(s) || isNaN(t) || !date) return alert("Fill all fields");
 
     const newRef = push(ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${sub}/${currentType}`));
-    set(newRef, { score: s, total: t });
+    set(newRef, { score: s, total: t, date: date });
+    
     document.getElementById('score').value = '';
     document.getElementById('total').value = '';
+    testDateInput.value = today; // Reset to today
   });
 
   window.deleteScore = (q, sub, type, key) => {
-    if (confirm("Delete?")) remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
+    if (confirm("Delete this record?")) {
+        remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
+    }
   };
 
   function getCategoryAvg(obj) {
@@ -363,7 +373,10 @@
 
   function calculateGrades() {
     const sub = subjectSelect.value;
-    if (!sub || !scores[currentQuarter]?.[sub]) return;
+    if (!sub || !scores[currentQuarter]?.[sub]) {
+        document.getElementById('summaryContent').innerHTML = '<p style="color:#6b5a7a; text-align:center; font-size: 14px; margin-top: 10px;">No data for this quarter</p>';
+        return;
+    }
     const data = scores[currentQuarter][sub];
     const isCore = subjects[sub] === 'core';
 
@@ -400,27 +413,26 @@
     ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
       const items = data[type];
       if (items) {
-        const h = document.createElement('div');
-        h.innerHTML = `<small><b>${type}</b></small>`;
-        list.appendChild(h);
+        const header = document.createElement('div');
+        header.style = "font-size: 12px; font-weight: bold; margin-top: 10px; color: #4E356F;";
+        header.textContent = type.toUpperCase();
+        list.appendChild(header);
+
         Object.keys(items).forEach(k => {
           const i = items[k];
           const div = document.createElement('div');
           div.className = 'entry';
-          div.innerHTML = `<span>${i.score}/${i.total} <small>(${(i.score/i.total*100).toFixed(0)}%)</small></span>
-                           <span class="delete-btn" onclick="deleteScore('${currentQuarter}','${sub}','${type}','${k}')">×</span>`;
+          div.innerHTML = `
+            <div class="entry-info">
+                <span>${i.score}/${i.total} <small>(${(i.score/i.total*100).toFixed(0)}%)</small></span>
+                <span class="entry-date">${i.date || 'No Date'}</span>
+            </div>
+            <span class="delete-btn" onclick="deleteScore('${currentQuarter}','${sub}','${type}','${k}')">×</span>`;
           list.appendChild(div);
         });
       }
     });
   }
-
-  // GLOBAL EXPOSURE
-  window.showAddSubjectModal = showAddSubjectModal;
-  window.hideAddSubjectModal = hideAddSubjectModal;
-  window.addNewSubject = addNewSubject;
-  window.subjectChanged = subjectChanged;
-  window.quarterChanged = quarterChanged;
 </script>
 
 </body>
