@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Tracker | Academic Portal</title>
+  <title>Grade Tracker | Academic Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -37,29 +37,33 @@
       width: 100%; padding: 14px; margin-bottom: 12px;
       border: 1.5px solid #ecdde6; border-radius: 16px; font-size: 16px;
     }
-    .category-btns {
+    .type-btns {
       display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
     }
-    .category-btn {
+    .type-btn {
       flex: 1; padding: 12px 16px; border: 1.5px solid #ecdde6;
       background: white; border-radius: 16px; text-align: center;
-      font-weight: 600; cursor: pointer;
+      font-weight: 600; cursor: pointer; font-size: 14px;
     }
-    .category-btn.active {
+    .type-btn.active {
       background: #4E356F; color: white; border-color: #4E356F;
     }
+
     .score-input { display: flex; gap: 10px; }
     .score-input input { flex: 1; }
+
     #addScore {
       background: #4E356F; color: white; border: none; font-weight: 700;
-      padding: 14px; border-radius: 16px; width: 100%;
+      padding: 14px; border-radius: 16px; width: 100%; margin-top: 8px;
     }
+
     .entries { margin-top: 24px; }
     .entry {
       background: #f8f4fa; padding: 14px; border-radius: 16px;
       margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
     }
     .delete-btn { color: #e07a5f; font-weight: bold; cursor: pointer; padding: 0 8px; }
+
     .summary {
       margin-top: 32px; background: white; border: 2px solid #4E356F;
       border-radius: 20px; padding: 20px;
@@ -67,6 +71,7 @@
     .final-grade {
       font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 12px 0;
     }
+
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; background: white;
       border-top: 1px solid #e9dee4; box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
@@ -94,25 +99,40 @@
 
     <div class="main-content">
       <div class="container">
-        <div class="subject-select">
-          <select id="subjectSelect">
-            <option value="">Select Subject</option>
-            <option value="Mathematics">Mathematics - Advanced Algebra</option>
-            <option value="Biology">Biology - Human Anatomy</option>
-            <option value="English">English - Literature & Composition</option>
-            <option value="History">History - World Civilization</option>
-          </select>
-        </div>
 
-        <div class="category-btns">
-          <div class="category-btn active" data-category="WW">Written Works</div>
-          <div class="category-btn" data-category="PT">Performance Tasks</div>
-          <div class="category-btn" data-category="QA">Quarterly Assessment</div>
+        <!-- Subject & Type Selection -->
+        <select id="subjectSelect">
+          <option value="">Select Subject</option>
+          <option value="Mathematics">Mathematics - Advanced Algebra</option>
+          <option value="Biology">Biology - Human Anatomy</option>
+          <option value="English">English - Literature & Composition</option>
+          <option value="History">History - World Civilization</option>
+          <!-- Add more subjects as needed -->
+        </select>
+
+        <select id="subjectType" onchange="updateWeightsDisplay()">
+          <option value="core">Core Subject</option>
+          <option value="applied">Applied Subject</option>
+        </select>
+
+        <select id="quarterSelect">
+          <option value="Q1">1st Quarter</option>
+          <option value="Q2">2nd Quarter</option>
+          <option value="Q3">3rd Quarter</option>
+          <option value="Q4">4th Quarter</option>
+        </select>
+
+        <!-- Input Types -->
+        <div class="type-btns">
+          <div class="type-btn active" data-type="Quiz">Quiz</div>
+          <div class="type-btn" data-type="Activity">Activity</div>
+          <div class="type-btn" data-type="PETA">PETA</div>
+          <div class="type-btn" data-type="Exam">Exam</div>
         </div>
 
         <div class="score-input">
-          <input type="number" id="score" placeholder="Score (e.g. 10)" step="0.01">
-          <input type="number" id="total" placeholder="Out of (e.g. 15)" step="0.01">
+          <input type="number" id="score" placeholder="Score (e.g. 45)" step="0.01">
+          <input type="number" id="total" placeholder="Out of (e.g. 50)" step="0.01">
         </div>
 
         <button id="addScore">+ Add Score</button>
@@ -120,7 +140,7 @@
         <div class="entries" id="entriesList"></div>
 
         <div class="summary">
-          <h3>Current Summary</h3>
+          <h3 id="summaryTitle">Current Quarter Summary</h3>
           <div id="summaryContent">
             <p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>
           </div>
@@ -136,10 +156,10 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (same as before) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -157,13 +177,20 @@
     const database = getDatabase(app);
 
     let currentUserId = null;
-    let scores = { WW: [], PT: [], QA: [] };
+    // Structure: scores[quarter][subject][type] = [{score, total}, ...]
+    let scores = {
+      Q1: {}, Q2: {}, Q3: {}, Q4: {}
+    };
+
+    let currentQuarter = 'Q1';
+    let currentType = 'Quiz';
 
     const subjectSelect = document.getElementById('subjectSelect');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    let currentCategory = 'WW';
+    const subjectTypeSelect = document.getElementById('subjectType');
+    const quarterSelect = document.getElementById('quarterSelect');
+    const typeBtns = document.querySelectorAll('.type-btn');
 
-    // ====================== Auth & User Sync ======================
+    // ====================== Auth ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
@@ -174,7 +201,7 @@
       }
     });
 
-    // ====================== Firebase Save / Load ======================
+    // ====================== Firebase ======================
     function saveScoresToFirebase() {
       if (!currentUserId) return;
       const scoresRef = ref(database, `users/${currentUserId}/trackerScores`);
@@ -187,33 +214,36 @@
 
       onValue(scoresRef, (snapshot) => {
         const data = snapshot.val();
-        if (data) {
-          scores.WW = data.WW || [];
-          scores.PT = data.PT || [];
-          scores.QA = data.QA || [];
-        } else {
-          scores = { WW: [], PT: [], QA: [] };
-        }
+        if (data) scores = data;
+        else scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
         renderEntries();
         calculateGrades();
       });
     }
 
-    // ====================== Tracker Logic ======================
-    categoryBtns.forEach(btn => {
+    // ====================== UI Event Listeners ======================
+    typeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        categoryBtns.forEach(b => b.classList.remove('active'));
+        typeBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentCategory = btn.dataset.category;
+        currentType = btn.dataset.type;
       });
+    });
+
+    quarterSelect.addEventListener('change', () => {
+      currentQuarter = quarterSelect.value;
+      renderEntries();
+      calculateGrades();
     });
 
     document.getElementById('addScore').addEventListener('click', () => {
       const scoreVal = parseFloat(document.getElementById('score').value);
       const totalVal = parseFloat(document.getElementById('total').value);
+      const subject = subjectSelect.value;
+      const subjType = subjectTypeSelect.value;
 
-      if (!subjectSelect.value) {
-        alert("Please select a subject first.");
+      if (!subject) {
+        alert("Please select a subject.");
         return;
       }
       if (isNaN(scoreVal) || isNaN(totalVal) || totalVal <= 0) {
@@ -221,11 +251,14 @@
         return;
       }
 
-      scores[currentCategory].push({
-        subject: subjectSelect.value,
-        score: scoreVal,
-        total: totalVal
-      });
+      if (!scores[currentQuarter][subject]) {
+        scores[currentQuarter][subject] = { type: subjType, Quiz: [], Activity: [], PETA: [], Exam: [] };
+      } else if (scores[currentQuarter][subject].type !== subjType) {
+        if (!confirm("This subject already has a different type (Core/Applied). Changing it will clear previous scores for this subject. Continue?")) return;
+        scores[currentQuarter][subject] = { type: subjType, Quiz: [], Activity: [], PETA: [], Exam: [] };
+      }
+
+      scores[currentQuarter][subject][currentType].push({ score: scoreVal, total: totalVal });
 
       document.getElementById('score').value = '';
       document.getElementById('total').value = '';
@@ -235,23 +268,83 @@
       saveScoresToFirebase();
     });
 
+    window.deleteScore = function(quarter, subject, type, index) {
+      if (confirm("Delete this score?")) {
+        scores[quarter][subject][type].splice(index, 1);
+        renderEntries();
+        calculateGrades();
+        saveScoresToFirebase();
+      }
+    };
+
+    function getCategoryAverage(items) {
+      if (!items || items.length === 0) return 0;
+      let sum = 0;
+      items.forEach(item => sum += (item.score / item.total) * 100);
+      return sum / items.length;
+    }
+
+    function calculateGrades() {
+      const subject = subjectSelect.value;
+      if (!subject || !scores[currentQuarter][subject]) {
+        document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
+        return;
+      }
+
+      const data = scores[currentQuarter][subject];
+      const isCore = data.type === 'core';
+
+      const avgWW = (getCategoryAverage(data.Quiz) + getCategoryAverage(data.Activity)) / 2;
+      const avgPT = getCategoryAverage(data.PETA);
+      const avgExam = getCategoryAverage(data.Exam);
+
+      const wwWeight = 0.25;
+      const ptWeight = isCore ? 0.50 : 0.45;
+      const examWeight = isCore ? 0.25 : 0.30;
+
+      const finalGrade = (avgWW * wwWeight) + (avgPT * ptWeight) + (avgExam * examWeight);
+
+      document.getElementById('summaryTitle').textContent = `${currentQuarter} - ${subject} (${isCore ? 'Core' : 'Applied'})`;
+
+      document.getElementById('summaryContent').innerHTML = `
+        <div style="margin-bottom:10px;">
+          <strong>Written Works (Quiz + Activity):</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <strong>Performance Tasks (PETA):</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(${ptWeight*100}%)</span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <strong>Exam:</strong> ${avgExam.toFixed(1)}% <span style="color:#6b5a7a;">(${examWeight*100}%)</span>
+        </div>
+        <hr style="margin:16px 0; border-color:#ecdde6;">
+        <div class="final-grade">${finalGrade.toFixed(1)}%</div>
+        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade for this Quarter</div>
+      `;
+    }
+
     function renderEntries() {
       const list = document.getElementById('entriesList');
       list.innerHTML = '';
 
-      ['WW', 'PT', 'QA'].forEach(cat => {
-        if (scores[cat] && scores[cat].length > 0) {
+      const subject = subjectSelect.value;
+      if (!subject || !scores[currentQuarter][subject]) return;
+
+      const data = scores[currentQuarter][subject];
+
+      ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
+        if (data[type] && data[type].length > 0) {
           const header = document.createElement('div');
-          header.innerHTML = `<strong>${getCategoryName(cat)}:</strong>`;
+          header.innerHTML = `<strong>${type}:</strong>`;
           list.appendChild(header);
 
-          scores[cat].forEach((item, index) => {
+          data[type].forEach((item, index) => {
+            const percent = ((item.score / item.total) * 100).toFixed(1);
             const entry = document.createElement('div');
             entry.className = 'entry';
             entry.innerHTML = `
-              ${item.subject ? item.subject + ' — ' : ''}${item.score} / ${item.total}
-              <span style="color:#6b5a7a;">(${((item.score/item.total)*100).toFixed(1)}%)</span>
-              <span class="delete-btn" onclick="deleteScore('${cat}', ${index})">×</span>
+              ${item.score} / ${item.total} 
+              <span style="color:#6b5a7a;">(${percent}%)</span>
+              <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', ${index})">×</span>
             `;
             list.appendChild(entry);
           });
@@ -259,57 +352,16 @@
       });
     }
 
-    window.deleteScore = function(category, index) {
-      if (confirm("Delete this score?")) {
-        scores[category].splice(index, 1);
-        renderEntries();
-        calculateGrades();
-        saveScoresToFirebase();
-      }
-    };
-
-    function getCategoryName(cat) {
-      if (cat === 'WW') return 'Written Works';
-      if (cat === 'PT') return 'Performance Tasks';
-      return 'Quarterly Assessment';
+    function updateWeightsDisplay() {
+      // Optional: You can show a small note about weights if you want
+      calculateGrades();
     }
 
-    function calculateAverage(category) {
-      if (!scores[category] || scores[category].length === 0) return 0;
-      let totalPercent = 0;
-      scores[category].forEach(item => {
-        totalPercent += (item.score / item.total) * 100;
-      });
-      return totalPercent / scores[category].length;
-    }
-
-    function calculateGrades() {
-      const avgWW = calculateAverage('WW');
-      const avgPT = calculateAverage('PT');
-      const avgQA = calculateAverage('QA');
-      const finalGrade = (avgWW * 0.25) + (avgPT * 0.50) + (avgQA * 0.25);
-
-      document.getElementById('summaryContent').innerHTML = `
-        <div style="margin-bottom:12px;">
-          <strong>Written Works:</strong> ${avgWW.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
-        </div>
-        <div style="margin-bottom:12px;">
-          <strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% <span style="color:#6b5a7a;">(50%)</span>
-        </div>
-        <div style="margin-bottom:12px;">
-          <strong>Quarterly Assessment:</strong> ${avgQA.toFixed(1)}% <span style="color:#6b5a7a;">(25%)</span>
-        </div>
-        <hr style="margin:16px 0; border-color:#ecdde6;">
-        <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-        <div style="text-align:center; color:#6b5a7a; font-size:14px;">Final Grade</div>
-      `;
-    }
-
-    function logout() {
-      if (confirm("Are you sure you want to logout?")) {
-        signOut(auth).then(() => window.location.href = "login.html");
-      }
-    }
+    // Initial render
+    setTimeout(() => {
+      renderEntries();
+      calculateGrades();
+    }, 500);
   </script>
 </body>
 </html>
