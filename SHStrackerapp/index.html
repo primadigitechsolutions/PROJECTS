@@ -8,7 +8,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
-      background: #f8f4fa; /* Matches Profile/Reviewer Background */
+      /* Applying your custom gradient colors */
+      background: linear-gradient(135deg, #5E3A7E 0%, #8C5D85 25%, #B97D7E 50%, #D98B6E 75%, #F1A17E 100%);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       display: flex;
       align-items: center;
@@ -17,21 +18,20 @@
       padding: 10px;
     }
 
-    /* Standardized Container - Matches Profile.html */
     .phone-frame {
       width: 100%; 
       max-width: 400px; 
       height: 92vh;
       background: white; 
-      border-radius: 40px; /* Matched 40px rounding */
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      border-radius: 40px; /* Standardized with Profile/Reviewer */
+      box-shadow: 0 25px 50px -12px rgba(44, 30, 63, 0.3);
       overflow: hidden; 
       display: flex; 
       flex-direction: column; 
       position: relative;
     }
 
-    /* Initial hidden state to prevent flicker during Auth check */
+    /* Prevents UI flicker during login check */
     #mainWrapper {
       display: none; 
       flex-direction: column;
@@ -39,7 +39,7 @@
     }
 
     .screen-content {
-      padding: 40px 28px;
+      padding: 45px 30px;
       flex: 1;
       overflow-y: auto;
     }
@@ -47,22 +47,22 @@
     /* Logo Styling */
     .logo-area {
       text-align: center;
-      margin-bottom: 45px;
-      margin-top: 20px;
+      margin-bottom: 40px;
+      margin-top: 10px;
     }
     .logo-icon {
-      width: 54px;
-      height: 54px;
-      background: #4E356F;
+      width: 56px;
+      height: 56px;
+      background: #5E3A7E; /* Using your primary dark purple */
       border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: 800;
-      font-size: 26px;
+      font-size: 28px;
       margin: 0 auto 15px;
-      box-shadow: 0 8px 20px rgba(78, 53, 111, 0.2);
+      box-shadow: 0 8px 20px rgba(94, 58, 126, 0.2);
     }
     .logo-text {
       font-size: 26px;
@@ -71,13 +71,13 @@
       letter-spacing: -0.8px;
     }
 
-    /* Input Styling */
+    /* Form Fields */
     .input-group { margin-bottom: 22px; }
     .input-label {
       display: block;
       font-size: 11px;
       font-weight: 800;
-      color: #9C6A82;
+      color: #8C5D85;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 1.2px;
@@ -85,32 +85,32 @@
     .input-field {
       width: 100%;
       padding: 16px 20px;
-      background-color: #fcfaff;
+      background-color: #fdfafd;
       border: 1px solid #f0e6f5;
       border-radius: 20px;
       font-size: 16px;
       color: #2c1e3f;
       outline: none;
-      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: 0.2s;
     }
     .input-field:focus {
-      border-color: #4E356F;
+      border-color: #5E3A7E;
       background-color: #fff;
-      box-shadow: 0 0 0 4px rgba(78, 53, 111, 0.05);
+      box-shadow: 0 0 0 4px rgba(94, 58, 126, 0.05);
     }
 
     .forgot-row { text-align: right; margin-bottom: 28px; }
     .forgot-link {
       font-size: 13px;
-      color: #9C6A82;
+      color: #8C5D85;
       text-decoration: none;
       font-weight: 600;
     }
 
-    /* Primary Button */
+    /* Action Buttons */
     .btn-primary {
       width: 100%;
-      background: #4E356F;
+      background: #5E3A7E;
       border: none;
       padding: 18px;
       border-radius: 22px;
@@ -118,14 +118,14 @@
       font-weight: 700;
       color: white;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(78, 53, 111, 0.25);
+      box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25);
       margin-bottom: 24px;
       transition: 0.3s;
     }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-    .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #9C6A82; }
-    .signup-link { color: #4E356F; font-weight: 800; text-decoration: none; margin-left: 5px; }
+    .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #8C5D85; }
+    .signup-link { color: #5E3A7E; font-weight: 800; text-decoration: none; margin-left: 5px; }
 
     .divider {
       display: flex; align-items: center; text-align: center;
@@ -136,16 +136,13 @@
     .divider::before { margin-right: 15px; }
     .divider::after { margin-left: 15px; }
 
-    /* Social Button */
     .social-btn {
       width: 100%;
       display: flex; align-items: center; justify-content: center; gap: 12px;
       background: white; border: 1px solid #f0e6f5; border-radius: 20px;
       padding: 15px; font-weight: 700; font-size: 14px; color: #2c1e3f; cursor: pointer;
-      transition: 0.2s;
     }
-    .social-btn:active { background: #fcfaff; transform: translateY(1px); }
-    .social-icon { font-size: 18px; font-weight: 800; }
+    .social-btn:active { background: #fdfafd; transform: translateY(1px); }
 
     .meta-info { text-align: center; margin-top: 35px; font-size: 11px; color: #bcafbf; font-weight: 500; }
   </style>
@@ -177,8 +174,8 @@
         <button class="btn-primary" id="loginBtn">Login</button>
 
         <div class="signup-row">
-          <span>New here?</span>
-          <a href="register.html" class="signup-link">Create Account</a>
+          <span>New account?</span>
+          <a href="register.html" class="signup-link">Sign Up</a>
         </div>
 
         <div class="divider">OR CONTINUE WITH</div>
@@ -191,7 +188,7 @@
         </div>
 
         <div class="meta-info">
-          Secure Academic Tracker • v2.1.0
+          Secure Access • v2.1.0
         </div>
       </div>
     </div>
@@ -222,38 +219,32 @@
     const provider = new GoogleAuthProvider();
     const wrapper = document.getElementById('mainWrapper');
 
-    // ====================== AUTH GUARD & AUTO-REDIRECT ======================
+    // AUTH GUARD: Check if already logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is logged in, skip login page
         window.location.href = "dashboard.html";
       } else {
-        // No user, show the login UI
         wrapper.style.display = "flex";
       }
     });
 
-    // ====================== Manual Login Logic ======================
+    // Manual Login Logic
     document.getElementById('loginBtn').addEventListener('click', () => {
       const u = document.getElementById('username').value.trim();
       const p = document.getElementById('password').value.trim();
-
-      // Demo credentials check
       if (u === "wina.va" && p === "11111111") {
         window.location.href = "dashboard.html";
       } else {
-        alert("Invalid credentials. Try wina.va / 11111111");
+        alert("Incorrect credentials. Hint: wina.va / 11111111");
       }
     });
 
-    // ====================== Google Login Logic ======================
+    // Google Login Logic
     document.getElementById('googleBtn').addEventListener('click', async () => {
-      // Android Native Bridge Support
       if (typeof Android !== 'undefined' && typeof Android.requestGoogleSignIn === 'function') {
         Android.requestGoogleSignIn();
         return;
       }
-
       try {
         await signInWithPopup(auth, provider);
         window.location.href = "dashboard.html";
@@ -264,7 +255,7 @@
       }
     });
 
-    // Handle Native Android Bridge Result
+    // Android Native Bridge
     window.handleNativeGoogleLogin = async (token) => {
       try {
         const credential = GoogleAuthProvider.credential(token);
