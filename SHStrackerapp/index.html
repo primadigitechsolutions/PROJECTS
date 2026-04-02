@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
-      background: #f8f4fa; /* Keep the existing background */
+      background: #f8f4fa;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       display: flex;
       align-items: center;
@@ -17,149 +17,78 @@
       padding: 10px;
     }
 
-    /* Standardized Container - Matches Profile.html */
     .phone-frame {
-      width: 100%; 
-      max-width: 400px; 
-      height: 92vh;
-      background: white; 
-      border-radius: 40px; /* Matched 40px rounding */
+      width: 100%; max-width: 400px; height: 92vh;
+      background: white; border-radius: 40px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; 
-      display: flex; 
-      flex-direction: column; 
-      position: relative;
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
-    /* Initial hidden state to prevent flicker during Auth check */
-    #mainWrapper {
-      display: none; 
-      flex-direction: column;
-      height: 100%;
-    }
+    #mainWrapper { display: none; flex-direction: column; height: 100%; }
 
-    .screen-content {
-      padding: 40px 28px;
-      flex: 1;
-      overflow-y: auto;
-    }
+    .screen-content { padding: 40px 28px; flex: 1; overflow-y: auto; }
 
-    /* Logo Styling */
-    .logo-area {
-      text-align: center;
-      margin-bottom: 45px;
-      margin-top: 20px;
-    }
+    .logo-area { text-align: center; margin-bottom: 45px; margin-top: 20px; }
     .logo-icon {
-      width: 54px;
-      height: 54px;
-      /* logo icon color changed to purple from image */
-      background: #5E3A7E; 
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 26px;
-      margin: 0 auto 15px;
-      /* box shadow color changed to purple from image */
+      width: 54px; height: 54px; background: #5E3A7E; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 26px; margin: 0 auto 15px;
       box-shadow: 0 8px 20px rgba(94, 58, 126, 0.2);
     }
-    .logo-text {
-      font-size: 26px;
-      font-weight: 800;
-      color: #2c1e3f;
-      letter-spacing: -0.8px;
-    }
+    .logo-text { font-size: 26px; font-weight: 800; color: #2c1e3f; letter-spacing: -0.8px; }
 
-    /* Input Styling */
     .input-group { margin-bottom: 22px; }
-    .input-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 800;
-      /* label text color changed to purple from image */
-      color: #5E3A7E; 
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-    }
+    .input-label { display: block; font-size: 11px; font-weight: 800; color: #5E3A7E; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.2px; }
     .input-field {
-      width: 100%;
-      padding: 16px 20px;
-      background-color: #fcfaff;
-      /* input border color changed to middle color from image */
-      border: 1px solid #B97D7E; 
-      border-radius: 20px;
-      font-size: 16px;
-      color: #2c1e3f;
-      outline: none;
+      width: 100%; padding: 16px 20px; background-color: #fcfaff; border: 1px solid #B97D7E;
+      border-radius: 20px; font-size: 16px; color: #2c1e3f; outline: none;
       transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .input-field:focus {
-      /* border color on focus changed to purple from image */
-      border-color: #5E3A7E; 
-      background-color: #fff;
-      /* box shadow color on focus changed to purple from image */
-      box-shadow: 0 0 0 4px rgba(94, 58, 126, 0.05);
-    }
+    .input-field:focus { border-color: #5E3A7E; background-color: #fff; box-shadow: 0 0 0 4px rgba(94, 58, 126, 0.05); }
 
     .forgot-row { text-align: right; margin-bottom: 28px; }
-    .forgot-link {
-      font-size: 13px;
-      /* link color changed to middle color from image */
-      color: #B97D7E; 
-      text-decoration: none;
-      font-weight: 600;
-    }
+    .forgot-link { font-size: 13px; color: #B97D7E; text-decoration: none; font-weight: 600; }
 
-    /* Primary Button */
     .btn-primary {
-      width: 100%;
-      /* primary button color changed to purple from image */
-      background: #5E3A7E; 
-      border: none;
-      padding: 18px;
-      border-radius: 22px;
-      font-size: 16px;
-      font-weight: 700;
-      color: white;
-      cursor: pointer;
-      /* box shadow color changed to purple from image */
-      box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25);
-      margin-bottom: 24px;
-      transition: 0.3s;
+      width: 100%; background: #5E3A7E; border: none; padding: 18px; border-radius: 22px;
+      font-size: 16px; font-weight: 700; color: white; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25); margin-bottom: 24px; transition: 0.3s;
     }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-    .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; /* signup row color changed to purple from image */ color: #5E3A7E; }
-    /* link color changed to peachy orange from image */
+    .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #5E3A7E; }
     .signup-link { color: #F1A17E; font-weight: 800; text-decoration: none; margin-left: 5px; }
 
-    .divider {
-      display: flex; align-items: center; text-align: center;
-      /* divider text color changed to middle color from image */
-      color: #B97D7E; font-size: 11px; font-weight: 700; margin-bottom: 28px;
-      letter-spacing: 1px;
-    }
-    /* divider line color changed to peachy orange from image */
+    .divider { display: flex; align-items: center; text-align: center; color: #B97D7E; font-size: 11px; font-weight: 700; margin-bottom: 28px; letter-spacing: 1px; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #F1A17E; }
     .divider::before { margin-right: 15px; }
     .divider::after { margin-left: 15px; }
 
-    /* Social Button */
     .social-btn {
-      width: 100%;
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      background: white; /* social border color changed to peachy orange from image */ border: 1px solid #F1A17E; border-radius: 20px;
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: white; border: 1px solid #F1A17E; border-radius: 20px;
       padding: 15px; font-weight: 700; font-size: 14px; color: #2c1e3f; cursor: pointer;
-      transition: 0.2s;
     }
-    .social-btn:active { background: #fcfaff; transform: translateY(1px); }
-    .social-icon { font-size: 18px; font-weight: 800; }
 
-    .meta-info { text-align: center; margin-top: 35px; font-size: 11px; /* meta info color changed to purple from image */ color: #5E3A7E; font-weight: 500; }
+    .meta-info { text-align: center; margin-top: 35px; font-size: 11px; color: #5E3A7E; font-weight: 500; }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+      z-index: 2000; backdrop-filter: blur(4px);
+    }
+    .modal-card {
+      background: white; width: 85%; max-width: 320px; border-radius: 28px;
+      padding: 30px 25px; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 15px; }
+    .icon-error { background: #fef2f2; color: #ef4444; }
+    .modal-title { font-size: 18px; font-weight: 800; color: #2c1e3f; margin-bottom: 10px; }
+    .modal-text { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 20px; }
+    .modal-btn { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; background: #5E3A7E; color: white; }
+
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -173,8 +102,8 @@
         </div>
 
         <div class="input-group">
-          <label class="input-label">Username</label>
-          <input type="text" id="username" class="input-field" placeholder="wina.va" value="wina.va">
+          <label class="input-label">Email Address</label>
+          <input type="email" id="email" class="input-field" placeholder="student@academic.edu">
         </div>
         
         <div class="input-group">
@@ -209,6 +138,15 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal-card">
+      <div class="modal-icon icon-error">✕</div>
+      <div class="modal-title" id="modalTitle">Error</div>
+      <div class="modal-text" id="modalText">Message goes here...</div>
+      <button class="modal-btn" onclick="document.getElementById('statusModal').style.display='none'">OK</button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { 
@@ -216,7 +154,9 @@
       GoogleAuthProvider, 
       signInWithCredential,
       signInWithPopup,
-      onAuthStateChanged 
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -234,58 +174,66 @@
     const provider = new GoogleAuthProvider();
     const wrapper = document.getElementById('mainWrapper');
 
-    // ====================== AUTH GUARD & AUTO-REDIRECT ======================
+    function showModal(title, msg) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalText').innerText = msg;
+      document.getElementById('statusModal').style.display = 'flex';
+    }
+
+    // ====================== AUTH GUARD ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is logged in, skip login page
-        window.location.href = "dashboard.html";
+        if (user.emailVerified) {
+          window.location.href = "dashboard.html";
+        } else {
+          // Logged in but not verified? Force out.
+          signOut(auth);
+          wrapper.style.display = "flex";
+        }
       } else {
-        // No user, show the login UI
         wrapper.style.display = "flex";
       }
     });
 
-    // ====================== Manual Login Logic ======================
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value.trim();
+    // ====================== REAL LOGIN LOGIC ======================
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      // Demo credentials check
-      if (u === "wina.va" && p === "11111111") {
-        window.location.href = "dashboard.html";
-      } else {
-        alert("Invalid credentials. Try wina.va / 11111111");
+      if (!email || !password) {
+        showModal("Wait!", "Please enter your email and password.");
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (user.emailVerified) {
+          window.location.href = "dashboard.html";
+        } else {
+          await signOut(auth);
+          showModal("Account Not Active", "Please verify your email address before logging in. Check your inbox (and spam) for the link.");
+        }
+      } catch (error) {
+        let msg = "Invalid email or password.";
+        if (error.code === 'auth/user-not-found') msg = "No account found with this email.";
+        showModal("Login Failed", msg);
       }
     });
 
     // ====================== Google Login Logic ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
-      // Android Native Bridge Support
-      if (typeof Android !== 'undefined' && typeof Android.requestGoogleSignIn === 'function') {
-        Android.requestGoogleSignIn();
-        return;
-      }
-
       try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        // Google accounts usually come pre-verified
         window.location.href = "dashboard.html";
       } catch (error) {
         if (error.code !== 'auth/popup-closed-by-user') {
-          alert("Login failed: " + error.message);
+          showModal("Google Auth Error", "Could not sign in with Google.");
         }
       }
     });
-
-    // Handle Native Android Bridge Result
-    window.handleNativeGoogleLogin = async (token) => {
-      try {
-        const credential = GoogleAuthProvider.credential(token);
-        await signInWithCredential(auth, credential);
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        console.error("Native Auth Error:", error);
-      }
-    };
   </script>
 </body>
 </html>
