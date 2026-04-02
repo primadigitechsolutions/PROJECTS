@@ -18,24 +18,15 @@
     }
 
     .phone-frame {
-      width: 100%;
-      max-width: 400px;
-      height: 92vh; /* Matched to tracker.html */
-      background: white;
-      border-radius: 40px;
+      width: 100%; max-width: 400px; height: 92vh;
+      background: white; border-radius: 40px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
     .header {
-      padding: 20px 24px 10px; /* Matched padding */
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
+      padding: 24px 24px 10px;
+      display: flex; justify-content: space-between; align-items: center;
     }
     .greeting { font-size: 22px; font-weight: 700; color: #2c1e3f; }
     .greeting .name { color: #EF9875; }
@@ -49,35 +40,51 @@
       font-weight: 700; cursor: pointer;
     }
 
-    /* SEMESTER SELECTOR STYLE */
-    .sem-selector-container {
-      padding: 0 24px 15px;
+    /* --- PROFESSIONAL SEGMENTED CONTROL --- */
+    .sem-toggle-wrapper {
+      padding: 0 24px 20px;
     }
-    #semesterSelect {
-      width: 100%;
-      padding: 12px;
-      border: 1.5px solid #ecdde6;
-      border-radius: 16px;
-      font-size: 14px;
-      outline: none;
-      color: #4E356F;
-      font-weight: 600;
-      background: #fcfaff;
+    .segmented-control {
+      background: #f0e6f5;
+      padding: 4px;
+      border-radius: 14px;
+      display: flex;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
     }
-
-    .main-content {
+    .segment {
       flex: 1;
-      overflow-y: auto;
-      padding: 0 20px 100px; /* Matched to tracker.html */
+      padding: 10px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #9C6A82;
+      z-index: 2;
+      transition: color 0.3s ease;
+    }
+    .segment.active { color: #4E356F; }
+    
+    .glider {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      width: calc(50% - 4px);
+      background: white;
+      border-radius: 11px;
+      box-shadow: 0 2px 8px rgba(78, 53, 111, 0.1);
+      transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+      z-index: 1;
     }
 
+    .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
+
+    /* UI Components */
     .progress-card {
-      background: white;
-      border-radius: 24px;
-      padding: 18px;
+      background: white; border-radius: 24px; padding: 18px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.05);
-      margin-bottom: 20px;
-      border: 1px solid #f0e6f5;
+      margin-bottom: 20px; border: 1px solid #f0e6f5;
     }
     .progress-wrapper { display: flex; align-items: center; gap: 15px; }
     .circular-progress { position: relative; width: 90px; height: 90px; }
@@ -115,36 +122,28 @@
     .subject-subtitle { font-size: 11px; color: #9C6A82; margin: 4px 0 10px; text-transform: capitalize; }
     .subject-grade-val { font-size: 15px; font-weight: 800; color: #4E356F; margin-top: 8px; }
 
+    /* Nav & Modals */
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: white; border-top: 1px solid #e9dee4;
-      display: flex; justify-content: space-around; padding: 10px 0 25px;
-      z-index: 100;
+      position: absolute; bottom: 0; left: 0; right: 0; background: white;
+      border-top: 1px solid #e9dee4; display: flex; justify-content: space-around; padding: 10px 0 25px;
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: #9C6A82; font-size: 11px; cursor: pointer; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #9C6A82; font-size: 11px; }
     .nav-item.active { color: #4E356F; font-weight: 700; }
     .nav-icon { font-size: 22px; margin-bottom: 4px; }
 
-    /* Dropdown */
     .dropdown-content {
-      display: none; position: absolute; right: 20px; top: 70px;
+      display: none; position: absolute; right: 20px; top: 75px;
       background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       border-radius: 16px; width: 180px; z-index: 1000; border: 1px solid #f0e6f5;
     }
     .dropdown-content.show { display: block; }
     .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; }
-    .dropdown-item.logout { color: #e07a5f; border-top: 1px solid #f0e6f5; }
 
     .modal {
-      display: none; position: fixed; top: 0; left: 0; 
-      width: 100%; height: 100%; background: rgba(0,0,0,0.6); 
-      align-items: center; justify-content: center; z-index: 2000;
-      backdrop-filter: blur(2px);
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(2px);
     }
-    .modal-content {
-      background: white; width: 85%; max-width: 320px; 
-      border-radius: 24px; padding: 25px; text-align: center;
-    }
+    .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 24px; padding: 25px; text-align: center; }
     .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
     .modal-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; }
     .btn-cancel { background: #f0e6f0; color: #4E356F; }
@@ -157,21 +156,21 @@
   <div class="header">
     <div>
       <div class="greeting">Hi, <span class="name" id="userName">Student</span> 👋</div>
-      <div class="user-email" id="userEmail">Loading...</div>
+      <div class="user-email" id="userEmail">Syncing...</div>
     </div>
     <div class="profile-circle" id="profileBtn">?</div>
-
     <div class="dropdown-content" id="dropdownMenu">
       <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
-      <div class="dropdown-item logout" id="logoutBtn">🚪 Logout</div>
+      <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="logoutBtn">🚪 Logout</div>
     </div>
   </div>
 
-  <div class="sem-selector-container">
-    <select id="semesterSelect">
-      <option value="S1">1st Semester</option>
-      <option value="S2">2nd Semester</option>
-    </select>
+  <div class="sem-toggle-wrapper">
+    <div class="segmented-control" id="semToggle">
+      <div class="segment active" data-sem="S1">1st Semester</div>
+      <div class="segment" data-sem="S2">2nd Semester</div>
+      <div class="glider" id="glider"></div>
+    </div>
   </div>
 
   <div class="main-content">
@@ -180,8 +179,7 @@
         <div class="circular-progress">
           <svg width="90" height="90" viewBox="0 0 100 100">
             <circle class="bg-circle" cx="50" cy="50" r="42"/>
-            <circle class="progress-circle" id="overallCircle" cx="50" cy="50" r="42"
-                    stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+            <circle class="progress-circle" id="overallCircle" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
           </svg>
           <div class="progress-center">
             <div class="progress-percentage" id="overallPct">0%</div>
@@ -189,7 +187,7 @@
           </div>
         </div>
         <div class="performance-right">
-          <div class="label" id="perfLabel">1st Semester Avg</div>
+          <div class="label" id="perfLabel">1st Semester Performance</div>
           <div class="big-number" id="overallBigNum">0%</div>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="overallBar" style="width: 0%"></div>
@@ -198,8 +196,8 @@
       </div>
     </div>
 
-    <div class="section-title">My Subjects</div>
-    <div class="tip-text">Hold card to delete subject</div>
+    <div class="section-title">Academic Load</div>
+    <div class="tip-text">Press and hold to remove a subject</div>
     <div class="subject-grid" id="subjectGrid"></div>
   </div>
 
@@ -214,7 +212,7 @@
 <div id="deleteModal" class="modal">
   <div class="modal-content">
     <h3>Delete Subject?</h3>
-    <p style="font-size: 14px; color: #666; margin: 10px 0;">This will remove all grades for <br><b id="targetSubDisplay"></b> in this semester.</p>
+    <p style="font-size: 14px; color: #666; margin: 10px 0;">Removing <b id="targetSubDisplay"></b> will clear all its scores for this semester.</p>
     <div class="modal-buttons">
       <button class="modal-btn btn-cancel" id="cancelDelete">Cancel</button>
       <button class="modal-btn btn-delete" id="confirmDelete">Delete</button>
@@ -241,37 +239,43 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
-  let currentUid = null;
-  let subjectToDel = null;
-  let longPressTriggered = false;
-  let timer;
-  let currentSem = localStorage.getItem('lastSem') || 'S1';
-
-  document.getElementById('semesterSelect').value = currentSem;
+  let currentUid = null, subjectToDel = null, timer, currentSem = localStorage.getItem('lastSem') || 'S1';
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUid = user.uid;
-      const name = user.displayName || user.email?.split('@')[0] || "Student";
-      document.getElementById('userName').textContent = name;
+      document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
       document.getElementById('userEmail').textContent = user.email;
-      document.getElementById('profileBtn').textContent = name.charAt(0).toUpperCase();
+      document.getElementById('profileBtn').textContent = (user.displayName || user.email)[0].toUpperCase();
+      initToggle();
       loadData();
-    } else {
-      window.location.href = "login.html";
-    }
+    } else { window.location.href = "login.html"; }
   });
 
-  function loadData() {
-    // Labels Update
-    document.getElementById('perfLabel').textContent = `${currentSem === 'S1' ? '1st' : '2nd'} Semester Avg`;
+  function initToggle() {
+    const segments = document.querySelectorAll('.segment');
+    const glider = document.getElementById('glider');
     
-    // Listen to the specific semester branch
+    const updateUI = (sem) => {
+      segments.forEach(s => s.classList.toggle('active', s.dataset.sem === sem));
+      glider.style.transform = sem === 'S1' ? 'translateX(0)' : 'translateX(100%)';
+    };
+
+    updateUI(currentSem);
+
+    segments.forEach(s => s.onclick = () => {
+      currentSem = s.dataset.sem;
+      localStorage.setItem('lastSem', currentSem);
+      updateUI(currentSem);
+      loadData();
+    });
+  }
+
+  function loadData() {
+    document.getElementById('perfLabel').textContent = `${currentSem === 'S1' ? '1st' : '2nd'} Semester Performance`;
     onValue(ref(database, `users/${currentUid}`), (snapshot) => {
       const data = snapshot.val() || {};
-      const semesterSubjects = data.semesters?.[currentSem]?.subjects || {};
-      const semesterScores = data.trackerScores?.[currentSem] || {};
-      renderDashboard(semesterSubjects, semesterScores);
+      renderDashboard(data.semesters?.[currentSem]?.subjects || {}, data.trackerScores?.[currentSem] || {});
     });
   }
 
@@ -280,37 +284,27 @@
     grid.innerHTML = '';
     let totalGrades = 0, count = 0;
 
-    Object.keys(subjects).forEach(subName => {
-      const type = subjects[subName];
-      const grade = calculateGrade(subName, type, scores);
-      totalGrades += grade;
-      count++;
+    Object.entries(subjects).forEach(([subName, type]) => {
+      const grade = calculateGrade(subName, type, scores[subName]);
+      totalGrades += grade; count++;
 
       const card = document.createElement('div');
       card.className = 'subject-card';
-      
-      const handleStart = () => {
-        longPressTriggered = false;
+      card.onmousedown = card.ontouchstart = () => {
         timer = setTimeout(() => {
-          longPressTriggered = true;
           subjectToDel = subName;
           document.getElementById('targetSubDisplay').textContent = subName;
           document.getElementById('deleteModal').style.display = 'flex';
         }, 700);
       };
-
-      const handleEnd = () => {
+      card.onmouseup = card.onclick = card.ontouchend = () => {
         clearTimeout(timer);
-        if (!longPressTriggered) {
-          localStorage.setItem(`lastSub_${currentSem}`, subName);
-          window.location.href = 'tracker.html';
+        if (subjectToDel !== subName) {
+            localStorage.setItem(`lastSub_${currentSem}`, subName);
+            window.location.href = 'tracker.html';
         }
+        subjectToDel = null;
       };
-
-      card.addEventListener('touchstart', handleStart);
-      card.addEventListener('touchend', handleEnd);
-      card.addEventListener('mousedown', handleStart);
-      card.addEventListener('mouseup', handleEnd);
 
       card.innerHTML = `
         <div class="subject-name">${subName}</div>
@@ -321,69 +315,41 @@
       grid.appendChild(card);
     });
 
-    const overall = count > 0 ? (totalGrades / count) : 0;
-    updateUI(overall);
+    const avg = count > 0 ? (totalGrades / count) : 0;
+    document.getElementById('overallPct').textContent = avg.toFixed(0) + '%';
+    document.getElementById('overallBigNum').textContent = avg.toFixed(1) + '%';
+    document.getElementById('overallBar').style.width = avg + '%';
+    document.getElementById('overallCircle').style.strokeDashoffset = 263.89 - (avg / 100) * 263.89;
   }
 
-  function calculateGrade(subName, type, scores) {
-    let qGrades = [];
-    const subData = scores[subName];
-    if (!subData) return 0;
-
-    ['Q1', 'Q2', 'Q3', 'Q4'].forEach(q => {
-      const data = subData[q];
-      if (data) {
-        const getAvg = (obj) => {
-          if (!obj) return 0;
-          const vals = Object.values(obj);
-          return vals.length ? (vals.reduce((a,b)=>a+(b.score/b.total), 0)/vals.length)*100 : 0;
+  function calculateGrade(subName, type, subScores) {
+    if (!subScores) return 0;
+    let qs = [];
+    ['Q1','Q2','Q3','Q4'].forEach(q => {
+      const d = subScores[q];
+      if (d) {
+        const getAvg = (o) => {
+          if (!o) return 0; const v = Object.values(o);
+          return (v.reduce((a,b)=>a+(b.score/b.total), 0)/v.length)*100;
         };
-        const ww = (getAvg(data.Quiz) + getAvg(data.Activity)) / 2;
-        const pt = getAvg(data.PETA);
-        const ex = getAvg(data.Exam);
+        const ww = (getAvg(d.Quiz) + getAvg(d.Activity)) / 2;
         const isCore = type === 'core';
-        const res = (ww * 0.25) + (pt * (isCore ? 0.50 : 0.45)) + (ex * (isCore ? 0.25 : 0.30));
-        if (res > 0) qGrades.push(res);
+        qs.push((ww * 0.25) + (getAvg(d.PETA) * (isCore?0.5:0.45)) + (getAvg(d.Exam) * (isCore?0.25:0.3)));
       }
     });
-    return qGrades.length > 0 ? (qGrades.reduce((a,b)=>a+b) / qGrades.length) : 0;
+    return qs.length ? (qs.reduce((a,b)=>a+b)/qs.length) : 0;
   }
 
-  function updateUI(avg) {
-    const val = avg.toFixed(0) + '%';
-    document.getElementById('overallPct').textContent = val;
-    document.getElementById('overallBigNum').textContent = val;
-    document.getElementById('overallBar').style.width = val;
-    const offset = 263.89 - (avg / 100) * 263.89;
-    document.getElementById('overallCircle').style.strokeDashoffset = offset;
-  }
-
-  // Semester Switch
-  document.getElementById('semesterSelect').onchange = (e) => {
-    currentSem = e.target.value;
-    localStorage.setItem('lastSem', currentSem);
-    loadData();
-  };
-
-  // Delete Actions
   document.getElementById('confirmDelete').onclick = async () => {
-    if (!subjectToDel) return;
     await remove(ref(database, `users/${currentUid}/semesters/${currentSem}/subjects/${subjectToDel}`));
     await remove(ref(database, `users/${currentUid}/trackerScores/${currentSem}/${subjectToDel}`));
     document.getElementById('deleteModal').style.display = 'none';
   };
 
   document.getElementById('cancelDelete').onclick = () => document.getElementById('deleteModal').style.display = 'none';
-
-  // Profile/Logout
-  document.getElementById('profileBtn').onclick = (e) => { 
-    e.stopPropagation(); 
-    document.getElementById('dropdownMenu').classList.toggle('show'); 
-  };
+  document.getElementById('profileBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('show'); };
   document.addEventListener('click', () => document.getElementById('dropdownMenu').classList.remove('show'));
-  document.getElementById('logoutBtn').onclick = () => { 
-    if(confirm("Logout?")) signOut(auth).then(()=>window.location.href="login.html"); 
-  };
+  document.getElementById('logoutBtn').onclick = () => { if(confirm("Logout?")) signOut(auth).then(()=>window.location.href="login.html"); };
 </script>
 </body>
 </html>
