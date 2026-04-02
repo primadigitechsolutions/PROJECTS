@@ -24,13 +24,35 @@
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
-    /* Header & Subject Management */
+    /* Modal Styling */
+    .modal-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(44, 30, 63, 0.4); backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal {
+      width: 85%; background: white; border-radius: 24px; padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: translateY(0);
+    }
+    .modal h3 { font-size: 18px; color: #2c1e3f; margin-bottom: 16px; font-weight: 800; }
+    .modal input {
+      width: 100%; padding: 14px; border: 1.5px solid #f0e6f5; border-radius: 12px;
+      outline: none; font-size: 16px; margin-bottom: 20px; font-family: inherit;
+    }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-btn {
+      flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px;
+    }
+    .btn-cancel { background: #f8f4fa; color: #9C6A82; }
+    .btn-confirm { background: #4E356F; color: white; }
+
+    /* Header */
     .header { padding: 20px 24px 5px; display: flex; justify-content: space-between; align-items: center; }
-    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; }
-    .add-page-btn { font-size: 22px; color: #4E356F; cursor: pointer; background: #f0e6f5; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: 0.2s; }
+    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; width: 40px; }
+    .add-page-btn { font-size: 22px; color: #4E356F; cursor: pointer; background: #f0e6f5; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: 0.2s; }
     .add-page-btn:active { transform: scale(0.9); }
 
-    /* Professional Subject Navigator */
+    /* Subject Navigator */
     .page-navigator {
       padding: 10px 24px;
       display: flex;
@@ -40,7 +62,6 @@
       background: #fff;
     }
     .page-navigator::-webkit-scrollbar { display: none; }
-
     .page-tab {
       padding: 8px 18px;
       background: #f8f4fa;
@@ -50,16 +71,11 @@
       color: #9C6A82;
       white-space: nowrap;
       cursor: pointer;
-      border: 1px solid transparent;
       transition: 0.3s ease;
     }
-    .page-tab.active {
-      background: #4E356F;
-      color: white;
-      box-shadow: 0 4px 12px rgba(78, 53, 111, 0.15);
-    }
+    .page-tab.active { background: #4E356F; color: white; box-shadow: 0 4px 12px rgba(78, 53, 111, 0.15); }
 
-    /* Word-Style Symbol Toolbar */
+    /* Word Symbol Toolbar */
     .reviewer-controls {
       padding: 12px 24px;
       display: flex;
@@ -69,33 +85,20 @@
       border-top: 1px solid #f0e6f5;
       border-bottom: 1px solid #f0e6f5;
     }
-
     .control-btn {
-      width: 42px;
-      height: 42px;
-      border: 1px solid #eee;
-      background: white;
-      border-radius: 10px;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: #4E356F;
-      transition: 0.2s;
+      width: 42px; height: 42px; border: 1px solid #eee; background: white;
+      border-radius: 10px; font-size: 18px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: #4E356F; transition: 0.2s;
     }
     .control-btn:active { background: #f0e6f5; transform: translateY(1px); }
-    
     .divider { width: 1px; height: 24px; background: #eee; margin: 0 4px; }
 
-    /* Main Note Area */
+    /* Writing Area */
     .main-content { flex: 1; overflow-y: auto; padding: 20px 24px 120px; }
     .notes-area { width: 100%; min-height: 100%; color: #2c1e3f; outline: none; font-size: 16px; line-height: 1.6; }
-
-    /* Internal Text Styling */
     .notes-area h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; color: #2c1e3f; }
     .notes-area p { font-size: 16px; color: #555; }
-    .notes-area ul { padding-left: 20px; margin: 8px 0; }
+    .notes-area ul { padding-left: 22px; margin: 8px 0; }
     .notes-area li { color: #555; }
 
     /* Navigation */
@@ -111,24 +114,31 @@
 <body>
 
 <div class="phone-frame">
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>New Subject</h3>
+      <input type="text" id="subjectInput" placeholder="Enter Subject (e.g. Anatomy)">
+      <div class="modal-actions">
+        <button class="modal-btn btn-cancel" id="closeModal">Cancel</button>
+        <button class="modal-btn btn-confirm" id="confirmSubject">Save Subject</button>
+      </div>
+    </div>
+  </div>
+
   <div class="header">
     <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
-    <div id="addPage" class="add-page-btn" title="Add Subject">＋</div>
+    <div id="addPage" class="add-page-btn" title="New Page">＋</div>
   </div>
 
   <div class="page-navigator" id="pageTabs"></div>
 
   <div class="reviewer-controls">
     <button class="control-btn" id="btnH1" title="Heading"><b>H</b></button>
-    <button class="control-btn" id="btnBody" title="Normal Text">¶</button>
+    <button class="control-btn" id="btnBody" title="Body Text">¶</button>
     <button class="control-btn" id="btnBullet" title="Bullets">≡</button>
     <button class="control-btn" id="btnHighlight" title="Highlight">🖍️</button>
-    
     <div class="divider"></div>
-    
-    <button class="control-btn" id="btnDeletePage" style="color: #e07a5f;" title="Delete Subject">
-      🗑️
-    </button>
+    <button class="control-btn" id="btnDeletePage" style="color: #e07a5f;" title="Delete Subject">🗑️</button>
   </div>
 
   <div class="main-content">
@@ -166,6 +176,8 @@
   let currentPageId = "General";
   const notesArea = document.getElementById('notesArea');
   const tabsContainer = document.getElementById('pageTabs');
+  const modal = document.getElementById('modalOverlay');
+  const subjectInput = document.getElementById('subjectInput');
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -174,7 +186,7 @@
     } else { window.location.href = "login.html"; }
   });
 
-  // Load the list of subjects/pages
+  // --- PAGE MANAGEMENT ---
   function loadPageList() {
     onValue(ref(database, `users/${currentUid}/notesPages`), (snapshot) => {
       const pages = snapshot.val() || { "General": { title: "General" } };
@@ -203,33 +215,42 @@
       }
     }, { onlyOnce: true });
     
-    // Update tab visual state
     document.querySelectorAll('.page-tab').forEach(t => {
       t.classList.toggle('active', t.textContent === id);
     });
   }
 
-  // Create new subject
+  // --- MODAL ACTIONS ---
   document.getElementById('addPage').onclick = () => {
-    const title = prompt("Enter Subject Name (e.g., Anatomy):");
-    if (title && title.trim()) {
-      const id = title.trim();
-      set(ref(database, `users/${currentUid}/notesPages/${id}`), { title: id });
-      currentPageId = id;
+    modal.style.display = 'flex';
+    subjectInput.focus();
+  };
+
+  document.getElementById('closeModal').onclick = () => {
+    modal.style.display = 'none';
+    subjectInput.value = "";
+  };
+
+  document.getElementById('confirmSubject').onclick = () => {
+    const title = subjectInput.value.trim();
+    if (title) {
+      set(ref(database, `users/${currentUid}/notesPages/${title}`), { title: title });
+      currentPageId = title;
+      modal.style.display = 'none';
+      subjectInput.value = "";
     }
   };
 
-  // Delete subject
   document.getElementById('btnDeletePage').onclick = () => {
-    if(currentPageId === "General") return alert("The General page cannot be deleted.");
-    if(confirm(`Permanently delete "${currentPageId}" and all notes?`)) {
+    if(currentPageId === "General") return alert("Base page cannot be deleted.");
+    if(confirm(`Delete "${currentPageId}" and all its contents?`)) {
       remove(ref(database, `users/${currentUid}/notesPages/${currentPageId}`));
       remove(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`));
       currentPageId = "General";
     }
   };
 
-  // Auto-save logic
+  // --- SAVE LOGIC ---
   function saveNotes() {
     if (currentUid) {
       set(ref(database, `users/${currentUid}/reviewerNotes/${currentPageId}`), notesArea.innerHTML);
@@ -242,13 +263,12 @@
     saveTimeout = setTimeout(saveNotes, 800);
   });
 
-  // MS Word Symbol Actions
+  // --- WORD COMMANDS ---
   document.getElementById('btnH1').onclick = () => { notesArea.focus(); document.execCommand('formatBlock', false, 'h1'); saveNotes(); };
   document.getElementById('btnBody').onclick = () => { notesArea.focus(); document.execCommand('formatBlock', false, 'p'); saveNotes(); };
   document.getElementById('btnBullet').onclick = () => { notesArea.focus(); document.execCommand('insertUnorderedList'); saveNotes(); };
   document.getElementById('btnHighlight').onclick = () => { document.execCommand('hiliteColor', false, '#FFEB3B'); saveNotes(); };
 
-  // Handle Enter Key transitions
   notesArea.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const selection = window.getSelection();
