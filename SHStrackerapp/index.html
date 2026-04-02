@@ -28,6 +28,7 @@
 
     .screen-content { padding: 40px 28px; flex: 1; overflow-y: auto; }
 
+    /* Logo Styling */
     .logo-area { text-align: center; margin-bottom: 45px; margin-top: 20px; }
     .logo-icon {
       width: 54px; height: 54px; background: #5E3A7E; border-radius: 18px;
@@ -37,29 +38,30 @@
     }
     .logo-text { font-size: 26px; font-weight: 800; color: #2c1e3f; letter-spacing: -0.8px; }
 
+    /* Inputs */
     .input-group { margin-bottom: 22px; }
     .input-label { display: block; font-size: 11px; font-weight: 800; color: #5E3A7E; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.2px; }
     .input-field {
       width: 100%; padding: 16px 20px; background-color: #fcfaff; border: 1px solid #B97D7E;
       border-radius: 20px; font-size: 16px; color: #2c1e3f; outline: none;
-      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: 0.2s;
     }
     .input-field:focus { border-color: #5E3A7E; background-color: #fff; box-shadow: 0 0 0 4px rgba(94, 58, 126, 0.05); }
 
     .forgot-row { text-align: right; margin-bottom: 28px; }
-    .forgot-link { font-size: 13px; color: #B97D7E; text-decoration: none; font-weight: 600; }
+    .forgot-link { font-size: 13px; color: #B97D7E; text-decoration: none; font-weight: 600; cursor: pointer; }
 
     .btn-primary {
       width: 100%; background: #5E3A7E; border: none; padding: 18px; border-radius: 22px;
       font-size: 16px; font-weight: 700; color: white; cursor: pointer;
-      box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25); margin-bottom: 24px; transition: 0.3s;
+      box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25); margin-bottom: 24px;
     }
-    .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.97); }
 
     .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #5E3A7E; }
     .signup-link { color: #F1A17E; font-weight: 800; text-decoration: none; margin-left: 5px; }
 
-    .divider { display: flex; align-items: center; text-align: center; color: #B97D7E; font-size: 11px; font-weight: 700; margin-bottom: 28px; letter-spacing: 1px; }
+    .divider { display: flex; align-items: center; text-align: center; color: #B97D7E; font-size: 11px; font-weight: 700; margin-bottom: 28px; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #F1A17E; }
     .divider::before { margin-right: 15px; }
     .divider::after { margin-left: 15px; }
@@ -69,8 +71,6 @@
       background: white; border: 1px solid #F1A17E; border-radius: 20px;
       padding: 15px; font-weight: 700; font-size: 14px; color: #2c1e3f; cursor: pointer;
     }
-
-    .meta-info { text-align: center; margin-top: 35px; font-size: 11px; color: #5E3A7E; font-weight: 500; }
 
     /* MODAL STYLES */
     .modal-overlay {
@@ -84,9 +84,16 @@
     }
     .modal-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 15px; }
     .icon-error { background: #fef2f2; color: #ef4444; }
+    .icon-info { background: #f0e6f5; color: #5E3A7E; }
+    
     .modal-title { font-size: 18px; font-weight: 800; color: #2c1e3f; margin-bottom: 10px; }
     .modal-text { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 20px; }
-    .modal-btn { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; background: #5E3A7E; color: white; }
+    
+    .modal-btn { 
+      width: 100%; padding: 14px; border-radius: 16px; border: none; 
+      font-weight: 700; font-size: 15px; cursor: pointer; 
+      background: #5E3A7E; color: white; 
+    }
 
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
@@ -112,7 +119,7 @@
         </div>
         
         <div class="forgot-row">
-          <a href="#" class="forgot-link">Forgot Password?</a>
+          <a class="forgot-link" id="forgotBtn">Forgot Password?</a>
         </div>
         
         <button class="btn-primary" id="loginBtn">Login</button>
@@ -130,20 +137,34 @@
             <span>Sign in with Google</span>
           </div>
         </div>
-
-        <div class="meta-info">
-          Secure Academic Tracker • v2.1.0
-        </div>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="statusModal">
     <div class="modal-card">
-      <div class="modal-icon icon-error">✕</div>
+      <div class="modal-icon icon-error" id="statusIcon">✕</div>
       <div class="modal-title" id="modalTitle">Error</div>
       <div class="modal-text" id="modalText">Message goes here...</div>
       <button class="modal-btn" onclick="document.getElementById('statusModal').style.display='none'">OK</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-card">
+      <div class="modal-icon icon-info">?</div>
+      <div class="modal-title">Reset Password</div>
+      <div class="modal-text">Enter your email and we'll send a link to create a new password.</div>
+      
+      <div class="input-group" style="text-align: left; margin-bottom: 15px;">
+        <label class="input-label">Recovery Email</label>
+        <input type="email" id="forgotEmail" class="input-field" placeholder="email@example.com">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="modal-btn" style="background: #f0f0f0; color: #666;" id="closeForgot">Cancel</button>
+        <button class="modal-btn" id="sendResetBtn">Send Link</button>
+      </div>
     </div>
   </div>
 
@@ -152,9 +173,9 @@
     import { 
       getAuth, 
       GoogleAuthProvider, 
-      signInWithCredential,
       signInWithPopup,
       signInWithEmailAndPassword,
+      sendPasswordResetEmail,
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -162,7 +183,6 @@
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
-      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
       projectId: "shstrackerapp",
       storageBucket: "shstrackerapp.firebasestorage.app",
       messagingSenderId: "807451936679",
@@ -174,9 +194,13 @@
     const provider = new GoogleAuthProvider();
     const wrapper = document.getElementById('mainWrapper');
 
-    function showModal(title, msg) {
+    // UI Helpers
+    function showModal(title, msg, isSuccess = false) {
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalText').innerText = msg;
+      const icon = document.getElementById('statusIcon');
+      icon.innerText = isSuccess ? '✓' : '✕';
+      icon.className = isSuccess ? 'modal-icon icon-info' : 'modal-icon icon-error';
       document.getElementById('statusModal').style.display = 'flex';
     }
 
@@ -186,7 +210,6 @@
         if (user.emailVerified) {
           window.location.href = "dashboard.html";
         } else {
-          // Logged in but not verified? Force out.
           signOut(auth);
           wrapper.style.display = "flex";
         }
@@ -195,15 +218,12 @@
       }
     });
 
-    // ====================== REAL LOGIN LOGIC ======================
+    // ====================== LOGIN LOGIC ======================
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
 
-      if (!email || !password) {
-        showModal("Wait!", "Please enter your email and password.");
-        return;
-      }
+      if (!email || !password) return showModal("Wait!", "Please fill in all fields.");
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -213,25 +233,38 @@
           window.location.href = "dashboard.html";
         } else {
           await signOut(auth);
-          showModal("Account Not Active", "Please verify your email address before logging in. Check your inbox (and spam) for the link.");
+          showModal("Account Not Active", "Check your inbox and verify your email first.");
         }
       } catch (error) {
-        let msg = "Invalid email or password.";
-        if (error.code === 'auth/user-not-found') msg = "No account found with this email.";
-        showModal("Login Failed", msg);
+        showModal("Login Failed", "Invalid email or password.");
       }
     });
 
-    // ====================== Google Login Logic ======================
+    // ====================== FORGOT PASSWORD ======================
+    const fModal = document.getElementById('forgotModal');
+    document.getElementById('forgotBtn').onclick = () => fModal.style.display = 'flex';
+    document.getElementById('closeForgot').onclick = () => fModal.style.display = 'none';
+
+    document.getElementById('sendResetBtn').addEventListener('click', async () => {
+      const email = document.getElementById('forgotEmail').value.trim();
+      if (!email) return;
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        fModal.style.display = 'none';
+        showModal("Link Sent!", "Please check your email to reset your password.", true);
+      } catch (error) {
+        showModal("Error", "Could not find an account with that email.");
+      }
+    });
+
+    // ====================== GOOGLE LOGIN ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
       try {
-        const result = await signInWithPopup(auth, provider);
-        // Google accounts usually come pre-verified
+        await signInWithPopup(auth, provider);
         window.location.href = "dashboard.html";
       } catch (error) {
-        if (error.code !== 'auth/popup-closed-by-user') {
-          showModal("Google Auth Error", "Could not sign in with Google.");
-        }
+        if (error.code !== 'auth/popup-closed-by-user') showModal("Error", "Google sign-in failed.");
       }
     });
   </script>
