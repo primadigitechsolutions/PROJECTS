@@ -25,10 +25,7 @@
     }
 
     /* Header Section */
-    .header {
-      padding: 24px 24px 10px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .header { padding: 24px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
     .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; width: 40px; }
     .page-title { font-size: 20px; font-weight: 700; color: #2c1e3f; flex: 1; text-align: center; margin-right: 40px; }
 
@@ -58,7 +55,9 @@
       white-space: nowrap;
       transition: all 0.2s;
     }
-    .control-btn:active { background: #f0e6f5; transform: scale(0.95); }
+    .control-btn:active { background: #4E356F; color: white; transform: scale(0.95); }
+    
+    .add-header-btn { background: #4E356F; color: white; border: none; }
     .highlight-btn { background: #EF9875; color: white; border: none; }
 
     /* Main content / Editable Area */
@@ -80,8 +79,25 @@
       color: #2c1e3f;
       outline: none;
     }
+
+    /* Styles for the structured text inside the notes area */
+    .notes-area h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2c1e3f;
+      margin: 15px 0 5px 0;
+      display: block;
+    }
+    
+    .notes-area p {
+      font-size: 16px;
+      font-weight: 400;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
     .notes-area:empty:before {
-      content: attr(placeholder);
+      content: "Tap 'Add Header' to start a topic...";
       color: #9C6A82;
       opacity: 0.6;
     }
@@ -109,15 +125,14 @@
   </div>
 
   <div class="reviewer-controls">
-    <div class="control-btn" id="btnSmall">A-</div>
-    <div class="control-btn" id="btnMed">A</div>
-    <div class="control-btn" id="btnLarge">A+</div>
+    <div class="control-btn add-header-btn" id="btnHeader">+ Add Header</div>
+    <div class="control-btn" id="btnBullet">• Bullet</div>
     <div class="control-btn highlight-btn" id="btnHighlight">Highlight</div>
+    <div class="control-btn" id="btnClear" style="color: #e07a5f;">Clear All</div>
   </div>
 
   <div class="main-content">
-    <div id="notesArea" class="notes-area" contenteditable="true" 
-         placeholder="Start typing your notes here. Select text to format..."></div>
+    <div id="notesArea" class="notes-area" contenteditable="true"></div>
   </div>
 
   <div class="bottom-nav">
@@ -155,16 +170,12 @@
       currentUid = user.uid;
       document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
       loadNotes();
-    } else {
-      window.location.href = "login.html";
-    }
+    } else { window.location.href = "login.html"; }
   });
 
   function loadNotes() {
-    const notesRef = ref(database, `users/${currentUid}/reviewerNotes`);
-    onValue(notesRef, (snapshot) => {
+    onValue(ref(database, `users/${currentUid}/reviewerNotes`), (snapshot) => {
       const data = snapshot.val();
-      // Only update if current area is not focused to prevent cursor jumping
       if (data !== null && document.activeElement !== notesArea) {
         notesArea.innerHTML = data;
       }
@@ -172,38 +183,58 @@
   }
 
   function saveNotes() {
-    if (!currentUid) return;
-    set(ref(database, `users/${currentUid}/reviewerNotes`), notesArea.innerHTML);
+    if (currentUid) set(ref(database, `users/${currentUid}/reviewerNotes`), notesArea.innerHTML);
   }
 
-  // Auto-save logic
   let saveTimeout;
   notesArea.addEventListener('input', () => {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveNotes, 1000);
   });
 
-  // Formatting Logic
-  document.getElementById('btnSmall').onclick = () => applyFormat('13px');
-  document.getElementById('btnMed').onclick = () => applyFormat('16px');
-  document.getElementById('btnLarge').onclick = () => applyFormat('20px');
+  // --- SMART NOTEPAD LOGIC ---
+
+  // Adds a Large Bold Header
+  document.getElementById('btnHeader').onclick = () => {
+    notesArea.focus();
+    // Using H2 for the "Anatomy" style increased size and bold
+    document.execCommand('formatBlock', false, 'h2');
+    saveNotes();
+  };
+
+  // Adds a bullet point for structured notes
+  document.getElementById('btnBullet').onclick = () => {
+    notesArea.focus();
+    document.execCommand('insertUnorderedList', false, null);
+    saveNotes();
+  };
+
+  // Highlights existing text
   document.getElementById('btnHighlight').onclick = () => {
     document.execCommand('hiliteColor', false, '#FFEB3B');
     saveNotes();
   };
 
-  function applyFormat(size) {
-    const selection = window.getSelection();
-    if (!selection.rangeCount || selection.toString().length === 0) return;
-    
-    // Using span wrapping for font size
-    const span = document.createElement('span');
-    span.style.fontSize = size;
-    const range = selection.getRangeAt(0);
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-    saveNotes();
-  }
+  document.getElementById('btnClear').onclick = () => {
+    if(confirm("Clear all notes?")) {
+      notesArea.innerHTML = '';
+      saveNotes();
+    }
+  };
+
+  // Ensure that when you press "Enter" after a header, it returns to plain text
+  notesArea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const selection = window.getSelection();
+      const parent = selection.anchorNode.parentElement;
+      if (parent.tagName === 'H2') {
+        // This stops the next line from also being an H2
+        setTimeout(() => {
+          document.execCommand('formatBlock', false, 'p');
+        }, 0);
+      }
+    }
+  });
 </script>
 </body>
 </html>
