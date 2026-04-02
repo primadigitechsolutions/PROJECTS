@@ -6,59 +6,82 @@
   <title>Grade Tracker | Academic Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: #f8f4fa;
       color: #2c1e3f;
       min-height: 100vh;
-      padding: 20px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 10px;
     }
+
     .phone-frame {
-      max-width: 380px; width: 100%; background: white; border-radius: 48px;
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
-      overflow: hidden; height: 100vh; position: relative; display: flex; flex-direction: column;
+      max-width: 400px; 
+      width: 100%; 
+      background: white; 
+      border-radius: 40px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden; 
+      height: 92vh; 
+      position: relative; 
+      display: flex; 
+      flex-direction: column;
     }
-    .status-bar { height: 44px; background: white; flex-shrink: 0; }
+
     .header {
-      padding: 0 24px; display: flex; justify-content: space-between; align-items: center;
-      margin-top: 8px; flex-shrink: 0;
+      padding: 20px 24px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
     }
-    .page-title { font-size: 24px; font-weight: 700; color: #2c1e3f; }
-    .back-btn { font-size: 28px; cursor: pointer; color: #4E356F; }
-    .greeting { font-size: 20px; font-weight: 600; color: #4E356F; margin: 12px 24px 8px; }
 
-    .main-content { flex: 1; overflow-y: auto; padding-bottom: 110px; }
-    .container { padding: 0 24px; }
+    .page-title { font-size: 22px; font-weight: 700; color: #2c1e3f; }
+    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; text-decoration: none; }
+    .greeting { font-size: 18px; font-weight: 600; color: #4E356F; margin: 0 24px 15px; }
 
+    .main-content { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 0 20px 100px; /* Space for bottom nav */
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px; /* Consistent vertical spacing */
+    }
+
+    /* Input & Select Styling */
     select, input, button {
       padding: 14px; 
       border: 1.5px solid #ecdde6; 
       border-radius: 16px; 
-      font-size: 16px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
     }
 
+    select:focus, input:focus { border-color: #4E356F; }
+
+    /* Layout Fixes */
     .subject-row {
       display: flex; 
       gap: 10px; 
-      margin-bottom: 16px;
       align-items: center;
     }
-    .subject-row select {
-      flex: 1;
-      margin-bottom: 0;
-    }
+    .subject-row select { flex: 1; }
+
     .add-subject-btn {
       background: #4E356F; 
       color: white; 
       border: none; 
-      font-weight: 700;
-      font-size: 20px;
-      width: 52px; 
-      height: 52px;
-      border-radius: 16px; 
+      width: 50px; 
+      height: 50px;
+      font-size: 24px;
       cursor: pointer;
       flex-shrink: 0;
       display: flex;
@@ -66,18 +89,17 @@
       justify-content: center;
     }
 
+    /* Category Buttons Grid Fix */
     .type-btns {
-      display: flex; 
-      gap: 8px; 
-      margin-bottom: 20px; 
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* 2 columns for better mobile alignment */
+      gap: 8px;
     }
     .type-btn {
-      flex: 1; 
-      padding: 12px 14px; 
+      padding: 12px; 
       border: 1.5px solid #ecdde6;
       background: white; 
-      border-radius: 16px; 
+      border-radius: 14px; 
       text-align: center;
       font-weight: 600; 
       cursor: pointer; 
@@ -89,13 +111,14 @@
       border-color: #4E356F;
     }
 
+    /* Score Input Row Fix */
     .score-input { 
       display: flex; 
       gap: 10px; 
-      margin-bottom: 12px;
     }
     .score-input input { 
       flex: 1; 
+      min-width: 0; /* Allows inputs to shrink equally */
     }
 
     #addScore {
@@ -103,414 +126,302 @@
       color: white; 
       border: none; 
       font-weight: 700;
-      padding: 14px; 
-      border-radius: 16px; 
-      width: 100%;
+      cursor: pointer;
     }
 
-    .entries { margin-top: 24px; }
+    /* Results styling */
+    .entries { margin-top: 10px; }
     .entry {
-      background: #f8f4fa; 
+      background: #fcfaff; 
       padding: 14px; 
-      border-radius: 16px;
-      margin-bottom: 10px; 
+      border-radius: 14px;
+      margin-bottom: 8px; 
       display: flex; 
       justify-content: space-between; 
       align-items: center;
+      border: 1px solid #f0e6f0;
     }
-    .delete-btn { 
-      color: #e07a5f; 
-      font-weight: bold; 
-      cursor: pointer; 
-      padding: 0 8px; 
-    }
+    .delete-btn { color: #e07a5f; cursor: pointer; font-size: 18px; padding: 0 5px; }
 
     .summary {
-      margin-top: 32px; 
       background: white; 
       border: 2px solid #4E356F;
       border-radius: 20px; 
-      padding: 20px;
+      padding: 18px;
+      margin-bottom: 20px;
     }
     .final-grade {
-      font-size: 32px; 
-      font-weight: 800; 
-      color: #4E356F; 
-      text-align: center; 
-      margin: 12px 0;
+      font-size: 32px; font-weight: 800; color: #4E356F; text-align: center; margin: 10px 0;
     }
 
+    /* Modal Styling */
     .modal {
-      display: none; 
-      position: fixed; 
-      top: 0; left: 0; 
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.65); 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 1000;
+      display: none; position: fixed; top: 0; left: 0; 
+      width: 100%; height: 100%; background: rgba(0,0,0,0.6); 
+      align-items: center; justify-content: center; z-index: 1000;
     }
     .modal-content {
-      background: white; 
-      width: 90%; 
-      max-width: 340px; 
-      border-radius: 24px;
-      padding: 28px 24px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      background: white; width: 85%; max-width: 320px; 
+      border-radius: 24px; padding: 25px;
     }
-    .modal-title { 
-      font-size: 21px; 
-      font-weight: 700; 
-      margin-bottom: 24px; 
-      text-align: center; 
-      color: #2c1e3f;
-    }
-    .modal input, .modal select {
-      width: 100%;
-      margin-bottom: 16px;
-      padding: 14px;
-      border: 1.5px solid #ecdde6;
-      border-radius: 16px;
-      font-size: 16px;
-    }
-    .modal-buttons {
-      display: flex; 
-      gap: 12px; 
-      margin-top: 10px;
-    }
-    .modal-btn {
-      flex: 1; 
-      padding: 14px; 
-      border-radius: 16px; 
-      font-weight: 600; 
-      cursor: pointer;
-      border: none;
-    }
-    .modal-btn.cancel { 
-      background: #f0e6f0; 
-      color: #4E356F; 
-    }
-    .modal-btn.save { 
-      background: #4E356F; 
-      color: white; 
-    }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
+    .modal-btn { flex: 1; border: none; cursor: pointer; }
+    .modal-btn.cancel { background: #f0e6f0; color: #4E356F; }
+    .modal-btn.save { background: #4E356F; color: white; }
 
     .bottom-nav {
-      position: absolute; 
-      bottom: 0; left: 0; right: 0; 
-      background: white;
-      border-top: 1px solid #e9dee4; 
-      box-shadow: 0 -10px 30px -10px rgba(78, 53, 111, 0.3);
-      display: flex; 
-      justify-content: space-around; 
-      padding: 12px 0 22px; 
-      z-index: 100;
+      position: absolute; bottom: 0; left: 0; right: 0; 
+      background: white; border-top: 1px solid #e9dee4; 
+      display: flex; justify-content: space-around; padding: 10px 0 25px;
     }
-    .nav-item {
-      display: flex; 
-      flex-direction: column; 
-      align-items: center;
-      color: #9C6A82; 
-      font-size: 11px; 
-      font-weight: 600; 
-      gap: 4px; 
-      cursor: pointer;
-    }
-    .nav-item.active { color: #4E356F; }
-    .nav-icon { font-size: 24px; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #9C6A82; font-size: 11px; cursor: pointer; }
+    .nav-item.active { color: #4E356F; font-weight: 700; }
+    .nav-icon { font-size: 22px; margin-bottom: 4px; }
   </style>
 </head>
 <body>
-  <div class="phone-frame">
-    <div class="status-bar"></div>
 
-    <div class="header">
-      <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
-      <div class="page-title">Grade Tracker</div>
-      <div style="width:28px;"></div>
-    </div>
+<div class="phone-frame">
+  <div class="header">
+    <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
+    <div class="page-title">Grade Tracker</div>
+    <div style="width:24px;"></div>
+  </div>
 
-    <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
+  <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
-    <div class="main-content">
-      <div class="container">
-        <div class="subject-row">
-          <select id="subjectSelect" onchange="subjectChanged()">
-            <option value="">Select Subject</option>
-          </select>
-          <button class="add-subject-btn" onclick="showAddSubjectModal()">+</button>
-        </div>
-
-        <select id="quarterSelect" onchange="quarterChanged()">
-          <option value="Q1">1st Quarter</option>
-          <option value="Q2">2nd Quarter</option>
-          <option value="Q3">3rd Quarter</option>
-          <option value="Q4">4th Quarter</option>
+  <div class="main-content">
+    <div class="container">
+      <div class="subject-row">
+        <select id="subjectSelect" onchange="subjectChanged()">
+          <option value="">Select Subject</option>
         </select>
-
-        <div class="type-btns">
-          <div class="type-btn active" data-type="Quiz">Quiz</div>
-          <div class="type-btn" data-type="Activity">Activity</div>
-          <div class="type-btn" data-type="PETA">PETA</div>
-          <div class="type-btn" data-type="Exam">Exam</div>
-        </div>
-
-        <div class="score-input">
-          <input type="number" id="score" placeholder="Score (e.g. 45)" step="0.01">
-          <input type="number" id="total" placeholder="Out of (e.g. 50)" step="0.01">
-        </div>
-
-        <button id="addScore">+ Add Score</button>
-
-        <div class="entries" id="entriesList"></div>
-
-        <div class="summary">
-          <h3 id="summaryTitle">Current Quarter Summary</h3>
-          <div id="summaryContent">
-            <p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>
-          </div>
-        </div>
+        <button class="add-subject-btn" onclick="showAddSubjectModal()">+</button>
       </div>
-    </div>
 
-    <div class="bottom-nav">
-      <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div><div>Home</div></div>
-      <div class="nav-item active"><div class="nav-icon">📊</div><div>Tracker</div></div>
-      <div class="nav-item" onclick="window.location.href='reviewer.html'"><div class="nav-icon">📄</div><div>Reviewer</div></div>
-      <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">👤</div><div>Profile</div></div>
-    </div>
-  </div>
-
-  <div id="addSubjectModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-title">Add New Subject</div>
-      <input type="text" id="newSubjectName" placeholder="Subject Name (e.g. General Mathematics)">
-      <select id="newSubjectType">
-        <option value="core">Core Subject</option>
-        <option value="applied">Applied Subject</option>
+      <select id="quarterSelect" onchange="quarterChanged()">
+        <option value="Q1">1st Quarter</option>
+        <option value="Q2">2nd Quarter</option>
+        <option value="Q3">3rd Quarter</option>
+        <option value="Q4">4th Quarter</option>
       </select>
-      <div class="modal-buttons">
-        <button class="modal-btn cancel" onclick="hideAddSubjectModal()">Cancel</button>
-        <button class="modal-btn save" onclick="addNewSubject()">Save Subject</button>
+
+      <div class="type-btns">
+        <div class="type-btn active" data-type="Quiz">Quiz</div>
+        <div class="type-btn" data-type="Activity">Activity</div>
+        <div class="type-btn" data-type="PETA">PETA</div>
+        <div class="type-btn" data-type="Exam">Exam</div>
+      </div>
+
+      <div class="score-input">
+        <input type="number" id="score" placeholder="Score" step="0.01">
+        <input type="number" id="total" placeholder="Total" step="0.01">
+      </div>
+
+      <button id="addScore">+ Add Score</button>
+
+      <div class="entries" id="entriesList"></div>
+
+      <div class="summary">
+        <h3 id="summaryTitle" style="font-size: 16px; text-align: center;">Summary</h3>
+        <div id="summaryContent">
+          <p style="color:#6b5a7a; text-align:center; font-size: 14px; margin-top: 10px;">Select a subject to see grades</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item active"><div class="nav-icon">📊</div>Tracker</div>
+    <div class="nav-item" onclick="window.location.href='reviewer.html'"><div class="nav-icon">📄</div>Reviewer</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
-      authDomain: "shstrackerapp.firebaseapp.com",
-      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
-      projectId: "shstrackerapp",
-      storageBucket: "shstrackerapp.firebasestorage.app",
-      messagingSenderId: "807451936679",
-      appId: "1:807451936679:web:37fa86f3b272afe9505882"
-    };
+<div id="addSubjectModal" class="modal">
+  <div class="modal-content">
+    <h3 style="margin-bottom: 15px; text-align: center;">New Subject</h3>
+    <input type="text" id="newSubjectName" placeholder="e.g. General Math" style="width: 100%; margin-bottom: 10px;">
+    <select id="newSubjectType" style="width: 100%; margin-bottom: 20px;">
+      <option value="core">Core Subject</option>
+      <option value="applied">Applied Subject</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="hideAddSubjectModal()">Cancel</button>
+      <button class="modal-btn save" onclick="addNewSubject()">Save</button>
+    </div>
+  </div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    let currentUserId = null;
-    let subjects = {};
-    let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-    let currentQuarter = 'Q1';
-    let currentType = 'Quiz';
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+    authDomain: "shstrackerapp.firebaseapp.com",
+    databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+    projectId: "shstrackerapp",
+    storageBucket: "shstrackerapp.firebasestorage.app",
+    messagingSenderId: "807451936679",
+    appId: "1:807451936679:web:37fa86f3b272afe9505882"
+  };
 
-    const subjectSelect = document.getElementById('subjectSelect');
-    const quarterSelect = document.getElementById('quarterSelect');
-    const typeBtns = document.querySelectorAll('.type-btn');
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUserId = user.uid;
-        document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || "Student";
-        loadUserData();
-      } else {
-        window.location.href = "login.html";
-      }
+  let currentUserId = null;
+  let subjects = {};
+  let scores = { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
+  let currentQuarter = 'Q1';
+  let currentType = 'Quiz';
+
+  const subjectSelect = document.getElementById('subjectSelect');
+  const quarterSelect = document.getElementById('quarterSelect');
+  const typeBtns = document.querySelectorAll('.type-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0];
+      loadUserData();
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  function loadUserData() {
+    onValue(ref(database, `users/${currentUserId}/subjects`), (snap) => {
+      subjects = snap.val() || {};
+      populateDropdown();
     });
-
-    function loadUserData() {
-      if (!currentUserId) return;
-      onValue(ref(database, `users/${currentUserId}/subjects`), (snapshot) => {
-        subjects = snapshot.val() || {};
-        populateSubjectDropdown();
-      });
-      onValue(ref(database, `users/${currentUserId}/trackerScores`), (snapshot) => {
-        scores = snapshot.val() || { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
-        renderEntries();
-        calculateGrades();
-      });
-    }
-
-    function populateSubjectDropdown() {
-      subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-      Object.keys(subjects).sort().forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        subjectSelect.appendChild(opt);
-      });
-    }
-
-    // Modal Functions
-    function showAddSubjectModal() {
-      document.getElementById('addSubjectModal').style.display = 'flex';
-      document.getElementById('newSubjectName').value = '';
-      document.getElementById('newSubjectName').focus();
-    }
-
-    function hideAddSubjectModal() {
-      document.getElementById('addSubjectModal').style.display = 'none';
-    }
-
-    function addNewSubject() {
-      const name = document.getElementById('newSubjectName').value.trim();
-      const type = document.getElementById('newSubjectType').value;
-
-      if (!name) {
-        alert("Please enter a subject name.");
-        return;
-      }
-      if (subjects[name]) {
-        alert("This subject already exists!");
-        return;
-      }
-
-      subjects[name] = type;
-      set(ref(database, `users/${currentUserId}/subjects`), subjects);
-      populateSubjectDropdown();
-      subjectSelect.value = name;
-      hideAddSubjectModal();
-    }
-
-    typeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        typeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentType = btn.dataset.type;
-      });
-    });
-
-    function quarterChanged() {
-      currentQuarter = quarterSelect.value;
+    onValue(ref(database, `users/${currentUserId}/trackerScores`), (snap) => {
+      scores = snap.val() || { Q1: {}, Q2: {}, Q3: {}, Q4: {} };
       renderEntries();
       calculateGrades();
-    }
-
-    function subjectChanged() {
-      renderEntries();
-      calculateGrades();
-    }
-
-    document.getElementById('addScore').addEventListener('click', () => {
-      const scoreVal = parseFloat(document.getElementById('score').value);
-      const totalVal = parseFloat(document.getElementById('total').value);
-      const subject = subjectSelect.value.trim();
-
-      if (!subject) {
-        alert("Please select a subject first.");
-        return;
-      }
-      if (isNaN(scoreVal) || isNaN(totalVal) || totalVal <= 0) {
-        alert("Please enter valid score and total.");
-        return;
-      }
-
-      const typeRef = ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${subject}/${currentType}`);
-      const newScoreRef = push(typeRef);
-      set(newScoreRef, { score: scoreVal, total: totalVal });
-
-      document.getElementById('score').value = '';
-      document.getElementById('total').value = '';
     });
+  }
 
-    window.deleteScore = function(quarter, subject, type, key) {
-      if (confirm("Delete this score?")) {
-        set(ref(database, `users/${currentUserId}/trackerScores/${quarter}/${subject}/${type}/${key}`), null);
+  function populateDropdown() {
+    subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+    Object.keys(subjects).sort().forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      subjectSelect.appendChild(opt);
+    });
+  }
+
+  function showAddSubjectModal() { document.getElementById('addSubjectModal').style.display = 'flex'; }
+  function hideAddSubjectModal() { document.getElementById('addSubjectModal').style.display = 'none'; }
+
+  function addNewSubject() {
+    const name = document.getElementById('newSubjectName').value.trim();
+    const type = document.getElementById('newSubjectType').value;
+    if (!name) return alert("Enter name");
+    
+    set(ref(database, `users/${currentUserId}/subjects/${name}`), type);
+    hideAddSubjectModal();
+  }
+
+  // Category selection logic
+  typeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      typeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentType = btn.dataset.type;
+    });
+  });
+
+  function quarterChanged() { currentQuarter = quarterSelect.value; renderEntries(); calculateGrades(); }
+  function subjectChanged() { renderEntries(); calculateGrades(); }
+
+  document.getElementById('addScore').addEventListener('click', () => {
+    const s = parseFloat(document.getElementById('score').value);
+    const t = parseFloat(document.getElementById('total').value);
+    const sub = subjectSelect.value;
+    if (!sub || isNaN(s) || isNaN(t)) return alert("Fill all fields");
+
+    const newRef = push(ref(database, `users/${currentUserId}/trackerScores/${currentQuarter}/${sub}/${currentType}`));
+    set(newRef, { score: s, total: t });
+    document.getElementById('score').value = '';
+    document.getElementById('total').value = '';
+  });
+
+  window.deleteScore = (q, sub, type, key) => {
+    if (confirm("Delete?")) remove(ref(database, `users/${currentUserId}/trackerScores/${q}/${sub}/${type}/${key}`));
+  };
+
+  function getCategoryAvg(obj) {
+    if (!obj) return 0;
+    const vals = Object.values(obj);
+    if (vals.length === 0) return 0;
+    return vals.reduce((acc, curr) => acc + (curr.score / curr.total), 0) / vals.length * 100;
+  }
+
+  function calculateGrades() {
+    const sub = subjectSelect.value;
+    if (!sub || !scores[currentQuarter]?.[sub]) return;
+    const data = scores[currentQuarter][sub];
+    const isCore = subjects[sub] === 'core';
+
+    const ww = (getCategoryAvg(data.Quiz) + getCategoryAvg(data.Activity)) / 2;
+    const pt = getCategoryAvg(data.PETA);
+    const ex = getCategoryAvg(data.Exam);
+
+    const ptW = isCore ? 0.50 : 0.45;
+    const exW = isCore ? 0.25 : 0.30;
+    const final = (ww * 0.25) + (pt * ptW) + (ex * exW);
+
+    document.getElementById('summaryTitle').textContent = `${sub} - ${currentQuarter}`;
+    document.getElementById('summaryContent').innerHTML = `
+      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Written Works (25%)</span> <strong>${ww.toFixed(1)}%</strong>
+      </div>
+      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Performance (${ptW*100}%)</span> <strong>${pt.toFixed(1)}%</strong>
+      </div>
+      <div style="font-size: 14px; display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Exam (${exW*100}%)</span> <strong>${ex.toFixed(1)}%</strong>
+      </div>
+      <div class="final-grade">${final.toFixed(1)}%</div>
+    `;
+  }
+
+  function renderEntries() {
+    const list = document.getElementById('entriesList');
+    list.innerHTML = '';
+    const sub = subjectSelect.value;
+    if (!sub || !scores[currentQuarter]?.[sub]) return;
+
+    const data = scores[currentQuarter][sub];
+    ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
+      const items = data[type];
+      if (items) {
+        const h = document.createElement('div');
+        h.innerHTML = `<small><b>${type}</b></small>`;
+        list.appendChild(h);
+        Object.keys(items).forEach(k => {
+          const i = items[k];
+          const div = document.createElement('div');
+          div.className = 'entry';
+          div.innerHTML = `<span>${i.score}/${i.total} <small>(${(i.score/i.total*100).toFixed(0)}%)</small></span>
+                           <span class="delete-btn" onclick="deleteScore('${currentQuarter}','${sub}','${type}','${k}')">×</span>`;
+          list.appendChild(div);
+        });
       }
-    };
+    });
+  }
 
-    function getCategoryAverage(itemsObj) {
-      if (!itemsObj || Object.keys(itemsObj).length === 0) return 0;
-      let sum = 0, count = 0;
-      Object.values(itemsObj).forEach(item => {
-        sum += (item.score / item.total) * 100;
-        count++;
-      });
-      return sum / count;
-    }
+  // GLOBAL EXPOSURE
+  window.showAddSubjectModal = showAddSubjectModal;
+  window.hideAddSubjectModal = hideAddSubjectModal;
+  window.addNewSubject = addNewSubject;
+  window.subjectChanged = subjectChanged;
+  window.quarterChanged = quarterChanged;
+</script>
 
-    function calculateGrades() {
-      const subject = subjectSelect.value.trim();
-      if (!subject || !scores[currentQuarter] || !scores[currentQuarter][subject]) {
-        document.getElementById('summaryTitle').textContent = "Current Quarter Summary";
-        document.getElementById('summaryContent').innerHTML = `<p style="color:#6b5a7a; text-align:center;">Add scores to see calculation</p>`;
-        return;
-      }
-
-      const data = scores[currentQuarter][subject];
-      const isCore = subjects[subject] === 'core';
-
-      const avgWW = (getCategoryAverage(data.Quiz) + getCategoryAverage(data.Activity)) / 2;
-      const avgPT = getCategoryAverage(data.PETA);
-      const avgExam = getCategoryAverage(data.Exam);
-
-      const wwWeight = 0.25;
-      const ptWeight = isCore ? 0.50 : 0.45;
-      const examWeight = isCore ? 0.25 : 0.30;
-
-      const finalGrade = (avgWW * wwWeight) + (avgPT * ptWeight) + (avgExam * examWeight);
-
-      document.getElementById('summaryTitle').textContent = `${currentQuarter} - ${subject}`;
-      document.getElementById('summaryContent').innerHTML = `
-        <div style="margin-bottom:10px;"><strong>Written Works:</strong> ${avgWW.toFixed(1)}% (25%)</div>
-        <div style="margin-bottom:10px;"><strong>Performance Tasks:</strong> ${avgPT.toFixed(1)}% (${ptWeight*100}%)</div>
-        <div style="margin-bottom:10px;"><strong>Exam:</strong> ${avgExam.toFixed(1)}% (${examWeight*100}%)</div>
-        <hr style="margin:16px 0; border-color:#ecdde6;">
-        <div class="final-grade">${finalGrade.toFixed(1)}%</div>
-      `;
-    }
-
-    function renderEntries() {
-      const list = document.getElementById('entriesList');
-      list.innerHTML = '';
-      const subject = subjectSelect.value.trim();
-      if (!subject || !scores[currentQuarter] || !scores[currentQuarter][subject]) return;
-
-      const data = scores[currentQuarter][subject];
-      ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
-        const items = data[type] || {};
-        if (Object.keys(items).length > 0) {
-          const header = document.createElement('div');
-          header.innerHTML = `<strong>${type}:</strong>`;
-          list.appendChild(header);
-
-          Object.keys(items).forEach(key => {
-            const item = items[key];
-            const percent = ((item.score / item.total) * 100).toFixed(1);
-            const entry = document.createElement('div');
-            entry.className = 'entry';
-            entry.innerHTML = `${item.score} / ${item.total} <span style="color:#6b5a7a;">(${percent}%)</span>
-              <span class="delete-btn" onclick="deleteScore('${currentQuarter}', '${subject}', '${type}', '${key}')">×</span>`;
-            list.appendChild(entry);
-          });
-        }
-      });
-    }
-
-    // CRITICAL FIX: Expose functions to global scope for HTML onclicks
-    window.showAddSubjectModal = showAddSubjectModal;
-    window.hideAddSubjectModal = hideAddSubjectModal;
-    window.addNewSubject = addNewSubject;
-    window.subjectChanged = subjectChanged;
-    window.quarterChanged = quarterChanged;
-
-  </script>
 </body>
 </html>
