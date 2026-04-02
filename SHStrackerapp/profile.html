@@ -157,7 +157,6 @@
     if (user) {
       const name = user.displayName || user.email.split('@')[0];
       
-      // Update UI
       document.getElementById('profileAvatar').innerHTML = user.photoURL 
         ? `<img src="${user.photoURL}" alt="Profile">` 
         : name.charAt(0).toUpperCase();
@@ -173,11 +172,11 @@
         });
       }
     } else {
+      // Redirect to index if not logged in
       window.location.href = "index.html";
     }
   });
 
-  // CUSTOM MODAL LOGIC
   const modal = document.getElementById('logoutModal');
   const trigger = document.getElementById('signOutTrigger');
   const cancel = document.getElementById('cancelBtn');
@@ -188,14 +187,14 @@
   
   confirm.onclick = () => {
     signOut(auth).then(() => {
-      window.location.href = "login.html";
+      // Redirect to index after successful sign out
+      window.location.href = "index.html";
     }).catch(err => {
       console.error(err);
       modal.style.display = 'none';
     });
   };
 
-  // Close modal if user clicks outside of the white box
   window.onclick = (event) => {
     if (event.target == modal) modal.style.display = "none";
   }
