@@ -131,7 +131,7 @@
   <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
   <div class="main-content">
-    <!-- Semester Tabs (Selectable) -->
+    <!-- Semester Tabs -->
     <div class="semester-tabs">
       <div class="tab active" id="tabS1" onclick="switchSemester('S1')">1st Semester</div>
       <div class="tab" id="tabS2" onclick="switchSemester('S2')">2nd Semester</div>
@@ -190,6 +190,13 @@
   let scores = {};
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
+  // Make switchSemester globally available
+  window.switchSemester = function(sem) {
+    currentSem = sem;
+    localStorage.setItem('lastSem', sem);
+    loadOverviewData();
+  };
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUserId = user.uid;
@@ -201,25 +208,19 @@
   });
 
   function loadOverviewData() {
-    // Load subjects for current semester
+    // Load subjects
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
       subjects = snapshot.val() || {};
       renderOverview();
     });
 
-    // Load scores for current semester
+    // Load scores
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
       scores = snapshot.val() || {};
       renderOverview();
     });
 
     updateActiveTab();
-  }
-
-  function switchSemester(sem) {
-    currentSem = sem;
-    localStorage.setItem('lastSem', sem);
-    loadOverviewData();
   }
 
   function updateActiveTab() {
@@ -264,7 +265,6 @@
 
     subjectList.forEach(subject => {
       const row = document.createElement('tr');
-
       let html = `<td class="subject-name">${subject}</td>`;
       let total = 0;
       let count = 0;
