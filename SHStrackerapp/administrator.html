@@ -2,219 +2,284 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Administrator | Academic Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrator Panel</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: #f8f4fa;
       color: #2c1e3f;
-      min-height: 100vh;
-      padding: 10px;
-    }
-    .phone-frame {
-      max-width: 400px; width: 100%; background: white;
-      border-radius: 40px; box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.25);
-      overflow: hidden; height: 92vh; position: relative;
-      display: flex; flex-direction: column;
-    }
-    .header {
-      padding: 20px 24px;
-      background: #4E356F;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .back-btn { font-size: 24px; cursor: pointer; }
-    .title { font-size: 20px; font-weight: 700; }
-
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
       padding: 20px;
     }
-
-    .user-card {
-      background: white;
-      border: 1px solid #f0e6f0;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    .user-name {
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #5E3A7E;
+    }
+    .search-bar {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #f0e6f5;
+      border-radius: 12px;
       font-size: 16px;
-      font-weight: 700;
-      color: #2c1e3f;
+      margin-bottom: 20px;
     }
-    .user-email {
-      font-size: 13px;
-      color: #666;
-      margin-top: 2px;
-      word-break: break-all;
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
-    .premium-status {
-      margin-top: 10px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 13px;
+    .user-table th {
+      background: #5E3A7E;
+      color: white;
+      padding: 14px 12px;
+      text-align: left;
       font-weight: 600;
     }
-    .status-lifetime { background: #d4edda; color: #155724; }
-    .status-active { background: #fff3cd; color: #856404; }
-    .status-none { background: #f8d7da; color: #721c24; }
-
-    .actions {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .user-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #f0e6f5;
     }
-    .action-btn {
+    .user-table tr:hover {
+      background: #fcfaff;
+    }
+    .premium-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .no-premium { background: #ffebee; color: #e07a5f; }
+    .active-premium { background: #e8f5e9; color: #4caf50; }
+    .lifetime { background: linear-gradient(90deg, #EF9875, #e07a5f); color: white; }
+
+    .btn {
       padding: 8px 14px;
       border: none;
       border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
     }
-    .btn-lifetime { background: #28a745; color: white; }
-    .btn-expire { background: #ffc107; color: black; }
-    .btn-remove { background: #dc3545; color: white; }
+    .btn-premium { background: #5E3A7E; color: white; }
+    .btn-lifetime { background: #EF9875; color: white; }
+    .btn-remove { background: #e07a5f; color: white; }
 
-    .note {
-      font-size: 12px;
-      color: #888;
-      margin-top: 25px;
-      text-align: center;
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+    .modal h3 { margin-bottom: 15px; color: #5E3A7E; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #f0e6f5;
+      border-radius: 10px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
-<div class="phone-frame">
-  <div class="header">
-    <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
-    <div class="title">Administrator Panel</div>
-    <div style="width:24px;"></div>
+  <div class="container">
+    <h1>👑 Administrator Panel</h1>
+    <input type="text" id="searchInput" class="search-bar" placeholder="Search by name or email...">
+
+    <table class="user-table" id="userTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Premium Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="userList"></tbody>
+    </table>
   </div>
 
-  <div class="main-content" id="userList">
-    <!-- Users loaded here -->
+  <!-- Premium Modal -->
+  <div id="premiumModal" class="modal">
+    <div class="modal-content">
+      <h3>Set Premium for <span id="modalUserName"></span></h3>
+      <div class="form-group">
+        <label>Premium Type</label>
+        <select id="premiumType" style="width:100%; padding:10px; border-radius:10px; border:2px solid #f0e6f5;">
+          <option value="none">No Premium</option>
+          <option value="date">Premium until specific date</option>
+          <option value="lifetime">Lifetime Premium</option>
+        </select>
+      </div>
+      <div class="form-group" id="dateGroup" style="display:none;">
+        <label>Premium Expires On</label>
+        <input type="date" id="expiryDate">
+      </div>
+      <div class="modal-buttons">
+        <button onclick="closeModal()" style="background:#f0e6f5; color:#5E3A7E;">Cancel</button>
+        <button onclick="savePremium()" style="background:#5E3A7E; color:white;">Save Changes</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
-    authDomain: "shstrackerapp.firebaseapp.com",
-    databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
-    projectId: "shstrackerapp",
-    storageBucket: "shstrackerapp.firebasestorage.app",
-    messagingSenderId: "807451936679",
-    appId: "1:807451936679:web:37fa86f3b272afe9505882"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+      authDomain: "shstrackerapp.firebaseapp.com",
+      databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+      projectId: "shstrackerapp",
+      storageBucket: "shstrackerapp.firebasestorage.app",
+      messagingSenderId: "807451936679",
+      appId: "1:807451936679:web:37fa86f3b272afe9505882"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loadAllUsers();
-    } else {
-      window.location.href = "login.html";
+    let currentUserId = null;   // For modal
+    let allUsers = {};
+
+    // Load all users
+    function loadAllUsers() {
+      const usersRef = ref(database, 'users');
+      onValue(usersRef, (snapshot) => {
+        allUsers = snapshot.val() || {};
+        renderUsers(allUsers);
+      });
     }
-  });
 
-  function loadAllUsers() {
-    const usersRef = ref(database, 'users');
-    const container = document.getElementById('userList');
-    container.innerHTML = '<p style="text-align:center; color:#888; padding:40px;">Loading users...</p>';
-
-    onValue(usersRef, (snapshot) => {
-      container.innerHTML = '';
-
-      const users = snapshot.val() || {};
-
-      if (Object.keys(users).length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#888; padding:40px;">No users found.</p>';
-        return;
-      }
+    function renderUsers(users) {
+      const tbody = document.getElementById('userList');
+      tbody.innerHTML = '';
 
       Object.entries(users).forEach(([uid, userData]) => {
-        // Get email - works for both email/password and Google OAuth
-        let email = userData.email || 
-                    (userData.providerData && userData.providerData[0] && userData.providerData[0].email) || 
-                    "No email available";
+        const name = userData.name || "No Name";
+        const email = userData.email || "No Email";
+        let premiumHTML = `<span class="premium-status no-premium">No Premium</span>`;
 
-        const name = userData.displayName || 
-                     (email !== "No email available" ? email.split('@')[0] : "Unknown User");
-
-        const premium = userData.premium;
-
-        let statusText = "No Premium";
-        let statusClass = "status-none";
-
-        if (premium === -1) {
-          statusText = "Lifetime Premium";
-          statusClass = "status-lifetime";
-        } else if (typeof premium === 'number' && premium > 0) {
-          const expiry = new Date(premium);
-          statusText = `Expires: ${expiry.toLocaleDateString()}`;
-          statusClass = "status-active";
+        if (userData.premium === -1) {
+          premiumHTML = `<span class="premium-status lifetime">Lifetime Premium</span>`;
+        } else if (typeof userData.premium === 'number' && userData.premium > Date.now()) {
+          const date = new Date(userData.premium).toLocaleDateString();
+          premiumHTML = `<span class="premium-status active-premium">Until ${date}</span>`;
         }
 
-        const card = document.createElement('div');
-        card.className = 'user-card';
-        card.innerHTML = `
-          <div class="user-name">${name}</div>
-          <div class="user-email">${email}</div>
-          <div class="premium-status ${statusClass}">${statusText}</div>
-          <div class="actions">
-            <button class="action-btn btn-lifetime" onclick="setLifetime('${uid}')">Set Lifetime</button>
-            <button class="action-btn btn-expire" onclick="setExpiration('${uid}')">Set Expiration</button>
-            <button class="action-btn btn-remove" onclick="removePremium('${uid}')">Remove Premium</button>
-          </div>
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${name}</strong></td>
+          <td>${email}</td>
+          <td>${premiumHTML}</td>
+          <td>
+            <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">Manage Premium</button>
+          </td>
         `;
-        container.appendChild(card);
+        tbody.appendChild(row);
       });
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase().trim();
+      const filtered = {};
+
+      Object.entries(allUsers).forEach(([uid, user]) => {
+        const name = (user.name || "").toLowerCase();
+        const email = (user.email || "").toLowerCase();
+        if (name.includes(term) || email.includes(term)) {
+          filtered[uid] = user;
+        }
+      });
+
+      renderUsers(filtered);
     });
-  }
 
-  // Set Lifetime Premium (-1)
-  window.setLifetime = (uid) => {
-    if (confirm("Grant this user Lifetime Premium?")) {
-      set(ref(database, `users/${uid}/premium`), -1);
-    }
-  };
+    // Open modal
+    window.openPremiumModal = function(uid, name) {
+      currentUserId = uid;
+      document.getElementById('modalUserName').textContent = name;
+      document.getElementById('premiumModal').style.display = 'flex';
+      document.getElementById('dateGroup').style.display = 'none';
+      document.getElementById('premiumType').value = 'none';
+    };
 
-  // Set Expiration (prompt for days)
-  window.setExpiration = (uid) => {
-    const days = prompt("How many days from now should premium expire?", "30");
-    if (days === null || days.trim() === "") return;
+    // Toggle date input
+    document.getElementById('premiumType').addEventListener('change', function() {
+      document.getElementById('dateGroup').style.display = 
+        this.value === 'date' ? 'block' : 'none';
+    });
 
-    const daysNum = parseInt(days);
-    if (isNaN(daysNum) || daysNum <= 0) {
-      alert("Please enter a valid number of days.");
-      return;
-    }
+    window.closeModal = function() {
+      document.getElementById('premiumModal').style.display = 'none';
+    };
 
-    const expiryTimestamp = Date.now() + (daysNum * 24 * 60 * 60 * 1000);
-    set(ref(database, `users/${uid}/premium`), expiryTimestamp);
-  };
+    // Save premium status
+    window.savePremium = function() {
+      if (!currentUserId) return;
 
-  // Remove Premium (set to 0)
-  window.removePremium = (uid) => {
-    if (confirm("Remove premium access from this user?")) {
-      set(ref(database, `users/${uid}/premium`), 0);
-    }
-  };
-</script>
+      const type = document.getElementById('premiumType').value;
+      let premiumValue = null;
+
+      if (type === 'lifetime') {
+        premiumValue = -1;                    // Lifetime
+      } else if (type === 'date') {
+        const dateStr = document.getElementById('expiryDate').value;
+        if (dateStr) {
+          premiumValue = new Date(dateStr).getTime();   // Timestamp
+        }
+      }
+      // else 'none' → premiumValue remains null (removes premium)
+
+      const updates = {};
+      updates[`users/${currentUserId}/premium`] = premiumValue;
+
+      update(ref(database), updates)
+        .then(() => {
+          alert("Premium status updated successfully!");
+          closeModal();
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("Failed to update premium status.");
+        });
+    };
+
+    // Initialize
+    loadAllUsers();
+  </script>
 </body>
 </html>
