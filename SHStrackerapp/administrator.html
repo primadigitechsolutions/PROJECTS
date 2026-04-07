@@ -78,7 +78,7 @@
     .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; color: #2c1e3f; font-weight: 600; }
     .dropdown-item:active { background: #f8f4fa; }
 
-    /* Modern Modal Design (consistent with premium.html) */
+    /* Modern Modal Design */
     .modal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.75); z-index: 2000;
@@ -88,9 +88,13 @@
       background: white; width: 92%; max-width: 360px;
       border-radius: 28px; padding: 28px 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      text-align: center;
     }
     .modal h3 {
       font-size: 22px; font-weight: 700; color: #5E3A7E; margin-bottom: 20px;
+    }
+    .modal p {
+      font-size: 15px; color: #555; margin-bottom: 20px;
     }
     .form-group { margin-bottom: 20px; text-align: left; }
     .form-group label {
@@ -131,13 +135,11 @@
     </div>
   </div>
 
-  <!-- Manage Premium Modal - Modern Design -->
+  <!-- Manage Premium Modal -->
   <div id="premiumModal" class="modal">
     <div class="modal-content">
       <h3>Manage Premium</h3>
-      <p style="margin-bottom:24px; color:#555; font-size:15px;">
-        for <strong id="modalUserName"></strong>
-      </p>
+      <p style="margin-bottom:24px; color:#555;">for <strong id="modalUserName"></strong></p>
       
       <div class="form-group">
         <label>Premium Type</label>
@@ -177,17 +179,17 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
+  <!-- Settings Modal (QR Code) -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h3>Payment QR Code</h3>
-      <div id="qrPreviewContainer">
-        <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none;">
+      <div id="qrPreviewContainer" style="margin:20px 0;">
+        <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none; width:100%; border-radius:16px;">
         <div id="noQrMessage" style="padding:40px 0; color:#888; font-style:italic;">No QR code uploaded yet</div>
       </div>
       <input type="file" id="qrUpload" accept="image/*" style="display:none;">
       <button onclick="document.getElementById('qrUpload').click()" 
-              style="background:#EF9875; color:white; padding:14px; border:none; border-radius:14px; font-weight:700; width:100%; margin-top:15px;">
+              style="background:#EF9875; color:white; padding:15px; border:none; border-radius:14px; font-weight:700; width:100%;">
         📤 Upload New QR
       </button>
     </div>
