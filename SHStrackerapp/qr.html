@@ -1,75 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Auto-Crop QR Code</title>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Image Compressor</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        canvas { border: 2px solid #333; border-radius: 8px; }
-        .hidden { display: none; }
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+        .controls { background: #f4f4f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        .comparison { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
+        .preview-card { flex: 1; min-width: 300px; border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: center; }
+        img { max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px; display: none; }
+        .stats { font-weight: bold; margin-top: 10px; color: #333; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        input[type="range"] { width: 100%; }
     </style>
 </head>
 <body>
 
-    <h2>QR Code Auto-Cropper</h2>
-    <input type="file" id="upload" accept="image/*">
+    <h2>Image Compressor</h2>
     
-    <p>Original Scan (Hidden):</p>
-    <canvas id="sourceCanvas" class="hidden"></canvas>
+    <div class="controls">
+        <label>Select Image:</label><br>
+        <input type="file" id="upload" accept="image/*"><br><br>
+        
+        <label>Compression Quality: <span id="qualityVal">0.7</span></label>
+        <input type="range" id="quality" min="0.1" max="1.0" step="0.1" value="0.7">
+    </div>
 
-    <p>Cropped Result:</p>
-    <canvas id="destCanvas"></canvas>
+    <div class="comparison">
+        <div class="preview-card">
+            <h3>Original</h3>
+            <div id="origStats" class="stats">Size: -</div>
+            <img id="origPreview" alt="Original Preview">
+        </div>
+
+        <div class="preview-card">
+            <h3>Compressed</h3>
+            <div id="compStats" class="stats">Size: -</div>
+            <img id="compPreview" alt="Compressed Preview">
+            <br>
+            <button id="downloadBtn" disabled>Download Compressed Image</button>
+        </div>
+    </div>
 
     <script>
         const upload = document.getElementById('upload');
-        const sourceCanvas = document.getElementById('sourceCanvas');
-        const destCanvas = document.getElementById('destCanvas');
-        const sCtx = sourceCanvas.getContext('2d');
-        const dCtx = destCanvas.getContext('2d');
+        const qualityInput = document.getElementById('quality');
+        const qualityVal = document.getElementById('qualityVal');
+        const origPreview = document.getElementById('origPreview');
+        const compPreview = document.getElementById('compPreview');
+        const origStats = document.getElementById('origStats');
+        const compStats = document.getElementById('compStats');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let originalFile = null;
 
         upload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+            originalFile = e.target.files[0];
+            if (!originalFile) return;
 
+            // Display original stats
+            origStats.innerText = `Size: ${(originalFile.size / 1024).toFixed(2)} KB`;
+            origPreview.src = URL.createObjectURL(originalFile);
+            origPreview.style.display = 'block';
+
+            compressImage();
+        });
+
+        qualityInput.addEventListener('input', (e) => {
+            qualityVal.innerText = e.target.value;
+            if (originalFile) compressImage();
+        });
+
+        function compressImage() {
+            const reader = new FileReader();
+            reader.readAsDataURL(originalFile);
             reader.onload = (event) => {
                 const img = new Image();
-                img.onload = () => {
-                    // 1. Draw original image to hidden canvas
-                    sourceCanvas.width = img.width;
-                    sourceCanvas.height = img.height;
-                    sCtx.drawImage(img, 0, 0);
-
-                    // 2. Get image data for jsQR to analyze
-                    const imageData = sCtx.getImageData(0, 0, img.width, img.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                    if (code) {
-                        const { x, y, width, height } = code.location.topLeftCorner; 
-                        // Note: jsQR provides corner points; we calculate dimensions:
-                        const qrWidth = code.location.topRightCorner.x - x;
-                        const qrHeight = code.location.bottomLeftCorner.y - y;
-                        
-                        // Adding a small padding (10px) so the crop isn't too tight
-                        const padding = 10;
-
-                        // 3. Set destination canvas to QR size and draw the crop
-                        destCanvas.width = qrWidth + (padding * 2);
-                        destCanvas.height = qrHeight + (padding * 2);
-                        
-                        dCtx.drawImage(
-                            img, 
-                            x - padding, y - padding, qrWidth + (padding * 2), qrHeight + (padding * 2), // Source rect
-                            0, 0, qrWidth + (padding * 2), qrHeight + (padding * 2) // Dest rect
-                        );
-                        console.log("QR Code found and cropped!");
-                    } else {
-                        alert("No QR code detected in this image.");
-                    }
-                };
                 img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Maintain aspect ratio
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // Compress to JPEG with user-defined quality (0.1 to 1.0)
+                    const quality = parseFloat(qualityInput.value);
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    
+                    // Display compressed preview
+                    compPreview.src = dataUrl;
+                    compPreview.style.display = 'block';
+
+                    // Calculate compressed size
+                    const head = 'data:image/jpeg;base64,';
+                    const fileSize = Math.round((dataUrl.length - head.length) * 3 / 4);
+                    compStats.innerText = `Size: ${(fileSize / 1024).toFixed(2)} KB`;
+
+                    // Enable Download
+                    downloadBtn.disabled = false;
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        link.download = `compressed_${originalFile.name.split('.')[0]}.jpg`;
+                        link.click();
+                    };
+                };
             };
-            reader.readAsDataURL(file);
-        });
+        }
     </script>
 </body>
 </html>
