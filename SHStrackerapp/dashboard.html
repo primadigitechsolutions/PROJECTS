@@ -48,7 +48,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
- 
+
     .progress-card {
         background: white;
         border-radius: 24px;
@@ -79,7 +79,6 @@
     }
 
     .progress-wrapper { display: flex; align-items: center; gap: 15px; }
- 
     .circular-progress { position: relative; width: 90px; height: 90px; }
     .circular-progress svg { transform: rotate(-90deg); }
     .circular-progress .bg-circle { fill: none; stroke: #f0e6f5; stroke-width: 10; }
@@ -93,7 +92,7 @@
     .performance-right { flex: 1; }
     .performance-right .label { font-size: 12px; color: #666; }
     .performance-right .big-number { font-size: 28px; font-weight: 800; color: #5E3A7E; margin: 2px 0; }
- 
+
     .progress-bar-bg { height: 8px; background: #f0e6f5; border-radius: 10px; overflow: hidden; margin-top: 5px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #5E3A7E, #EF9875); transition: width 0.8s ease-in-out; }
     .section-title { font-size: 18px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
@@ -249,9 +248,6 @@
   let timer;
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  // Premium validity in days (only applies to timestamp values)
-  const PREMIUM_VALIDITY_DAYS = 30;
-
   window.closeAllModals = () => {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     subjectToDel = null;
@@ -279,20 +275,19 @@
     const premiumRef = ref(database, `users/${currentUid}/premium`);
 
     onValue(premiumRef, (snapshot) => {
-      const premiumValue = snapshot.val();
+      const val = snapshot.val();
       const badge = document.getElementById('premiumBadge');
 
-      let hasActivePremium = false;
+      let isActive = false;
 
-      if (premiumValue === -1) {
-        hasActivePremium = true;                    // Lifetime premium
+      if (val === -1) {
+        isActive = true;                    // Lifetime Premium
       } 
-      else if (typeof premiumValue === 'number' && premiumValue > 0) {
-        const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
-        hasActivePremium = (daysPassed < PREMIUM_VALIDITY_DAYS);
+      else if (typeof val === 'number' && val > 0) {
+        isActive = Date.now() < val;        // Timestamp = Expiration Time
       }
 
-      badge.style.display = hasActivePremium ? 'block' : 'none';
+      badge.style.display = isActive ? 'block' : 'none';
     });
   }
 
@@ -303,16 +298,15 @@
     const premiumRef = ref(database, `users/${currentUid}/premium`);
 
     onValue(premiumRef, (snapshot) => {
-      const premiumValue = snapshot.val();
+      const val = snapshot.val();
 
       let hasActivePremium = false;
 
-      if (premiumValue === -1) {
-        hasActivePremium = true;                    // Lifetime
+      if (val === -1) {
+        hasActivePremium = true;
       } 
-      else if (typeof premiumValue === 'number' && premiumValue > 0) {
-        const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
-        hasActivePremium = (daysPassed < PREMIUM_VALIDITY_DAYS);
+      else if (typeof val === 'number' && val > 0) {
+        hasActivePremium = Date.now() < val;   // Timestamp is expiration time
       }
 
       if (hasActivePremium) {
