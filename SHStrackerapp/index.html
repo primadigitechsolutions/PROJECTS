@@ -6,6 +6,7 @@
   <title>Login | Academic Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body {
       background: #f8f4fa;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -15,14 +16,18 @@
       min-height: 100vh;
       padding: 10px;
     }
+
     .phone-frame {
       width: 100%; max-width: 400px; height: 92vh;
       background: white; border-radius: 40px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
+
     #mainWrapper { display: none; flex-direction: column; height: 100%; }
+
     .screen-content { padding: 40px 28px; flex: 1; overflow-y: auto; }
+
     /* Logo Styling */
     .logo-area { text-align: center; margin-bottom: 45px; margin-top: 20px; }
     .logo-icon {
@@ -32,6 +37,7 @@
       box-shadow: 0 8px 20px rgba(94, 58, 126, 0.2);
     }
     .logo-text { font-size: 26px; font-weight: 800; color: #2c1e3f; letter-spacing: -0.8px; }
+
     /* Inputs */
     .input-group { margin-bottom: 22px; }
     .input-label { display: block; font-size: 11px; font-weight: 800; color: #5E3A7E; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.2px; }
@@ -41,25 +47,31 @@
       transition: 0.2s;
     }
     .input-field:focus { border-color: #5E3A7E; background-color: #fff; box-shadow: 0 0 0 4px rgba(94, 58, 126, 0.05); }
+
     .forgot-row { text-align: right; margin-bottom: 28px; }
     .forgot-link { font-size: 13px; color: #B97D7E; text-decoration: none; font-weight: 600; cursor: pointer; }
+
     .btn-primary {
       width: 100%; background: #5E3A7E; border: none; padding: 18px; border-radius: 22px;
       font-size: 16px; font-weight: 700; color: white; cursor: pointer;
       box-shadow: 0 10px 25px rgba(94, 58, 126, 0.25); margin-bottom: 24px;
     }
     .btn-primary:active { transform: scale(0.97); }
+
     .signup-row { text-align: center; margin-bottom: 32px; font-size: 14px; color: #5E3A7E; }
     .signup-link { color: #F1A17E; font-weight: 800; text-decoration: none; margin-left: 5px; }
+
     .divider { display: flex; align-items: center; text-align: center; color: #B97D7E; font-size: 11px; font-weight: 700; margin-bottom: 28px; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #F1A17E; }
     .divider::before { margin-right: 15px; }
     .divider::after { margin-left: 15px; }
+
     .social-btn {
       width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
       background: white; border: 1px solid #F1A17E; border-radius: 20px;
       padding: 15px; font-weight: 700; font-size: 14px; color: #2c1e3f; cursor: pointer;
     }
+
     /* MODAL STYLES */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -73,19 +85,21 @@
     .modal-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 15px; }
     .icon-error { background: #fef2f2; color: #ef4444; }
     .icon-info { background: #f0e6f5; color: #5E3A7E; }
-   
+    
     .modal-title { font-size: 18px; font-weight: 800; color: #2c1e3f; margin-bottom: 10px; }
     .modal-text { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 20px; }
-   
-    .modal-btn {
-      width: 100%; padding: 14px; border-radius: 16px; border: none;
-      font-weight: 700; font-size: 15px; cursor: pointer;
-      background: #5E3A7E; color: white;
+    
+    .modal-btn { 
+      width: 100%; padding: 14px; border-radius: 16px; border: none; 
+      font-weight: 700; font-size: 15px; cursor: pointer; 
+      background: #5E3A7E; color: white; 
     }
+
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
+
   <div class="phone-frame">
     <div id="mainWrapper">
       <div class="screen-content">
@@ -93,26 +107,30 @@
           <div class="logo-icon">A</div>
           <div class="logo-text">Academic Portal</div>
         </div>
+
         <div class="input-group">
           <label class="input-label">Email Address</label>
           <input type="email" id="email" class="input-field" placeholder="student@academic.edu">
         </div>
-       
+        
         <div class="input-group">
           <label class="input-label">Password</label>
           <input type="password" id="password" class="input-field" placeholder="••••••••">
         </div>
-       
+        
         <div class="forgot-row">
           <a class="forgot-link" id="forgotBtn">Forgot Password?</a>
         </div>
-       
+        
         <button class="btn-primary" id="loginBtn">Login</button>
+
         <div class="signup-row">
           <span>New here?</span>
           <a href="register.html" class="signup-link">Create Account</a>
         </div>
+
         <div class="divider">OR CONTINUE WITH</div>
+
         <div class="social-login">
           <div class="social-btn" id="googleBtn">
             <span class="social-icon">G</span>
@@ -122,6 +140,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" id="statusModal">
     <div class="modal-card">
       <div class="modal-icon icon-error" id="statusIcon">✕</div>
@@ -130,27 +149,30 @@
       <button class="modal-btn" onclick="document.getElementById('statusModal').style.display='none'">OK</button>
     </div>
   </div>
+
   <div class="modal-overlay" id="forgotModal">
     <div class="modal-card">
       <div class="modal-icon icon-info">?</div>
       <div class="modal-title">Reset Password</div>
       <div class="modal-text">Enter your email and we'll send a link to create a new password.</div>
-     
+      
       <div class="input-group" style="text-align: left; margin-bottom: 15px;">
         <label class="input-label">Recovery Email</label>
         <input type="email" id="forgotEmail" class="input-field" placeholder="email@example.com">
       </div>
+
       <div style="display: flex; gap: 10px;">
         <button class="modal-btn" style="background: #f0f0f0; color: #666;" id="closeForgot">Cancel</button>
         <button class="modal-btn" id="sendResetBtn">Send Link</button>
       </div>
     </div>
   </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
       signInWithPopup,
       signInWithCredential,
       signInWithEmailAndPassword,
@@ -158,6 +180,7 @@
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
@@ -166,10 +189,12 @@
       messagingSenderId: "807451936679",
       appId: "1:807451936679:web:37fa86f3b272afe9505882"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     const wrapper = document.getElementById('mainWrapper');
+
     // UI Helpers
     function showModal(title, msg, isSuccess = false) {
       document.getElementById('modalTitle').innerText = title;
@@ -179,6 +204,7 @@
       icon.className = isSuccess ? 'modal-icon icon-info' : 'modal-icon icon-error';
       document.getElementById('statusModal').style.display = 'flex';
     }
+
     // ====================== AUTH GUARD ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -193,14 +219,18 @@
         wrapper.style.display = "flex";
       }
     });
+
     // ====================== LOGIN LOGIC ======================
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
+
       if (!email || !password) return showModal("Wait!", "Please fill in all fields.");
+
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+
         if (user.emailVerified) {
           window.location.href = "dashboard.html";
         } else {
@@ -211,6 +241,7 @@
         showModal("Login Failed", "Invalid email or password.");
       }
     });
+
     // ====================== GOOGLE LOGIN (WEB + NATIVE) ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
       // 1. Android Native Check
@@ -219,6 +250,7 @@
         Android.requestGoogleSignIn();
         return;
       }
+
       // 2. Standard Web Popup
       try {
         await signInWithPopup(auth, provider);
@@ -227,13 +259,15 @@
         if (error.code !== 'auth/popup-closed-by-user') showModal("Error", "Google sign-in failed.");
       }
     });
+
     // ====================== HANDLE NATIVE ANDROID CALLBACK ======================
     window.handleNativeGoogleLogin = async (googleIdToken) => {
       if (!googleIdToken) return console.error("No token received from Android");
+
       try {
         const credential = GoogleAuthProvider.credential(googleIdToken);
         await signInWithCredential(auth, credential);
-       
+        
         setTimeout(() => {
           window.location.href = "dashboard.html";
         }, 800);
@@ -242,13 +276,16 @@
         showModal("Error", "Failed to authenticate via Android Google account.");
       }
     };
+
     // ====================== FORGOT PASSWORD ======================
     const fModal = document.getElementById('forgotModal');
     document.getElementById('forgotBtn').onclick = () => fModal.style.display = 'flex';
     document.getElementById('closeForgot').onclick = () => fModal.style.display = 'none';
+
     document.getElementById('sendResetBtn').addEventListener('click', async () => {
       const email = document.getElementById('forgotEmail').value.trim();
       if (!email) return;
+
       try {
         await sendPasswordResetEmail(auth, email);
         fModal.style.display = 'none';
@@ -260,4 +297,3 @@
   </script>
 </body>
 </html>
- 
