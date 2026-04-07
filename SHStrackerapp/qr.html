@@ -2,120 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Image Compressor</title>
+    <title>Auto-Max Image Compressor</title>
     <style>
-        body { font-family: -apple-system, sans-serif; max-width: 900px; margin: 2rem auto; background: #fafafa; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        img { width: 100%; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; }
-        .stat-box { background: #e9ecef; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; margin: 10px 0; }
-        .reduction { color: #28a745; }
-        input[type="range"] { width: 100%; margin: 10px 0; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0056b3; }
+        body { font-family: sans-serif; text-align: center; padding: 40px; background: #f0f2f5; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .box { border: 2px dashed #ccc; padding: 20px; margin: 20px 0; cursor: pointer; }
+        .box:hover { border-color: #007bff; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        .savings { color: #28a745; font-weight: bold; font-size: 1.2rem; }
+        button { background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 1rem; cursor: pointer; display: none; margin: auto; }
+        img { max-width: 100%; height: auto; margin-top: 15px; border-radius: 4px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Advanced Compression Settings</h2>
-        <label>Step 1: Choose Image</label><br>
-        <input type="file" id="upload" accept="image/*"><br><br>
-
-        <label>Step 2: Max Width (Pixels): <span id="widthVal">1200</span>px</label>
-        <input type="range" id="maxWidth" min="400" max="3000" step="100" value="1200">
-
-        <label>Step 3: Quality: <span id="qualityVal">0.6</span></label>
-        <input type="range" id="quality" min="0.1" max="1.0" step="0.1" value="0.6">
+<div class="container">
+    <h2>Auto-Max Compressor</h2>
+    <p>Upload any image to instantly shrink it to the smallest possible size.</p>
+    
+    <div class="box" onclick="document.getElementById('fileInput').click()">
+        Click to Upload Image
+        <input type="file" id="fileInput" accept="image/*" hidden>
     </div>
 
-    <div class="grid">
-        <div class="card">
-            <h3>Original</h3>
-            <div id="origSize" class="stat-box">Size: -</div>
-            <img id="origImg">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <strong>Original</strong>
+            <div id="oldSize">-</div>
         </div>
-        <div class="card">
-            <h3>Compressed (WebP)</h3>
-            <div id="compSize" class="stat-box">Size: -</div>
-            <div id="savings" class="reduction"></div>
-            <img id="compImg">
-            <button id="dlBtn" style="display:none; margin-top:15px;">Download .WebP</button>
+        <div class="stat-card">
+            <strong>Optimized</strong>
+            <div id="newSize">-</div>
+            <div id="pct" class="savings"></div>
         </div>
     </div>
+
+    <img id="preview">
+    <button id="dlBtn">Download Optimized Image</button>
+</div>
 
 <script>
-    const el = (id) => document.getElementById(id);
-    let currentFile = null;
+    const fileInput = document.getElementById('fileInput');
+    const oldSizeEl = document.getElementById('oldSize');
+    const newSizeEl = document.getElementById('newSize');
+    const pctEl = document.getElementById('pct');
+    const dlBtn = document.getElementById('dlBtn');
+    const preview = document.getElementById('preview');
 
-    const updateLabel = (id, val) => el(id).innerText = val;
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    [el('quality'), el('maxWidth')].forEach(input => {
-        input.addEventListener('input', () => {
-            updateLabel(input.id + 'Val', input.value);
-            if(currentFile) process();
-        });
-    });
-
-    el('upload').addEventListener('change', (e) => {
-        currentFile = e.target.files[0];
-        if(currentFile) {
-            el('origSize').innerText = `Size: ${(currentFile.size / 1024).toFixed(1)} KB`;
-            el('origImg').src = URL.createObjectURL(currentFile);
-            process();
-        }
-    });
-
-    function process() {
+        oldSizeEl.innerText = (file.size / 1024).toFixed(1) + " KB";
+        
         const reader = new FileReader();
-        reader.readAsDataURL(currentFile);
+        reader.readAsDataURL(file);
         reader.onload = (event) => {
             const img = new Image();
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                
-                // CRITICAL: Resizing logic for "More" compression
+                const ctx = canvas.getContext('2d');
+
+                // AUTO-LOGIC: Hard cap width at 1000px for massive savings
                 let width = img.width;
                 let height = img.height;
-                const maxW = parseInt(el('maxWidth').value);
+                const MAX_DIM = 1000; 
 
-                if (width > maxW) {
-                    height = height * (maxW / width);
-                    width = maxW;
+                if (width > height) {
+                    if (width > MAX_DIM) {
+                        height *= MAX_DIM / width;
+                        width = MAX_DIM;
+                    }
+                } else {
+                    if (height > MAX_DIM) {
+                        width *= MAX_DIM / height;
+                        height = MAX_DIM;
+                    }
                 }
 
                 canvas.width = width;
                 canvas.height = height;
-                const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Use 'image/webp' for superior compression over 'image/jpeg'
-                const quality = parseFloat(el('quality').value);
-                const dataUrl = canvas.toDataURL('image/webp', quality);
+                // QUALITY: Set to 0.4 (Aggressive but decent looking)
+                // FORMAT: WebP is 30% smaller than JPG
+                const dataUrl = canvas.toDataURL('image/webp', 0.4);
                 
-                el('compImg').src = dataUrl;
+                // Calculate size from base64
+                const newSizeBytes = Math.round((dataUrl.length - 22) * 3 / 4);
+                newSizeEl.innerText = (newSizeBytes / 1024).toFixed(1) + " KB";
                 
-                // Calculate size
-                const sizeInBytes = Math.round((dataUrl.length - 22) * 3 / 4);
-                const sizeKb = (sizeInBytes / 1024).toFixed(1);
-                el('compSize').innerText = `Size: ${sizeKb} KB`;
+                // Show % savings
+                const savings = Math.round((1 - (newSizeBytes / file.size)) * 100);
+                pctEl.innerText = `-${savings}%`;
 
-                // Calculate % savings
-                const savings = Math.round((1 - (sizeInBytes / currentFile.size)) * 100);
-                el('savings').innerText = savings > 0 ? `Reduced by ${savings}%` : "";
-
-                el('dlBtn').style.display = 'block';
-                el('dlBtn').onclick = () => {
-                    const a = document.createElement('a');
-                    a.href = dataUrl;
-                    a.download = "optimized.webp";
-                    a.click();
+                // Update UI
+                preview.src = dataUrl;
+                preview.style.display = "block";
+                dlBtn.style.display = "block";
+                dlBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = `optimized_${file.name.split('.')[0]}.webp`;
+                    link.click();
                 };
             };
         };
-    }
+    });
 </script>
+
 </body>
 </html>
