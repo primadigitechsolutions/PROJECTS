@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Improved Carousel with Proper Side Padding */
+    /* Carousel with proper side padding */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -118,23 +118,21 @@
 
     .carousel-container {
       position: relative;
-      margin: 0 -20px;           /* Extends to screen edges */
-      padding: 0 20px;           /* Adds safe padding on sides */
+      margin: 0 -20px;
+      padding: 0 20px;
     }
 
     .carousel {
       display: flex;
       overflow-x: auto;
       gap: 16px;
-      padding: 4px 8px 20px 8px;   /* Extra padding for first & last card */
+      padding: 4px 8px 20px 8px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
-    .carousel::-webkit-scrollbar {
-      display: none;
-    }
+    .carousel::-webkit-scrollbar { display: none; }
 
     .offer-card {
       background: white;
@@ -242,12 +240,11 @@
       </div>
     </div>
 
-    <!-- Dynamic Subscription Offers Carousel with Proper Padding -->
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
         <div id="offers-carousel" class="carousel">
-          <!-- Populated dynamically by JavaScript -->
+          <!-- Offers populated by JavaScript -->
         </div>
       </div>
     </div>
@@ -257,7 +254,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -285,16 +282,20 @@
     }
   });
 
+  // Initialize premium field to 0 if it doesn't exist
   function initializePremiumStatus() {
     if (!currentUid) return;
     const premiumRef = ref(database, `users/${currentUid}/premium`);
     onValue(premiumRef, (snapshot) => {
       if (snapshot.val() === null || snapshot.val() === undefined) {
-        set(premiumRef, 0);
+        set(premiumRef, 0)
+          .then(() => console.log("Premium status initialized to 0"))
+          .catch((error) => console.error("Error initializing premium:", error));
       }
     }, { onlyOnce: true });
   }
 
+  // Load subscription offers from RTDB or use defaults
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
     const carousel = document.getElementById("offers-carousel");
@@ -311,6 +312,7 @@
         }));
       }
 
+      // Fallback to default offers
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
@@ -321,7 +323,7 @@
 
       renderOffers(offers);
     } catch (error) {
-      console.error("Error loading offers:", error);
+      console.error("Error loading subscription offers:", error);
       renderOffers([
         { duration: "1 month", price: 49, period: "month" },
         { duration: "6 months", price: 249, period: "6 months" },
@@ -335,7 +337,7 @@
     carousel.innerHTML = "";
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1;
+      const isPopular = index === 1; // 6 months as most popular
 
       const cardHTML = `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
