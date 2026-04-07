@@ -112,7 +112,6 @@
     .btn-cancel { background: #eee; color: #333; }
     .btn-confirm { background: linear-gradient(90deg, #5E3A7E, #6B4A8A); color: white; }
 
-    /* Review Modal */
     .proof-preview {
       width: 100%; max-height: 280px; border: 2px solid #f0e6f5;
       border-radius: 16px; object-fit: contain; background: #f8f4fa; margin: 15px 0;
@@ -179,7 +178,7 @@
     </div>
   </div>
 
-  <!-- Settings Modal (QR Code) -->
+  <!-- Settings Modal - QR Upload -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h3>Payment QR Code</h3>
@@ -348,7 +347,7 @@
         .catch(err => console.error(err));
     };
 
-    // QR Settings
+    // ==================== AUTO QR CROP + COMPRESSION ====================
     function loadCurrentQR() {
       onValue(ref(database, 'settings/qrpayment'), (snapshot) => {
         const data = snapshot.val();
@@ -368,17 +367,68 @@
     document.getElementById('qrUpload').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width; canvas.height = img.height;
-          canvas.getContext('2d').drawImage(img, 0, 0);
-          const compressed = canvas.toDataURL('image/webp', 0.6);
-          set(ref(database, 'settings/qrpayment'), compressed).then(loadCurrentQR);
+          // 1. Source Canvas
+          const sourceCanvas = document.createElement('canvas');
+          const sCtx = sourceCanvas.getContext('2d');
+          sourceCanvas.width = img.width;
+          sourceCanvas.height = img.height;
+          sCtx.drawImage(img, 0, 0);
+
+          // 2. Detect QR Code
+          const imageData = sCtx.getImageData(0, 0, img.width, img.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+          if (code) {
+            const loc = code.location;
+            const x = Math.min(loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomLeftCorner.x, loc.bottomRightCorner.x);
+            const y = Math.min(loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomLeftCorner.y, loc.bottomRightCorner.y);
+            const qrWidth = Math.max(loc.topRightCorner.x, loc.bottomRightCorner.x) - Math.min(loc.topLeftCorner.x, loc.bottomLeftCorner.x);
+            const qrHeight = Math.max(loc.bottomLeftCorner.y, loc.bottomRightCorner.y) - Math.min(loc.topLeftCorner.y, loc.topRightCorner.y);
+
+            // 3. Padding and Max Size
+            const padding = 15;
+            const MAX_SIZE = 400;
+            let finalW = qrWidth + padding * 2;
+            let finalH = qrHeight + padding * 2;
+
+            if (finalW > MAX_SIZE) {
+              const ratio = MAX_SIZE / finalW;
+              finalW = MAX_SIZE;
+              finalH = finalH * ratio;
+            }
+
+            // 4. Destination Canvas - Crop + Resize
+            const destCanvas = document.createElement('canvas');
+            const dCtx = destCanvas.getContext('2d');
+            destCanvas.width = finalW;
+            destCanvas.height = finalH;
+
+            dCtx.drawImage(
+              img,
+              x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2,
+              0, 0, finalW, finalH
+            );
+
+            // 5. Compress to WebP 0.6 quality
+            const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
+
+            // Save to Firebase
+            set(ref(database, 'settings/qrpayment'), compressedBase64)
+              .then(() => {
+                alert("✅ QR Code uploaded and compressed successfully!");
+                loadCurrentQR();
+              })
+              .catch(err => alert("Upload failed: " + err.message));
+          } else {
+            alert("No QR code detected. Please try a clearer photo.");
+          }
         };
-        img.src = ev.target.result;
+        img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     });
