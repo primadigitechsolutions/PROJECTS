@@ -96,7 +96,7 @@
       transition: background 0.2s;
     }
 
-    /* Low grade warning - Only text color, no background */
+    /* Low grade in table - only text color */
     .grade.low {
       color: #e07a5f !important;
     }
@@ -153,6 +153,11 @@
       font-size: 24px;
       cursor: pointer;
       color: #9C6A82;
+    }
+
+    /* Low component in modal */
+    .component-title.low {
+      color: #e07a5f !important;
     }
 
     .bottom-nav {
@@ -292,9 +297,7 @@
   function shouldTreatAsZero(subject, quarter) {
     const qNum = parseInt(quarter.replace('Q', ''));
     for (let next = qNum + 1; next <= 4; next++) {
-      if (hasAnyScores(subject, `Q${next}`)) {
-        return true;
-      }
+      if (hasAnyScores(subject, `Q${next}`)) return true;
     }
     return false;
   }
@@ -302,10 +305,7 @@
   function calculateQuarterGrade(subject, quarter) {
     const data = scores[subject]?.[quarter];
 
-    if (!data && shouldTreatAsZero(subject, quarter)) {
-      return 0;
-    }
-
+    if (!data && shouldTreatAsZero(subject, quarter)) return 0;
     if (!data) return null;
 
     const getAvg = (type) => {
@@ -327,14 +327,12 @@
   }
 
   function shouldShowAsFinal(subject, quarter) {
-    const qNum = parseInt(quarter.replace('Q', ''));
-
     if (hasAnyScores(subject, quarter)) return true;
     if (shouldTreatAsZero(subject, quarter)) return true;
-
     return false;
   }
 
+  // Show Quarter Preview Modal with low component highlighting
   window.showQuarterPreview = function(subject, quarter) {
     const data = scores[subject]?.[quarter];
     const modalTitle = document.getElementById('modalTitle');
@@ -346,9 +344,18 @@
       modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded in this quarter.</p>`;
     } else {
       let html = '';
+
       ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
         if (data[type] && Object.keys(data[type]).length > 0) {
-          html += `<div style="margin:18px 0 8px; font-size:13px; font-weight:700; color:#6b5a7a;">${type}</div>`;
+          const avg = calculateComponentAvg(data[type]);
+          const isLow = avg < 60;
+
+          html += `
+            <div style="margin:18px 0 8px; font-size:13px; font-weight:700; 
+                        ${isLow ? 'color:#e07a5f;' : 'color:#6b5a7a;'}">
+              ${type} ${isLow ? '(Low)' : ''}
+            </div>`;
+
           Object.keys(data[type]).forEach(key => {
             const entry = data[type][key];
             html += `
@@ -359,11 +366,19 @@
           });
         }
       });
+
       modalContent.innerHTML = html || `<p style="text-align:center; color:#888; padding:30px;">No entries yet.</p>`;
     }
 
     document.getElementById('previewModal').style.display = 'flex';
   };
+
+  // Helper to calculate average of a component
+  function calculateComponentAvg(entries) {
+    if (!entries || Object.keys(entries).length === 0) return 0;
+    const values = Object.values(entries);
+    return (values.reduce((a, b) => a + (b.score / b.total), 0) / values.length) * 100;
+  }
 
   window.closeModal = function() {
     document.getElementById('previewModal').style.display = 'none';
