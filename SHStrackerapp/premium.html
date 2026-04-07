@@ -45,7 +45,6 @@
       padding: 6px 20px;
       border-radius: 50px;
       margin-bottom: 12px;
-      letter-spacing: 0.5px;
     }
     .title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
     .subtitle { font-size: 15.5px; color: #666; line-height: 1.4; }
@@ -63,10 +62,7 @@
 
     /* Carousel */
     .offers-section { margin-bottom: 30px; }
-    .section-title {
-      font-size: 18px; font-weight: 700; color: #4E356F;
-      margin-bottom: 16px; padding-left: 4px;
-    }
+    .section-title { font-size: 18px; font-weight: 700; color: #4E356F; margin-bottom: 16px; padding-left: 4px; }
     .carousel-container { margin: 0 -24px; padding: 0 24px; }
     .carousel {
       display: flex;
@@ -128,12 +124,12 @@
     }
     .offer-btn:active { transform: scale(0.96); }
 
-    /* Modal Styles */
+    /* Modals */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
+      inset: 0;
+      background: rgba(0,0,0,0.75);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -145,39 +141,24 @@
       border-radius: 28px;
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
-    .modal-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #4E356F;
-      margin-bottom: 20px;
-    }
-    .modal-steps {
-      text-align: left;
-      font-size: 15.5px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-      color: #333;
-    }
-    .modal-steps ol {
-      padding-left: 20px;
-    }
-    .qr-container {
-      margin: 20px 0;
-      padding: 16px;
-      background: #f8f4fa;
+    .modal-title { font-size: 22px; font-weight: 700; color: #4E356F; margin-bottom: 20px; }
+    .modal-text { font-size: 15.5px; line-height: 1.6; color: #333; margin-bottom: 20px; }
+
+    .proof-info { text-align: left; margin: 20px 0; font-size: 15px; }
+    .proof-info p { margin: 8px 0; }
+
+    .upload-area {
+      border: 2px dashed #ccc;
       border-radius: 16px;
-      border: 1px solid #e0d0f0;
+      padding: 24px 16px;
+      margin: 20px 0;
+      cursor: pointer;
+      background: #faf8fc;
     }
-    .qr-image {
-      width: 100%;
-      max-width: 240px;
-      height: auto;
-      border-radius: 12px;
-      margin: 0 auto;
-      display: block;
-    }
+    .upload-area input { display: none; }
+
     .modal-btn {
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
       color: white;
@@ -187,8 +168,12 @@
       font-size: 16px;
       font-weight: 700;
       border-radius: 16px;
-      margin-top: 10px;
+      margin-top: 12px;
       cursor: pointer;
+    }
+    .modal-btn.secondary {
+      background: #ddd;
+      color: #333;
     }
     .modal-btn:active { transform: scale(0.96); }
   </style>
@@ -208,7 +193,6 @@
     </div>
 
     <div class="features">
-      <!-- Your existing features remain unchanged -->
       <div class="feature">
         <div class="feature-icon">🏆</div>
         <div class="feature-text">
@@ -235,46 +219,69 @@
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
-        <div id="offers-carousel" class="carousel">
-          <!-- Offers populated by JS -->
-        </div>
+        <div id="offers-carousel" class="carousel"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Subscription Modal -->
-<div id="subscribe-modal" class="modal">
+<!-- How to Subscribe Modal -->
+<div id="modal-howto" class="modal">
   <div class="modal-content">
     <div class="modal-title">How to Subscribe?</div>
-    
-    <div class="modal-steps">
-      <ol>
+    <div class="modal-text">
+      <ol style="text-align:left; padding-left:20px; line-height:1.7;">
         <li>Screenshot the QR below</li>
-        <li>Then Upload QR via GCash</li>
+        <li>Upload QR via GCash</li>
         <li>Enter the amount you choose then Pay</li>
         <li>Click "Done Paying"</li>
       </ol>
     </div>
+    <div style="margin:20px 0; background:#f8f4fa; padding:16px; border-radius:16px;">
+      <img id="qr-image" style="width:100%; max-width:240px; border-radius:12px; display:block; margin:0 auto;" src="" alt="QR Code">
+    </div>
+    <button class="modal-btn" onclick="closeHowToAndOpenProof()">Done Paying</button>
+    <button class="modal-btn secondary" onclick="closeHowToModal()">Cancel</button>
+  </div>
+</div>
 
-    <div class="qr-container">
-      <img id="qr-image" class="qr-image" src="" alt="Payment QR Code">
-      <p id="qr-placeholder" style="display:none; color:#888; font-size:14px; margin-top:8px;">
-        Loading QR Code...
-      </p>
+<!-- Proof of Payment Modal -->
+<div id="modal-proof" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">Proof of Payment</div>
+    
+    <div class="proof-info">
+      <p><strong>Duration:</strong> <span id="proof-duration"></span></p>
+      <p><strong>Price:</strong> ₱<span id="proof-price"></span></p>
     </div>
 
-    <button class="modal-btn" onclick="donePaying()">Done Paying</button>
-    <button class="modal-btn" style="background:#ccc; color:#333; margin-top:12px;" onclick="closeModal()">
-      Cancel
-    </button>
+    <div class="upload-area" onclick="document.getElementById('proof-upload').click()">
+      <p style="margin-bottom:8px;">Upload Proof of Payment Receipt</p>
+      <input type="file" id="proof-upload" accept="image/*" onchange="handleProofUpload(event)">
+      <p id="file-name" style="font-size:13px; color:#666; margin-top:8px;"></p>
+    </div>
+
+    <button class="modal-btn" onclick="submitProof()">Done</button>
+    <button class="modal-btn secondary" onclick="closeProofModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Payment on Review Modal -->
+<div id="modal-review" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">Payment on Review</div>
+    <div class="modal-text">
+      Payment received, please wait for the confirmation of the payment to access the premium features.<br><br>
+      Thank you!
+    </div>
+    <button class="modal-btn" onclick="closeReviewModal()">Okay</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, get, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -291,7 +298,10 @@
   const database = getDatabase(app);
 
   let currentUid = null;
-  let selectedPlan = "";
+  let selectedDuration = "";
+  let selectedPrice = 0;
+  let proofBase64 = "";
+  let qrBase64 = "";
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -316,17 +326,13 @@
 
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
-    const carousel = document.getElementById("offers-carousel");
-
     try {
       const snapshot = await get(offersRef);
       let offers = [];
-
       if (snapshot.exists()) {
         const data = snapshot.val();
         offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
       }
-
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
@@ -334,7 +340,6 @@
           { duration: "1 year", price: 499, period: "year" }
         ];
       }
-
       renderOffers(offers);
     } catch (error) {
       console.error("Error loading offers:", error);
@@ -349,70 +354,119 @@
   function renderOffers(offers) {
     const carousel = document.getElementById("offers-carousel");
     carousel.innerHTML = "";
-
     offers.forEach((offer, index) => {
       const isPopular = index === 1;
-
-      const cardHTML = `
+      carousel.innerHTML += `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
           <div class="offer-duration">${offer.duration}</div>
           <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
-          <button class="offer-btn" onclick="showSubscribeModal('${offer.duration}', ${offer.price})">
+          <button class="offer-btn" onclick="showHowToModal('${offer.duration}', ${offer.price})">
             Choose Plan
           </button>
         </div>
       `;
-      carousel.innerHTML += cardHTML;
     });
   }
 
-  // Load QR Code from /settings/qrpayment (base64)
-  let qrBase64 = "";
   async function loadQRCode() {
     try {
-      const qrRef = ref(database, "settings/qrpayment");
-      const snapshot = await get(qrRef);
+      const snapshot = await get(ref(database, "settings/qrpayment"));
       if (snapshot.exists()) {
         qrBase64 = snapshot.val();
       }
-    } catch (error) {
-      console.error("Error loading QR code:", error);
-    }
+    } catch (e) { console.error("Failed to load QR", e); }
   }
 
-  window.showSubscribeModal = function(duration, price) {
-    selectedPlan = `${duration} - ₱${price}`;
-    document.getElementById("subscribe-modal").style.display = "flex";
+  window.showHowToModal = function(duration, price) {
+    selectedDuration = duration;
+    selectedPrice = price;
+    document.getElementById("modal-howto").style.display = "flex";
 
     const img = document.getElementById("qr-image");
-    const placeholder = document.getElementById("qr-placeholder");
-
-    if (qrBase64 && qrBase64.startsWith("data:image")) {
-      img.src = qrBase64;
-      img.style.display = "block";
-      placeholder.style.display = "none";
-    } else if (qrBase64) {
-      // If stored without data: prefix
-      img.src = "data:image/png;base64," + qrBase64;
-      img.style.display = "block";
-      placeholder.style.display = "none";
-    } else {
-      img.style.display = "none";
-      placeholder.style.display = "block";
-      placeholder.textContent = "QR Code not available yet";
+    if (qrBase64) {
+      img.src = qrBase64.startsWith("data:") ? qrBase64 : "data:image/png;base64," + qrBase64;
     }
   };
 
-  window.closeModal = function() {
-    document.getElementById("subscribe-modal").style.display = "none";
+  window.closeHowToModal = function() {
+    document.getElementById("modal-howto").style.display = "none";
   };
 
-  window.donePaying = function() {
-    closeModal();
-    setTimeout(() => {
-      alert(`Thank you! 🎉\n\nWe received your payment for:\n${selectedPlan}\n\nYour Premium will be activated soon after verification.`);
-      // TODO: Later you can call a function here to update user premium status in Firebase
-    }, 300);
+  window.closeHowToAndOpenProof = function() {
+    closeHowToModal();
+    document.getElementById("proof-duration").textContent = selectedDuration;
+    document.getElementById("proof-price").textContent = selectedPrice;
+    proofBase64 = "";
+    document.getElementById("file-name").textContent = "";
+    document.getElementById("modal-proof").style.display = "flex";
+  };
+
+  window.handleProofUpload = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    document.getElementById("file-name").textContent = file.name;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = img.width;
+        let height = img.height;
+        const MAX_WIDTH = 400;
+
+        if (width > MAX_WIDTH) {
+          height = height * (MAX_WIDTH / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        proofBase64 = canvas.toDataURL('image/webp', 0.6);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.submitProof = async function() {
+    if (!proofBase64) {
+      alert("Please upload a proof of payment image.");
+      return;
+    }
+
+    const paymentRef = push(ref(database, `users/${currentUid}/payment`));
+
+    const paymentData = {
+      duration: selectedDuration,
+      price: selectedPrice,
+      amount: selectedPrice,
+      proofImage: proofBase64,
+      timestamp: Date.now(),
+      status: "pending"
+    };
+
+    try {
+      await set(paymentRef, paymentData);
+      closeProofModal();
+      document.getElementById("modal-review").style.display = "flex";
+    } catch (err) {
+      alert("Failed to upload payment: " + err.message);
+    }
+  };
+
+  window.closeProofModal = function() {
+    document.getElementById("modal-proof").style.display = "none";
+  };
+
+  window.closeReviewModal = function() {
+    document.getElementById("modal-review").style.display = "none";
+    // You can redirect or refresh here if needed
   };
 </script>
 </body>
