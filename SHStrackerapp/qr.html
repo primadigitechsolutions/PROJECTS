@@ -1,644 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>QR Code Cropper – Auto & Manual (GCash / Any QR)</title>
-    <!-- jsQR library for QR detection -->
+    <title>Auto-Crop QR Code</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            max-width: 1300px;
-            width: 100%;
-            background: white;
-            border-radius: 2rem;
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: #0b2b26;
-            color: white;
-            padding: 1.2rem 2rem;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 1.7rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header p {
-            margin: 0.3rem 0 0;
-            opacity: 0.85;
-            font-size: 0.9rem;
-        }
-
-        .content {
-            padding: 2rem;
-        }
-
-        .upload-area {
-            background: #f9fafb;
-            border: 2px dashed #cbd5e1;
-            border-radius: 1.5rem;
-            padding: 1.2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-bottom: 1.5rem;
-        }
-
-        .upload-area:hover {
-            border-color: #2c7a4d;
-            background: #f0fdf4;
-        }
-
-        .upload-label {
-            background: #1f4f3a;
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 60px;
-            display: inline-flex;
-            gap: 8px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin: 1rem 0 1.5rem 0;
-            background: #f1f5f9;
-            padding: 0.8rem 1.2rem;
-            border-radius: 60px;
-        }
-
-        .padding-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: white;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-        }
-
-        .padding-group input {
-            width: 70px;
-            padding: 5px;
-            border-radius: 30px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-
-        button {
-            background: #1e293b;
-            border: none;
-            color: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        button.primary {
-            background: #2c7a4d;
-        }
-
-        button.primary:hover {
-            background: #1e5a38;
-        }
-
-        button.warning {
-            background: #d97706;
-        }
-
-        button.danger {
-            background: #9e2a2a;
-        }
-
-        button.secondary {
-            background: #475569;
-        }
-
-        button.active {
-            background: #ea580c;
-            box-shadow: 0 0 0 2px #fed7aa;
-        }
-
-        .preview-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-top: 1rem;
-        }
-
-        .preview-card {
-            flex: 1;
-            min-width: 260px;
-            background: #ffffff;
-            border-radius: 1.2rem;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .preview-card h3 {
-            margin-top: 0;
-            margin-bottom: 0.8rem;
-            font-weight: 600;
-        }
-
-        .canvas-area {
-            background: #f8fafc;
-            border-radius: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 280px;
-            position: relative;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        #croppedCanvas {
-            background: white;
-            border: 1px solid #ddd;
-        }
-
-        .status {
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            background: #f1f5f9;
-            padding: 0.5rem 1rem;
-            border-radius: 60px;
-            display: inline-block;
-        }
-
-        footer {
-            margin-top: 2rem;
-            font-size: 0.7rem;
-            text-align: center;
-            color: #4b5563;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 1rem;
-        }
-
-        @media (max-width: 700px) {
-            .content { padding: 1rem; }
-            .controls { flex-direction: column; align-items: stretch; border-radius: 20px; }
-        }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        canvas { border: 2px solid #333; border-radius: 8px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>📷 QR Code Cropper · Auto + Manual</h1>
-        <p>Upload any image containing a QR code (GCash, ArtWhale PH, etc.) → automatically crop only the QR → download PNG</p>
-    </div>
-    <div class="content">
-        <div class="upload-area" id="uploadArea">
-            <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp, image/bmp">
-            <label for="fileInput" class="upload-label">📂 Select Image</label>
-            <p style="margin: 10px 0 0; font-size:0.8rem;">Supports JPG, PNG, WebP</p>
-        </div>
 
-        <div class="controls">
-            <div class="padding-group">
-                <span>🔲 Extra padding (px)</span>
-                <input type="number" id="paddingValue" value="8" step="1" min="0" max="40">
-            </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="autoBtn" class="primary">🎯 Auto Detect & Crop QR</button>
-                <button id="manualToggleBtn" class="secondary">✋ Manual Mode (drag)</button>
-                <button id="resetBtn" class="danger">⟳ Reset</button>
-                <button id="downloadBtn" disabled>💾 Download Cropped QR</button>
-            </div>
-        </div>
-
-        <div class="preview-panel">
-            <div class="preview-card">
-                <h3>🖼️ Original + Detection Overlay</h3>
-                <div class="canvas-area">
-                    <canvas id="sourceCanvas" width="500" height="400" style="background:#eef2ff; border-radius: 12px;"></canvas>
-                </div>
-                <div class="status" id="statusMsg">⚡ Ready — upload an image</div>
-            </div>
-            <div class="preview-card">
-                <h3>✨ Cropped QR Code (only QR)</h3>
-                <div class="canvas-area">
-                    <canvas id="croppedCanvas" width="200" height="200" style="background:#f9f9ff;"></canvas>
-                </div>
-                <p style="font-size:0.7rem; margin-top:8px;">⬇️ Click download after crop</p>
-            </div>
-        </div>
-        <footer>
-            ✅ Auto-detection uses jsQR to find any QR code. If it fails, enable Manual Mode and drag rectangle on the left image.<br>
-            🧩 Cropped image includes the QR + optional padding. Works with GCash, PayMaya, ArtWhale, etc.
-        </footer>
-    </div>
-</div>
-
-<script>
-    // DOM elements
-    const fileInput = document.getElementById('fileInput');
-    const sourceCanvas = document.getElementById('sourceCanvas');
-    const srcCtx = sourceCanvas.getContext('2d');
-    const croppedCanvas = document.getElementById('croppedCanvas');
-    const croppedCtx = croppedCanvas.getContext('2d');
-    const autoBtn = document.getElementById('autoBtn');
-    const manualToggleBtn = document.getElementById('manualToggleBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const paddingInput = document.getElementById('paddingValue');
-    const statusSpan = document.getElementById('statusMsg');
-
-    // Image data
-    let originalImg = null;          // HTMLImageElement
-    let imgWidth = 0, imgHeight = 0;
-    let fullResCanvas = null;        // offscreen canvas with original image (for cropping)
-    let fullResCtx = null;
-    let currentCroppedDataURL = null;
-
-    // Overlay rect (auto-detected) in original coordinates
-    let detectedRect = null;          // { x, y, w, h }
-
-    // Manual mode state
-    let manualMode = false;
-    let isDragging = false;
-    let dragStart = { x: 0, y: 0 };
-    let dragRect = null;              // { x, y, w, h } in display canvas coordinates
-
-    // Helper: update status
-    function setStatus(msg, isError = false) {
-        statusSpan.innerHTML = isError ? `⚠️ ${msg}` : `✅ ${msg}`;
-        statusSpan.style.background = isError ? '#fee2e2' : '#e0f2fe';
-        setTimeout(() => {
-            if (!isError) statusSpan.style.background = '#f1f5f9';
-        }, 2500);
-    }
-
-    // Draw original image on sourceCanvas (scaled) and draw detection rect OR manual rect
-    function drawSourceWithOverlay() {
-        if (!originalImg) {
-            srcCtx.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
-            srcCtx.fillStyle = "#eef2ff";
-            srcCtx.fillRect(0, 0, sourceCanvas.width, sourceCanvas.height);
-            srcCtx.fillStyle = "#64748b";
-            srcCtx.font = "14px sans-serif";
-            srcCtx.fillText("No image loaded", 20, 50);
-            return;
-        }
-
-        // calculate scaling to fit canvas (max 500x400)
-        let maxW = 500, maxH = 400;
-        let dispW = imgWidth, dispH = imgHeight;
-        if (dispW > maxW) {
-            dispH = (dispH * maxW) / dispW;
-            dispW = maxW;
-        }
-        if (dispH > maxH) {
-            dispW = (dispW * maxH) / dispH;
-            dispH = maxH;
-        }
-        sourceCanvas.width = dispW;
-        sourceCanvas.height = dispH;
-        
-        // draw image
-        srcCtx.drawImage(originalImg, 0, 0, imgWidth, imgHeight, 0, 0, dispW, dispH);
-        
-        // scale factor from original to display
-        const scaleX = dispW / imgWidth;
-        const scaleY = dispH / imgHeight;
-        
-        // draw auto-detected rect (if exists)
-        if (detectedRect && detectedRect.w > 0) {
-            const x1 = detectedRect.x * scaleX;
-            const y1 = detectedRect.y * scaleY;
-            const w = detectedRect.w * scaleX;
-            const h = detectedRect.h * scaleY;
-            srcCtx.save();
-            srcCtx.strokeStyle = "#2c7a4d";
-            srcCtx.lineWidth = 3;
-            srcCtx.setLineDash([6, 8]);
-            srcCtx.strokeRect(x1, y1, w, h);
-            srcCtx.fillStyle = "#2c7a4d30";
-            srcCtx.fillRect(x1, y1, w, h);
-            srcCtx.restore();
-        }
-        
-        // draw manual selection rectangle if manual mode active and dragRect exists
-        if (manualMode && dragRect && dragRect.w > 0 && dragRect.h > 0) {
-            srcCtx.save();
-            srcCtx.strokeStyle = "#f97316";
-            srcCtx.lineWidth = 3;
-            srcCtx.setLineDash([5, 5]);
-            srcCtx.strokeRect(dragRect.x, dragRect.y, dragRect.w, dragRect.h);
-            srcCtx.fillStyle = "#f9731640";
-            srcCtx.fillRect(dragRect.x, dragRect.y, dragRect.w, dragRect.h);
-            srcCtx.restore();
-        }
-    }
-
-    // Perform crop using given rectangle in original coordinates
-    function applyCrop(origRect) {
-        if (!originalImg || !fullResCanvas) return false;
-        let { x, y, w, h } = origRect;
-        // clamp
-        x = Math.max(0, Math.min(x, imgWidth - 1));
-        y = Math.max(0, Math.min(y, imgHeight - 1));
-        w = Math.min(w, imgWidth - x);
-        h = Math.min(h, imgHeight - y);
-        if (w < 5 || h < 5) {
-            setStatus("Crop region too small", true);
-            return false;
-        }
-        
-        croppedCanvas.width = w;
-        croppedCanvas.height = h;
-        croppedCtx.clearRect(0, 0, w, h);
-        croppedCtx.drawImage(fullResCanvas, x, y, w, h, 0, 0, w, h);
-        currentCroppedDataURL = croppedCanvas.toDataURL('image/png');
-        downloadBtn.disabled = false;
-        setStatus(`Cropped QR (${w}×${h}) — ready to download`);
-        return true;
-    }
-
-    // Auto detect QR code using jsQR
-    async function autoDetectAndCrop() {
-        if (!originalImg) {
-            setStatus("Please upload an image first", true);
-            return;
-        }
-        setStatus("🔍 Scanning for QR code...");
-        // get image data from full resolution canvas
-        const imageData = fullResCtx.getImageData(0, 0, imgWidth, imgHeight);
-        const code = jsQR(imageData.data, imgWidth, imgHeight, { inversionAttempts: "dontInvert" });
-        if (!code) {
-            setStatus("❌ No QR code found. Try manual mode or better lighting.", true);
-            detectedRect = null;
-            drawSourceWithOverlay();
-            return;
-        }
-        
-        // get bounding box from QR corners
-        const points = [
-            code.location.topLeftCorner, code.location.topRightCorner,
-            code.location.bottomRightCorner, code.location.bottomLeftCorner
-        ];
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        points.forEach(p => {
-            minX = Math.min(minX, p.x);
-            minY = Math.min(minY, p.y);
-            maxX = Math.max(maxX, p.x);
-            maxY = Math.max(maxY, p.y);
-        });
-        
-        let padding = parseInt(paddingInput.value);
-        if (isNaN(padding)) padding = 8;
-        padding = Math.min(40, Math.max(0, padding));
-        
-        let cropX = Math.max(0, minX - padding);
-        let cropY = Math.max(0, minY - padding);
-        let cropW = Math.min(imgWidth - cropX, (maxX - minX) + padding * 2);
-        let cropH = Math.min(imgHeight - cropY, (maxY - minY) + padding * 2);
-        
-        detectedRect = { x: cropX, y: cropY, w: cropW, h: cropH };
-        drawSourceWithOverlay();
-        const success = applyCrop(detectedRect);
-        if (success) setStatus(`QR detected! Padding: ${padding}px`);
-        else setStatus("Auto detection failed while cropping", true);
-    }
+    <h2>QR Code Auto-Cropper</h2>
+    <input type="file" id="upload" accept="image/*">
     
-    // ----- Manual selection logic (on sourceCanvas) -----
-    function getMouseCoord(e, canvas) {
-        const rect = canvas.getBoundingClientRect();
-        const scaleXCanvas = canvas.width / rect.width;
-        const scaleYCanvas = canvas.height / rect.height;
-        let clientX, clientY;
-        if (e.touches) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-            e.preventDefault();
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-        let canvasX = (clientX - rect.left) * scaleXCanvas;
-        let canvasY = (clientY - rect.top) * scaleYCanvas;
-        canvasX = Math.min(canvas.width, Math.max(0, canvasX));
-        canvasY = Math.min(canvas.height, Math.max(0, canvasY));
-        return { x: canvasX, y: canvasY };
-    }
-    
-    function startManualDrag(e) {
-        if (!manualMode || !originalImg) return;
-        isDragging = true;
-        const coord = getMouseCoord(e, sourceCanvas);
-        dragStart = { x: coord.x, y: coord.y };
-        dragRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
-        drawSourceWithOverlay();
-    }
-    
-    function onManualDrag(e) {
-        if (!isDragging || !manualMode || !originalImg) return;
-        const coord = getMouseCoord(e, sourceCanvas);
-        let width = coord.x - dragStart.x;
-        let height = coord.y - dragStart.y;
-        let x = width > 0 ? dragStart.x : coord.x;
-        let y = height > 0 ? dragStart.y : coord.y;
-        dragRect = {
-            x: x,
-            y: y,
-            w: Math.abs(width),
-            h: Math.abs(height)
-        };
-        drawSourceWithOverlay();
-    }
-    
-    function endManualDrag(e) {
-        if (!isDragging || !manualMode) {
-            isDragging = false;
-            return;
-        }
-        isDragging = false;
-        if (dragRect && dragRect.w > 8 && dragRect.h > 8) {
-            // convert display rect to original coordinates
-            const scaleX = imgWidth / sourceCanvas.width;
-            const scaleY = imgHeight / sourceCanvas.height;
-            let origX = dragRect.x * scaleX;
-            let origY = dragRect.y * scaleY;
-            let origW = dragRect.w * scaleX;
-            let origH = dragRect.h * scaleY;
-            origX = Math.max(0, origX);
-            origY = Math.max(0, origY);
-            origW = Math.min(origW, imgWidth - origX);
-            origH = Math.min(origH, imgHeight - origY);
-            if (origW > 8 && origH > 8) {
-                detectedRect = { x: origX, y: origY, w: origW, h: origH };
-                drawSourceWithOverlay();
-                applyCrop(detectedRect);
-                setStatus("Manual crop applied");
-            } else {
-                setStatus("Selection too small", true);
-            }
-        }
-        dragRect = null;
-        drawSourceWithOverlay();
-    }
-    
-    function attachEvents() {
-        sourceCanvas.addEventListener('mousedown', startManualDrag);
-        window.addEventListener('mousemove', onManualDrag);
-        window.addEventListener('mouseup', endManualDrag);
-        sourceCanvas.addEventListener('touchstart', startManualDrag, { passive: false });
-        window.addEventListener('touchmove', onManualDrag, { passive: false });
-        window.addEventListener('touchend', endManualDrag);
-    }
-    
-    // Reset everything
-    function resetAll() {
-        originalImg = null;
-        imgWidth = imgHeight = 0;
-        detectedRect = null;
-        dragRect = null;
-        manualMode = false;
-        manualToggleBtn.classList.remove('active');
-        if (fullResCanvas) fullResCtx.clearRect(0, 0, fullResCanvas.width, fullResCanvas.height);
-        currentCroppedDataURL = null;
-        downloadBtn.disabled = true;
-        croppedCanvas.width = 200;
-        croppedCanvas.height = 200;
-        croppedCtx.clearRect(0, 0, 200, 200);
-        croppedCtx.fillStyle = "#f1f5f9";
-        croppedCtx.fillRect(0, 0, 200, 200);
-        croppedCtx.fillStyle = "#94a3b8";
-        croppedCtx.font = "12px sans-serif";
-        croppedCtx.fillText("No crop", 20, 100);
-        drawSourceWithOverlay();
-        setStatus("Reset complete. Upload a new image.");
-        fileInput.value = "";
-    }
-    
-    // Load image from file
-    function handleFile(file) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                originalImg = img;
-                imgWidth = img.width;
-                imgHeight = img.height;
-                // create full resolution canvas
-                fullResCanvas = document.createElement('canvas');
-                fullResCanvas.width = imgWidth;
-                fullResCanvas.height = imgHeight;
-                fullResCtx = fullResCanvas.getContext('2d');
-                fullResCtx.drawImage(img, 0, 0);
-                // reset states
-                detectedRect = null;
-                dragRect = null;
-                manualMode = false;
-                manualToggleBtn.classList.remove('active');
-                drawSourceWithOverlay();
-                setStatus(`Image loaded: ${imgWidth}×${imgHeight}. Click "Auto Detect" or use Manual.`);
-                // clear crop preview
-                croppedCanvas.width = 200;
-                croppedCanvas.height = 200;
-                croppedCtx.clearRect(0, 0, 200, 200);
-                croppedCtx.fillStyle = "#eef2ff";
-                croppedCtx.fillRect(0, 0, 200, 200);
-                croppedCtx.fillStyle = "#4b5563";
-                croppedCtx.fillText("Waiting for crop", 30, 100);
-                currentCroppedDataURL = null;
-                downloadBtn.disabled = true;
+    <p>Original Scan (Hidden):</p>
+    <canvas id="sourceCanvas" class="hidden"></canvas>
+
+    <p>Cropped Result:</p>
+    <canvas id="destCanvas"></canvas>
+
+    <script>
+        const upload = document.getElementById('upload');
+        const sourceCanvas = document.getElementById('sourceCanvas');
+        const destCanvas = document.getElementById('destCanvas');
+        const sCtx = sourceCanvas.getContext('2d');
+        const dCtx = destCanvas.getContext('2d');
+
+        upload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // 1. Draw original image to hidden canvas
+                    sourceCanvas.width = img.width;
+                    sourceCanvas.height = img.height;
+                    sCtx.drawImage(img, 0, 0);
+
+                    // 2. Get image data for jsQR to analyze
+                    const imageData = sCtx.getImageData(0, 0, img.width, img.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        const { x, y, width, height } = code.location.topLeftCorner; 
+                        // Note: jsQR provides corner points; we calculate dimensions:
+                        const qrWidth = code.location.topRightCorner.x - x;
+                        const qrHeight = code.location.bottomLeftCorner.y - y;
+                        
+                        // Adding a small padding (10px) so the crop isn't too tight
+                        const padding = 10;
+
+                        // 3. Set destination canvas to QR size and draw the crop
+                        destCanvas.width = qrWidth + (padding * 2);
+                        destCanvas.height = qrHeight + (padding * 2);
+                        
+                        dCtx.drawImage(
+                            img, 
+                            x - padding, y - padding, qrWidth + (padding * 2), qrHeight + (padding * 2), // Source rect
+                            0, 0, qrWidth + (padding * 2), qrHeight + (padding * 2) // Dest rect
+                        );
+                        console.log("QR Code found and cropped!");
+                    } else {
+                        alert("No QR code detected in this image.");
+                    }
+                };
+                img.src = event.target.result;
             };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-    
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            resetAll();
-            handleFile(e.target.files[0]);
-        }
-    });
-    
-    // Buttons
-    autoBtn.addEventListener('click', () => {
-        if (!originalImg) { setStatus("No image loaded", true); return; }
-        autoDetectAndCrop();
-    });
-    
-    manualToggleBtn.addEventListener('click', () => {
-        if (!originalImg) { setStatus("Load an image first", true); return; }
-        manualMode = !manualMode;
-        if (manualMode) {
-            manualToggleBtn.classList.add('active');
-            setStatus("✋ Manual mode active: drag a rectangle on the left image to crop the QR area.");
-            dragRect = null;
-            drawSourceWithOverlay();
-        } else {
-            manualToggleBtn.classList.remove('active');
-            dragRect = null;
-            drawSourceWithOverlay();
-            setStatus("Manual mode disabled.");
-        }
-    });
-    
-    resetBtn.addEventListener('click', () => resetAll());
-    
-    downloadBtn.addEventListener('click', () => {
-        if (!currentCroppedDataURL) {
-            setStatus("No cropped QR available. Auto-detect or manual crop first.", true);
-            return;
-        }
-        const link = document.createElement('a');
-        link.download = 'qr_code_cropped.png';
-        link.href = currentCroppedDataURL;
-        link.click();
-        setStatus("Download started!");
-    });
-    
-    attachEvents();
-    resetAll(); // initial clean state
-</script>
+            reader.readAsDataURL(file);
+        });
+    </script>
 </body>
 </html>
