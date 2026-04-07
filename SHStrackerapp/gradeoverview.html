@@ -92,6 +92,11 @@
     .grade {
       font-weight: 700;
       color: #4E356F;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .grade:hover {
+      background: #f0e6f0;
     }
 
     .final-grade {
@@ -106,6 +111,46 @@
       padding: 60px 20px;
       font-size: 15px;
       line-height: 1.5;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 340px;
+      border-radius: 20px;
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ecdde6;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4E356F;
+    }
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #9C6A82;
     }
 
     .bottom-nav {
@@ -166,6 +211,19 @@
   </div>
 </div>
 
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Quarter Preview</div>
+      <span class="close-btn" onclick="closeModal()">×</span>
+    </div>
+    <div id="modalContent">
+      <!-- Dynamically filled by JavaScript -->
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -190,7 +248,6 @@
   let scores = {};
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  // Make switchSemester globally available
   window.switchSemester = function(sem) {
     currentSem = sem;
     localStorage.setItem('lastSem', sem);
@@ -208,13 +265,11 @@
   });
 
   function loadOverviewData() {
-    // Load subjects
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
       subjects = snapshot.val() || {};
       renderOverview();
     });
 
-    // Load scores
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
       scores = snapshot.val() || {};
       renderOverview();
@@ -250,6 +305,44 @@
     return (ww * 0.25) + (pt * ptW) + (ex * exW);
   }
 
+  // Show Preview Modal
+  window.showQuarterPreview = function(subject, quarter) {
+    const data = scores[subject]?.[quarter];
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+
+    modalTitle.textContent = `${subject} - ${quarter} Quarter`;
+
+    if (!data) {
+      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded in this quarter.</p>`;
+    } else {
+      let html = '';
+
+      ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
+        if (data[type] && Object.keys(data[type]).length > 0) {
+          html += `<div style="margin: 18px 0 10px; font-size:13px; font-weight:700; color:#6b5a7a;">${type}</div>`;
+
+          Object.keys(data[type]).forEach(key => {
+            const entry = data[type][key];
+            html += `
+              <div style="background:#fcfaff; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13.5px;">
+                <div><strong>${entry.score} / ${entry.total}</strong></div>
+                <div style="font-size:12px; color:#9C6A82; margin-top:3px;">${entry.date}</div>
+              </div>`;
+          });
+        }
+      });
+
+      modalContent.innerHTML = html || `<p style="text-align:center; color:#888; padding:30px;">No entries yet.</p>`;
+    }
+
+    document.getElementById('previewModal').style.display = 'flex';
+  };
+
+  window.closeModal = function() {
+    document.getElementById('previewModal').style.display = 'none';
+  };
+
   function renderOverview() {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
@@ -265,33 +358,39 @@
 
     subjectList.forEach(subject => {
       const row = document.createElement('tr');
+
       let html = `<td class="subject-name">${subject}</td>`;
-      let total = 0;
-      let count = 0;
 
       for (let q = 1; q <= 4; q++) {
         const quarter = `Q${q}`;
         const grade = calculateQuarterGrade(subject, quarter);
-        
+
         if (grade !== null && grade > 0) {
-          html += `<td class="grade">${grade.toFixed(1)}</td>`;
-          total += grade;
-          count++;
+          html += `<td class="grade" onclick="showQuarterPreview('${subject}', '${quarter}')">${grade.toFixed(1)}</td>`;
         } else {
           html += `<td style="color:#ccc;">—</td>`;
         }
       }
 
-      const finalGrade = count > 0 ? (total / count) : null;
-      if (finalGrade !== null) {
-        html += `<td class="final-grade">${finalGrade.toFixed(1)}</td>`;
-      } else {
-        html += `<td style="color:#ccc;">—</td>`;
-      }
+      const finalGrade = calculateFinalGrade(subject);
+      html += `<td class="final-grade">${finalGrade ? finalGrade.toFixed(1) : '—'}</td>`;
 
       row.innerHTML = html;
       tbody.appendChild(row);
     });
+  }
+
+  function calculateFinalGrade(subject) {
+    let total = 0;
+    let count = 0;
+    for (let q = 1; q <= 4; q++) {
+      const grade = calculateQuarterGrade(subject, `Q${q}`);
+      if (grade !== null && grade > 0) {
+        total += grade;
+        count++;
+      }
+    }
+    return count > 0 ? total / count : null;
   }
 </script>
 </body>
