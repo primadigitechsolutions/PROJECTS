@@ -53,6 +53,7 @@
       font-size: 13px;
       color: #666;
       margin-top: 2px;
+      word-break: break-all;
     }
     .premium-status {
       margin-top: 10px;
@@ -86,7 +87,7 @@
     .note {
       font-size: 12px;
       color: #888;
-      margin-top: 20px;
+      margin-top: 25px;
       text-align: center;
     }
   </style>
@@ -100,7 +101,7 @@
   </div>
 
   <div class="main-content" id="userList">
-    <!-- Users will be loaded here -->
+    <!-- Users loaded here -->
   </div>
 </div>
 
@@ -147,8 +148,14 @@
       }
 
       Object.entries(users).forEach(([uid, userData]) => {
-        const email = userData.email || "No email";
-        const name = userData.displayName || email.split('@')[0] || "Unknown User";
+        // Get email - works for both email/password and Google OAuth
+        let email = userData.email || 
+                    (userData.providerData && userData.providerData[0] && userData.providerData[0].email) || 
+                    "No email available";
+
+        const name = userData.displayName || 
+                     (email !== "No email available" ? email.split('@')[0] : "Unknown User");
+
         const premium = userData.premium;
 
         let statusText = "No Premium";
