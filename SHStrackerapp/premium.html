@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Carousel Styles - FIXED FOR SWIPING */
+    /* Carousel Styles - Fixed Popular Banner */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -115,15 +115,18 @@
       margin-bottom: 16px;
       padding-left: 4px;
     }
+    .carousel-container {
+      padding-top: 20px;        /* Extra space for the "MOST POPULAR" banner */
+      padding-bottom: 10px;
+    }
     .carousel {
       display: flex;
       overflow-x: auto;
       gap: 16px;
-      padding: 4px 0 20px 4px;
+      padding: 0 4px 20px 4px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;           /* Firefox */
-      -ms-overflow-style: none;        /* IE/Edge */
+      scrollbar-width: none;
     }
     .carousel::-webkit-scrollbar {
       display: none;
@@ -132,33 +135,34 @@
       background: white;
       border-radius: 24px;
       padding: 24px 20px;
-      min-width: 260px;           /* Fixed width - important for swiping */
+      min-width: 260px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
       transition: all 0.3s ease;
-      scroll-snap-align: center;   /* Changed to center for better feel */
+      scroll-snap-align: center;
       text-align: center;
-      flex-shrink: 0;              /* Prevent shrinking */
+      flex-shrink: 0;
+      position: relative;
     }
     .offer-card.popular {
       border-color: #EF9875;
-      position: relative;
-      transform: scale(1.03);      /* Slight highlight for popular plan */
+      transform: scale(1.03);
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
       position: absolute;
-      top: -12px;
+      top: -18px;               /* Moved up but still visible thanks to container padding */
       left: 50%;
       transform: translateX(-50%);
       background: #EF9875;
       color: white;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 18px;
+      padding: 5px 18px;
       border-radius: 50px;
       letter-spacing: 0.5px;
-      box-shadow: 0 4px 10px rgba(239, 152, 117, 0.3);
+      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
+      z-index: 10;
     }
     .offer-duration {
       font-size: 20px;
@@ -237,8 +241,10 @@
     <!-- Dynamic Subscription Offers Carousel -->
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
-      <div id="offers-carousel" class="carousel">
-        <!-- Populated by JavaScript -->
+      <div class="carousel-container">
+        <div id="offers-carousel" class="carousel">
+          <!-- Populated by JavaScript -->
+        </div>
       </div>
     </div>
   </div>
@@ -301,7 +307,6 @@
         }));
       }
 
-      // Default fallback
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
