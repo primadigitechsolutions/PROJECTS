@@ -30,72 +30,39 @@
       background: white;
       border-bottom: 1px solid #f0e6f5;
     }
-    .greeting {
-      font-size: 22px;
-      font-weight: 700;
-      color: #2c1e3f;
-    }
-    .greeting .role {
-      color: #EF9875;
-      font-size: 18px;
-    }
+    .greeting { font-size: 22px; font-weight: 700; color: #2c1e3f; }
+    .greeting .role { color: #EF9875; font-size: 18px; }
     .profile-circle {
       width: 42px; height: 42px;
-      background: #5E3A7E;
-      color: white; border-radius: 50%;
+      background: #5E3A7E; color: white; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; cursor: pointer;
       box-shadow: 0 4px 10px rgba(94, 58, 126, 0.2);
     }
     .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 20px 80px;
-      background: #f8f4fa;
+      flex: 1; overflow-y: auto; padding: 20px 20px 80px; background: #f8f4fa;
     }
     .search-bar {
-      width: 100%;
-      padding: 14px 16px;
-      border: 2px solid #f0e6f5;
-      border-radius: 14px;
-      font-size: 15px;
-      margin-bottom: 20px;
-      background: white;
+      width: 100%; padding: 14px 16px; border: 2px solid #f0e6f5;
+      border-radius: 14px; font-size: 15px; margin-bottom: 20px; background: white;
     }
-    .user-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+    .user-grid { display: flex; flex-direction: column; gap: 14px; }
     .user-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 6px 20px rgba(78, 53, 111, 0.06);
-      border: 1px solid #f0e6f5;
+      background: white; border-radius: 20px; padding: 18px;
+      box-shadow: 0 6px 20px rgba(78, 53, 111, 0.06); border: 1px solid #f0e6f5;
     }
     .user-name { font-size: 17px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
     .user-email { font-size: 13px; color: #666; margin-bottom: 12px; }
     .premium-status {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 14px;
+      display: inline-block; padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; margin-bottom: 14px;
     }
     .no-premium { background: #ffebee; color: #e07a5f; }
     .active-premium { background: #e8f5e9; color: #4caf50; }
     .lifetime { background: linear-gradient(90deg, #EF9875, #e07a5f); color: white; }
     .btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-      width: 100%;
-      margin-top: 8px;
+      padding: 12px 20px; border: none; border-radius: 14px;
+      cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-top: 8px;
     }
     .btn-premium { background: #5E3A7E; color: white; }
     .btn-review { background: #EF9875; color: white; }
@@ -106,17 +73,11 @@
       border-radius: 16px; width: 200px; z-index: 1000;
       border: 1px solid #f0e6f5; overflow: hidden;
     }
-    .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
-    .dropdown-item {
-      padding: 14px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      color: #2c1e3f;
-      font-weight: 600;
-    }
+    .dropdown-content.show { display: block; }
+    .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; color: #2c1e3f; font-weight: 600; }
     .dropdown-item:active { background: #f8f4fa; }
 
-    /* Modal Styles */
+    /* Modals */
     .modal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.7); z-index: 2000;
@@ -129,13 +90,8 @@
     }
     .modal h3 { color: #5E3A7E; margin-bottom: 15px; }
     .proof-preview {
-      width: 100%;
-      max-height: 280px;
-      border: 2px solid #f0e6f5;
-      border-radius: 16px;
-      object-fit: contain;
-      background: #f8f4fa;
-      margin: 15px 0;
+      width: 100%; max-height: 280px; border: 2px solid #f0e6f5;
+      border-radius: 16px; object-fit: contain; background: #f8f4fa; margin: 15px 0;
     }
     .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
     .modal-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; }
@@ -147,11 +103,8 @@
 <body>
   <div class="phone-frame">
     <div class="header">
-      <div>
-        <div class="greeting">Admin Panel <span class="role">👑</span></div>
-      </div>
+      <div><div class="greeting">Admin Panel <span class="role">👑</span></div></div>
       <div class="profile-circle" id="profileBtn">A</div>
-     
       <div class="dropdown-content" id="dropdownMenu">
         <div class="dropdown-item" id="settingsBtn">⚙️ Settings</div>
         <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="logoutBtn">🚪 Sign Out</div>
@@ -190,7 +143,7 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <h3>Review Payment</h3>
-      <div style="text-align:left; margin:15px 0;">
+      <div style="text-align:left; margin:15px 0; font-size:15.5px;">
         <p><strong>Duration:</strong> <span id="review-duration"></span></p>
         <p><strong>Price:</strong> ₱<span id="review-price"></span></p>
       </div>
@@ -209,10 +162,11 @@
       <h3>Payment QR Code</h3>
       <div id="qrPreviewContainer">
         <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none;">
-        <div id="noQrMessage" class="no-qr">No QR code uploaded yet</div>
+        <div id="noQrMessage" style="padding:40px 0; color:#888; font-style:italic;">No QR code uploaded yet</div>
       </div>
       <input type="file" id="qrUpload" accept="image/*" style="display:none;">
-      <button class="upload-btn" onclick="document.getElementById('qrUpload').click()">
+      <button class="upload-btn" onclick="document.getElementById('qrUpload').click()" 
+              style="background:#EF9875; color:white; padding:14px; border:none; border-radius:14px; font-weight:700; width:100%; margin-top:10px;">
         📤 Upload QR
       </button>
     </div>
@@ -220,7 +174,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, onValue, update, set, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, onValue, update, set, remove, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -237,7 +191,7 @@
 
     let currentUserId = null;
     let allUsers = {};
-    let currentReviewPayment = null;   // Store current payment being reviewed
+    let currentReviewPayment = null;
 
     function loadAllUsers() {
       const usersRef = ref(database, 'users');
@@ -263,9 +217,8 @@
           premiumHTML = `<span class="premium-status active-premium">Until ${date}</span>`;
         }
 
-        // Check for pending payments
         let reviewBtn = '';
-        if (userData.payment) {
+        if (userData.payment && Object.keys(userData.payment).length > 0) {
           reviewBtn = `<button class="btn btn-review" onclick="reviewPayment('${uid}')">Review Payment</button>`;
         }
 
@@ -282,52 +235,63 @@
       });
     }
 
-    // ====================== PAYMENT REVIEW ======================
+    // ==================== REVIEW PAYMENT ====================
     window.reviewPayment = async function(uid) {
       currentUserId = uid;
       const paymentRef = ref(database, `users/${uid}/payment`);
-      
-      const snapshot = await get(paymentRef);   // Note: 'get' needs to be imported if not already
-      if (!snapshot.exists()) return;
 
-      const payments = snapshot.val();
-      // Get the latest payment (highest timestamp)
-      const latestKey = Object.keys(payments).sort((a,b) => payments[b].timestamp - payments[a].timestamp)[0];
-      const latestPayment = payments[latestKey];
+      try {
+        const snapshot = await get(paymentRef);
+        if (!snapshot.exists()) {
+          alert("No pending payment found for this user.");
+          return;
+        }
 
-      currentReviewPayment = { key: latestKey, data: latestPayment };
+        const payments = snapshot.val();
+        // Get the latest payment (highest timestamp)
+        const sortedKeys = Object.keys(payments).sort((a, b) => 
+          (payments[b].timestamp || 0) - (payments[a].timestamp || 0)
+        );
+        const latestKey = sortedKeys[0];
+        const latestPayment = payments[latestKey];
 
-      document.getElementById('review-duration').textContent = latestPayment.duration || 'N/A';
-      document.getElementById('review-price').textContent = latestPayment.price || '0';
+        currentReviewPayment = { key: latestKey, data: latestPayment };
 
-      const imgEl = document.getElementById('proofImage');
-      if (latestPayment.proofImage) {
-        imgEl.src = latestPayment.proofImage.startsWith('data:') ? latestPayment.proofImage : 'data:image/webp;base64,' + latestPayment.proofImage;
-        imgEl.style.display = 'block';
-      } else {
-        imgEl.style.display = 'none';
+        // Fill modal
+        document.getElementById('review-duration').textContent = latestPayment.duration || 'N/A';
+        document.getElementById('review-price').textContent = latestPayment.price || '0';
+
+        const imgEl = document.getElementById('proofImage');
+        if (latestPayment.proofImage) {
+          imgEl.src = latestPayment.proofImage.startsWith('data:') 
+            ? latestPayment.proofImage 
+            : 'data:image/webp;base64,' + latestPayment.proofImage;
+          imgEl.style.display = 'block';
+        } else {
+          imgEl.style.display = 'none';
+        }
+
+        document.getElementById('reviewModal').style.display = 'flex';
+      } catch (err) {
+        console.error(err);
+        alert("Error loading payment details.");
       }
-
-      document.getElementById('reviewModal').style.display = 'flex';
     };
 
     window.grantPremium = async function() {
       if (!currentReviewPayment || !currentUserId) return;
 
       const durationStr = currentReviewPayment.data.duration || "30 days";
-      const days = parseInt(durationStr) || 30;   // Extract number from "180 days"
+      const daysMatch = durationStr.match(/(\d+)/);
+      const days = daysMatch ? parseInt(daysMatch[1]) : 30;
 
       const expiryTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
 
       try {
-        await update(ref(database, `users/${currentUserId}`), {
-          premium: expiryTimestamp
-        });
-
-        // Delete all payments after granting
+        await update(ref(database, `users/${currentUserId}`), { premium: expiryTimestamp });
         await remove(ref(database, `users/${currentUserId}/payment`));
 
-        alert("Premium granted successfully!");
+        alert(`✅ Premium granted for ${days} days!`);
         closeReviewModal();
         loadAllUsers();
       } catch (err) {
@@ -336,8 +300,7 @@
     };
 
     window.declinePayment = async function() {
-      if (!currentUserId) return;
-      if (!confirm("Are you sure you want to decline this payment?")) return;
+      if (!currentUserId || !confirm("Decline this payment and remove all records?")) return;
 
       try {
         await remove(ref(database, `users/${currentUserId}/payment`));
@@ -354,7 +317,7 @@
       currentReviewPayment = null;
     };
 
-    // ====================== EXISTING FUNCTIONS ======================
+    // ==================== PREMIUM MODAL ====================
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -381,14 +344,11 @@
         if (d) premiumValue = new Date(d).getTime();
       }
       update(ref(database, `users/${currentUserId}`), { premium: premiumValue })
-        .then(() => {
-          closePremiumModal();
-          loadAllUsers();
-        })
+        .then(() => { closePremiumModal(); loadAllUsers(); })
         .catch(err => console.error("Update error:", err));
     };
 
-    // QR Upload (unchanged)
+    // ==================== QR SETTINGS ====================
     function loadCurrentQR() {
       const qrRef = ref(database, 'settings/qrpayment');
       onValue(qrRef, (snapshot) => {
@@ -421,13 +381,12 @@
           const imageData = ctx.getImageData(0, 0, img.width, img.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
           if (code) {
-            // ... (your existing QR crop logic)
-            const compressedBase64 = canvas.toDataURL('image/webp', 0.6); // simplified for now
+            const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
             set(ref(database, 'settings/qrpayment'), compressedBase64)
               .then(() => loadCurrentQR())
               .catch(err => console.error(err));
           } else {
-            alert("No QR code detected.");
+            alert("No QR code detected. Please try a clearer image.");
           }
         };
         img.src = event.target.result;
@@ -435,7 +394,7 @@
       reader.readAsDataURL(file);
     });
 
-    // Dropdown & UI
+    // Dropdown & Search
     document.getElementById('profileBtn').onclick = (e) => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
@@ -444,13 +403,10 @@
       document.getElementById('dropdownMenu').classList.remove('show');
       document.getElementById('settingsModal').style.display = 'flex';
     };
-    document.getElementById('logoutBtn').onclick = () => {
-      document.getElementById('dropdownMenu').classList.remove('show');
-      window.location.href = "index.html";
-    };
+    document.getElementById('logoutBtn').onclick = () => window.location.href = "index.html";
+
     document.addEventListener('click', () => document.getElementById('dropdownMenu').classList.remove('show'));
 
-    // Search
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase().trim();
       const filtered = Object.fromEntries(
@@ -461,11 +417,8 @@
       renderUsers(filtered);
     });
 
-    // Close modals when clicking outside
     document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-      });
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
     });
 
     // Initialize
