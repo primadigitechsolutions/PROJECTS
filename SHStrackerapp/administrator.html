@@ -215,12 +215,8 @@
 
       <input type="file" id="qrUpload" accept="image/*" style="display:none;">
       <button class="upload-btn" onclick="document.getElementById('qrUpload').click()">
-        📤 Upload New QR Code (Auto-Optimized)
+        📤 Upload QR
       </button>
-      
-      <div style="margin-top:20px; text-align:center; font-size:11px; color:#888;">
-        The system automatically crops and compresses the QR for max performance.
-      </div>
     </div>
   </div>
 
@@ -321,14 +317,13 @@
 
       update(ref(database), { [`users/${currentUserId}/premium`]: premiumValue })
         .then(() => {
-          alert("✅ Premium updated!");
           closePremiumModal();
           loadAllUsers();
         })
-        .catch(err => alert("❌ Error: " + err.message));
+        .catch(err => console.error("Update error:", err));
     };
 
-    // Settings Modal + QR Upload with AUTO-COMPRESSION
+    // Settings Modal + Silent QR Compression
     function loadCurrentQR() {
       const qrRef = ref(database, 'settings/qrpayment');
       onValue(qrRef, (snapshot) => {
@@ -375,7 +370,6 @@
             const destCanvas = document.createElement('canvas');
             const dCtx = destCanvas.getContext('2d');
             
-            // AUTO-RESIZE logic: Cap at 400px wide for massive space savings
             const MAX_SIZE = 400;
             let finalW = qrWidth + padding * 2;
             let finalH = qrHeight + padding * 2;
@@ -395,19 +389,16 @@
               0, 0, finalW, finalH
             );
 
-            // COMPRESSION: Convert to WebP at 0.6 quality (Super Small)
+            // Silent compression to WebP 0.6
             const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
 
-            // Save to Firebase
             set(ref(database, 'settings/qrpayment'), compressedBase64)
               .then(() => {
-                const kb = Math.round((compressedBase64.length * 3) / 4 / 1024);
-                alert(`✅ Success! Compressed to ${kb} KB`);
                 loadCurrentQR();
               })
-              .catch(err => alert("❌ Failed to save: " + err.message));
+              .catch(err => console.error("Upload error:", err));
           } else {
-            alert("No QR code detected. Try a clearer photo.");
+            alert("No QR code detected. Please try a clearer photo.");
           }
         };
         img.src = event.target.result;
@@ -428,7 +419,7 @@
 
     document.getElementById('logoutBtn').onclick = () => {
       document.getElementById('dropdownMenu').classList.remove('show');
-      if (confirm("Sign out from Admin Panel?")) window.location.href = "index.html";
+      window.location.href = "index.html";
     };
 
     document.addEventListener('click', () => {
