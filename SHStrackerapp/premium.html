@@ -34,53 +34,108 @@
       padding: 20px 24px;
       overflow-y: auto;
     }
-
-    /* Hero & Features (unchanged) */
-    .hero { text-align: center; margin-bottom: 32px; }
-    .badge {
-      display: inline-block; background: linear-gradient(90deg, #5E3A7E, #EF9875);
-      color: white; font-size: 13px; font-weight: 700; padding: 6px 20px;
-      border-radius: 50px; margin-bottom: 12px; letter-spacing: 0.5px;
+    .hero {
+      text-align: center;
+      margin-bottom: 32px;
     }
-    .title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
-    .subtitle { font-size: 15.5px; color: #666; line-height: 1.4; }
-    .features { margin-bottom: 40px; }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #5E3A7E, #EF9875);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 20px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+    .badge::after {
+      content: '✨';
+      position: absolute;
+      top: -5px;
+      right: 8px;
+      font-size: 18px;
+      animation: twinkle 1.5s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15.5px;
+      color: #666;
+      line-height: 1.4;
+    }
+    .features {
+      margin-bottom: 40px;
+    }
     .feature {
-      display: flex; align-items: flex-start; gap: 16px;
-      background: white; padding: 18px 20px; border-radius: 20px;
-      margin-bottom: 14px; box-shadow: 0 4px 15px rgba(78, 53, 111, 0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: white;
+      padding: 18px 20px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 15px rgba(78, 53, 111, 0.06);
       border: 1px solid #f0e6f0;
     }
-    .feature-icon { font-size: 26px; width: 36px; }
-    .feature-text h3 { font-size: 17px; font-weight: 700; color: #4E356F; margin-bottom: 4px; }
-    .feature-text p { font-size: 14px; color: #555; line-height: 1.5; }
+    .feature-icon {
+      font-size: 26px;
+      width: 36px;
+    }
+    .feature-text h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 4px;
+    }
+    .feature-text p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.5;
+    }
 
-    /* CAROUSEL - Made more visible for debugging */
+    /* Improved Carousel with better snapping */
     .offers-section {
       margin-bottom: 30px;
     }
     .section-title {
-      font-size: 18px; font-weight: 700; color: #4E356F;
-      margin-bottom: 16px; padding-left: 4px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 16px;
+      padding-left: 4px;
     }
     .carousel {
       display: flex;
       overflow-x: auto;
       gap: 16px;
-      padding: 25px 8px 30px 8px;   /* Extra space for "MOST POPULAR" banner */
+      padding: 20px 4px 20px 4px;   /* Extra top padding to prevent banner cutoff */
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    .carousel::-webkit-scrollbar { display: none; }
-
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
     .offer-card {
       background: white;
-      border: 2px solid #ddd;        /* Debug border - remove later */
       border-radius: 24px;
-      padding: 28px 20px 22px;
-      min-width: 255px;
+      padding: 24px 20px;
+      min-width: 260px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
       scroll-snap-align: center;
       text-align: center;
       flex-shrink: 0;
@@ -88,7 +143,7 @@
     }
     .offer-card.popular {
       border-color: #EF9875;
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
@@ -98,22 +153,48 @@
       transform: translateX(-50%);
       background: #EF9875;
       color: white;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
-      padding: 5px 20px;
+      padding: 5px 18px;
       border-radius: 50px;
+      letter-spacing: 0.6px;
+      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
       z-index: 10;
     }
-    .offer-duration { font-size: 20px; font-weight: 700; color: #4E356F; margin-bottom: 8px; }
-    .offer-price { font-size: 42px; font-weight: 800; color: #4E356F; line-height: 1; }
-    .offer-price span { font-size: 18px; opacity: 0.85; }
+    .offer-duration {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 8px;
+    }
+    .offer-price {
+      font-size: 42px;
+      font-weight: 800;
+      color: #4E356F;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .offer-price span {
+      font-size: 18px;
+      font-weight: 500;
+      opacity: 0.8;
+    }
     .offer-btn {
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
-      color: white; border: none; width: 100%; padding: 15px;
-      font-size: 16px; font-weight: 700; border-radius: 16px;
-      margin-top: 24px; cursor: pointer;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: 0.2s;
     }
-    .offer-btn:active { transform: scale(0.95); }
+    .offer-btn:active {
+      transform: scale(0.96);
+    }
   </style>
 </head>
 <body>
@@ -133,22 +214,32 @@
     <div class="features">
       <div class="feature">
         <div class="feature-icon">🏆</div>
-        <div class="feature-text"><h3>Academic Honor Prediction</h3><p>Get smart predictions on making the Dean’s List or academic honors.</p></div>
+        <div class="feature-text">
+          <h3>Academic Honor Prediction</h3>
+          <p>Get smart predictions on making the Dean’s List or academic honors.</p>
+        </div>
       </div>
       <div class="feature">
         <div class="feature-icon">⚠️</div>
-        <div class="feature-text"><h3>Advanced Warning System</h3><p>Early alerts for low grades and at-risk subjects.</p></div>
+        <div class="feature-text">
+          <h3>Advanced Warning System</h3>
+          <p>Early alerts for low grades and at-risk subjects.</p>
+        </div>
       </div>
       <div class="feature">
         <div class="feature-icon">📄</div>
-        <div class="feature-text"><h3>Instant PDF Export</h3><p>Instantly export your notes and reviewers to PDF.</p></div>
+        <div class="feature-text">
+          <h3>Instant PDF Export</h3>
+          <p>Instantly export your notes and reviewers to PDF.</p>
+        </div>
       </div>
     </div>
 
+    <!-- Dynamic Subscription Offers Carousel -->
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div id="offers-carousel" class="carousel">
-        <!-- Offers will appear here -->
+        <!-- Offers populated by JavaScript -->
       </div>
     </div>
   </div>
@@ -196,7 +287,6 @@
   }
 
   async function loadSubscriptionOffers() {
-    console.log("🔄 Loading subscription offers...");   // Debug log
     const offersRef = ref(database, "subscriptionOffers");
     const carousel = document.getElementById("offers-carousel");
 
@@ -205,14 +295,15 @@
       let offers = [];
 
       if (snapshot.exists()) {
-        console.log("✅ Data found in Firebase:", snapshot.val());
         const data = snapshot.val();
-        offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-      } else {
-        console.log("⚠️ No data at /subscriptionOffers – using defaults");
+        offers = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        }));
       }
 
-      if (offers.length === 0) {
+      // Fallback defaults
+      if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
           { duration: "6 months", price: 249, period: "6 months" },
@@ -222,7 +313,7 @@
 
       renderOffers(offers);
     } catch (error) {
-      console.error("❌ Error loading offers:", error);
+      console.error("Error loading offers:", error);
       renderOffers([
         { duration: "1 month", price: 49, period: "month" },
         { duration: "6 months", price: 249, period: "6 months" },
@@ -234,26 +325,25 @@
   function renderOffers(offers) {
     const carousel = document.getElementById("offers-carousel");
     carousel.innerHTML = "";
-    console.log(`🎨 Rendering ${offers.length} offer cards`);
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1;
+      const isPopular = index === 1; // 6 months is most popular
 
-      const card = document.createElement("div");
-      card.className = `offer-card ${isPopular ? 'popular' : ''}`;
-      card.innerHTML = `
-        <div class="offer-duration">${offer.duration}</div>
-        <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
-        <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
-          Choose Plan
-        </button>
+      const cardHTML = `
+        <div class="offer-card ${isPopular ? 'popular' : ''}">
+          <div class="offer-duration">${offer.duration}</div>
+          <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
+          <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
+            Choose Plan
+          </button>
+        </div>
       `;
-      carousel.appendChild(card);
+      carousel.innerHTML += cardHTML;
     });
   }
 
   window.handleUpgrade = function(duration, price) {
-    alert(`Selected: ${duration} - ₱${price}\n\nPremium upgrade coming soon!`);
+    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
   };
 </script>
 </body>
