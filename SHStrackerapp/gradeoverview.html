@@ -37,26 +37,23 @@
       padding: 0 20px 80px; 
     }
 
-    /* Semester Tabs */
-    .semester-tabs {
-      display: flex;
-      background: #f0e6f0;
-      border-radius: 16px;
-      padding: 6px;
-      margin: 10px 0 20px;
+    .semester-selector {
+      margin: 15px 0 20px;
     }
-    .tab {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
+    .semester-selector select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
       font-weight: 600;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab.active {
-      background: #4E356F;
-      color: white;
+      border: 1.5px solid #ecdde6;
+      border-radius: 16px;
+      background: white;
+      color: #4E356F;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234E356F' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
     }
 
     table {
@@ -69,7 +66,7 @@
     }
 
     th, td {
-      padding: 12px 10px;
+      padding: 13px 10px;
       text-align: center;
       font-size: 13.5px;
       border-bottom: 1px solid #ecdde6;
@@ -102,7 +99,7 @@
     .no-data {
       text-align: center;
       color: #888;
-      padding: 50px 20px;
+      padding: 60px 20px;
       font-size: 15px;
       line-height: 1.5;
     }
@@ -130,10 +127,12 @@
   <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
   <div class="main-content">
-    <!-- Semester Tabs -->
-    <div class="semester-tabs">
-      <div class="tab active" id="tabS1" onclick="switchSemester('S1')">1st Semester</div>
-      <div class="tab" id="tabS2" onclick="switchSemester('S2')">2nd Semester</div>
+    <!-- Semester Selector -->
+    <div class="semester-selector">
+      <select id="semesterSelect" onchange="changeSemester()">
+        <option value="S1">1st Semester</option>
+        <option value="S2">2nd Semester</option>
+      </select>
     </div>
 
     <table id="gradeTable">
@@ -193,38 +192,36 @@
     if (user) {
       currentUserId = user.uid;
       document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0];
-      loadOverviewData();
+      initializePage();
     } else {
       window.location.href = "login.html";
     }
   });
 
+  function initializePage() {
+    document.getElementById('semesterSelect').value = currentSem;
+    loadOverviewData();
+  }
+
   function loadOverviewData() {
-    // Load subjects for current semester
+    // Load subjects
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
       subjects = snapshot.val() || {};
       renderOverview();
     });
 
-    // Load scores for current semester
+    // Load scores
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
       scores = snapshot.val() || {};
       renderOverview();
     });
-
-    updateActiveTab();
   }
 
-  function switchSemester(sem) {
-    currentSem = sem;
-    localStorage.setItem('lastSem', sem);
+  window.changeSemester = () => {
+    currentSem = document.getElementById('semesterSelect').value;
+    localStorage.setItem('lastSem', currentSem);
     loadOverviewData();
-  }
-
-  function updateActiveTab() {
-    document.getElementById('tabS1').classList.toggle('active', currentSem === 'S1');
-    document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
-  }
+  };
 
   function calculateQuarterGrade(subject, quarter) {
     const data = scores[subject]?.[quarter];
