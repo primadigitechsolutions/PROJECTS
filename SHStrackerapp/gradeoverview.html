@@ -96,11 +96,9 @@
       transition: background 0.2s;
     }
 
-    /* Low grade warning */
+    /* Low grade warning - Only text color, no background */
     .grade.low {
       color: #e07a5f !important;
-      background: #ffe8e8 !important;
-      border-radius: 8px;
     }
 
     .final-grade {
@@ -283,7 +281,6 @@
     document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
   }
 
-  // Check if quarter has any scores
   function hasAnyScores(subject, quarter) {
     const data = scores[subject]?.[quarter];
     if (!data) return false;
@@ -292,10 +289,8 @@
     );
   }
 
-  // Determine if we should treat a blank quarter as 0
   function shouldTreatAsZero(subject, quarter) {
     const qNum = parseInt(quarter.replace('Q', ''));
-    // If this quarter has no scores, but any later quarter has scores → treat as 0
     for (let next = qNum + 1; next <= 4; next++) {
       if (hasAnyScores(subject, `Q${next}`)) {
         return true;
@@ -307,7 +302,6 @@
   function calculateQuarterGrade(subject, quarter) {
     const data = scores[subject]?.[quarter];
 
-    // If no data but should be treated as zero because later quarters exist
     if (!data && shouldTreatAsZero(subject, quarter)) {
       return 0;
     }
@@ -332,14 +326,10 @@
     return (ww * 0.25) + (pt * ptW) + (ex * exW);
   }
 
-  // Check if quarter is considered "final" for warning purposes
   function shouldShowAsFinal(subject, quarter) {
     const qNum = parseInt(quarter.replace('Q', ''));
 
-    // Has actual scores → final
     if (hasAnyScores(subject, quarter)) return true;
-
-    // No scores but should be treated as 0 because later quarter exists
     if (shouldTreatAsZero(subject, quarter)) return true;
 
     return false;
@@ -413,7 +403,6 @@
         }
       }
 
-      // Final Semester Grade
       const finalGrade = calculateFinalGrade(subject);
       html += `<td class="final-grade">${finalGrade ? finalGrade.toFixed(1) : '—'}</td>`;
 
