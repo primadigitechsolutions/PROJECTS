@@ -262,8 +262,8 @@
       document.getElementById('userEmail').textContent = user.email || "No email";
       document.getElementById('profileBtn').textContent = firstName[0].toUpperCase();
 
-      // Ensure email is saved in RTDB if missing
-      ensureEmailInDatabase(user);
+      // Save both email and name to RTDB if they don't exist
+      ensureUserProfileInDatabase(user, firstName);
 
       initToggle();
       loadData();
@@ -273,17 +273,28 @@
     }
   });
 
-  // Create email key in RTDB if it doesn't exist
-  function ensureEmailInDatabase(user) {
-    if (!user || !user.email || !currentUid) return;
+  // Create/Update email and name in RTDB if missing
+  function ensureUserProfileInDatabase(user, firstName) {
+    if (!user || !currentUid) return;
 
-    const emailRef = ref(database, `users/${currentUid}/email`);
+    const userRef = ref(database, `users/${currentUid}`);
 
-    onValue(emailRef, (snapshot) => {
-      if (!snapshot.exists()) {
-        set(emailRef, user.email)
-          .then(() => console.log("✅ Email saved to RTDB"))
-          .catch((error) => console.error("❌ Failed to save email:", error));
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const updates = {};
+
+      if (!data.email && user.email) {
+        updates.email = user.email;
+      }
+      if (!data.name && firstName && firstName !== "Student") {
+        updates.name = firstName;
+      }
+
+      // Only update if there are missing fields
+      if (Object.keys(updates).length > 0) {
+        set(ref(database, `users/${currentUid}`), { ...data, ...updates })
+          .then(() => console.log("✅ User profile (name & email) saved to RTDB"))
+          .catch((error) => console.error("❌ Failed to save user profile:", error));
       }
     }, { onlyOnce: true });
   }
