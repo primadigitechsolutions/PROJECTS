@@ -333,20 +333,23 @@
         const data = snapshot.val();
         offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
       }
+
+      // Default values in DAYS format
       if (!offers.length) {
         offers = [
-          { duration: "1 month", price: 49, period: "month" },
-          { duration: "6 months", price: 249, period: "6 months" },
-          { duration: "1 year", price: 499, period: "year" }
+          { duration: "30 days", price: 49, period: "30 days" },
+          { duration: "180 days", price: 249, period: "180 days" },
+          { duration: "365 days", price: 499, period: "365 days" }
         ];
       }
+
       renderOffers(offers);
     } catch (error) {
       console.error("Error loading offers:", error);
       renderOffers([
-        { duration: "1 month", price: 49, period: "month" },
-        { duration: "6 months", price: 249, period: "6 months" },
-        { duration: "1 year", price: 499, period: "year" }
+        { duration: "30 days", price: 49, period: "30 days" },
+        { duration: "180 days", price: 249, period: "180 days" },
+        { duration: "365 days", price: 499, period: "365 days" }
       ]);
     }
   }
@@ -355,11 +358,11 @@
     const carousel = document.getElementById("offers-carousel");
     carousel.innerHTML = "";
     offers.forEach((offer, index) => {
-      const isPopular = index === 1;
+      const isPopular = index === 1; // 180 days as most popular
       carousel.innerHTML += `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
           <div class="offer-duration">${offer.duration}</div>
-          <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
+          <div class="offer-price">₱${offer.price} <span>/${offer.period}</span></div>
           <button class="offer-btn" onclick="showHowToModal('${offer.duration}', ${offer.price})">
             Choose Plan
           </button>
@@ -404,7 +407,6 @@
   window.handleProofUpload = function(e) {
     const file = e.target.files[0];
     if (!file) return;
-
     document.getElementById("file-name").textContent = file.name;
 
     const reader = new FileReader();
@@ -466,7 +468,6 @@
 
   window.closeReviewModal = function() {
     document.getElementById("modal-review").style.display = "none";
-    // You can redirect or refresh here if needed
   };
 </script>
 </body>
