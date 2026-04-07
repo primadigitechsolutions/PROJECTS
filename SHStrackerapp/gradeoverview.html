@@ -37,12 +37,26 @@
       padding: 0 20px 80px; 
     }
 
-    .semester-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #4E356F;
+    /* Semester Tabs */
+    .semester-tabs {
+      display: flex;
+      background: #f0e6f0;
+      border-radius: 16px;
+      padding: 6px;
+      margin: 10px 0 20px;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
       text-align: center;
-      margin: 15px 0 20px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: #4E356F;
+      color: white;
     }
 
     table {
@@ -103,7 +117,6 @@
       align-items: center; color: #9C6A82; 
       font-size: 11px; cursor: pointer; 
     }
-    .nav-item.active { color: #4E356F; font-weight: 700; }
     .nav-icon { font-size: 22px; margin-bottom: 4px; }
   </style>
 </head>
@@ -117,8 +130,12 @@
   <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
   <div class="main-content">
-    <div class="semester-title" id="semesterTitle">1st Semester Overview</div>
-    
+    <!-- Semester Tabs -->
+    <div class="semester-tabs">
+      <div class="tab active" id="tabS1" onclick="switchSemester('S1')">1st Semester</div>
+      <div class="tab" id="tabS2" onclick="switchSemester('S2')">2nd Semester</div>
+    </div>
+
     <table id="gradeTable">
       <thead>
         <tr>
@@ -139,7 +156,7 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation without active Overview button -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
@@ -183,18 +200,30 @@
   });
 
   function loadOverviewData() {
+    // Load subjects for current semester
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
       subjects = snapshot.val() || {};
       renderOverview();
     });
 
+    // Load scores for current semester
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
       scores = snapshot.val() || {};
       renderOverview();
     });
 
-    document.getElementById('semesterTitle').textContent = 
-      `${currentSem === 'S1' ? '1st' : '2nd'} Semester Overview`;
+    updateActiveTab();
+  }
+
+  function switchSemester(sem) {
+    currentSem = sem;
+    localStorage.setItem('lastSem', sem);
+    loadOverviewData();
+  }
+
+  function updateActiveTab() {
+    document.getElementById('tabS1').classList.toggle('active', currentSem === 'S1');
+    document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
   }
 
   function calculateQuarterGrade(subject, quarter) {
