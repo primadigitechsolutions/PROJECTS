@@ -19,8 +19,8 @@
     .phone-frame {
       width: 100%; max-width: 400px; height: 92vh;
       background: white; border-radius: 40px;
-      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; display: flex; flex-direction: column; position: relative;
+      box-shadow: 0 25px 50px -12px rgba(78, 53, 111, 0.25);
+      overflow: hidden; display: flex; flex-direction: column;
     }
     .header {
       padding: 24px 24px 12px;
@@ -60,6 +60,7 @@
     .no-premium { background: #ffebee; color: #e07a5f; }
     .active-premium { background: #e8f5e9; color: #4caf50; }
     .lifetime { background: linear-gradient(90deg, #EF9875, #e07a5f); color: white; }
+
     .btn {
       padding: 12px 20px; border: none; border-radius: 14px;
       cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-top: 8px;
@@ -77,27 +78,41 @@
     .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; color: #2c1e3f; font-weight: 600; }
     .dropdown-item:active { background: #f8f4fa; }
 
-    /* Modals */
+    /* Modern Modal Design (consistent with premium.html) */
     .modal {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7); z-index: 2000;
+      background: rgba(0,0,0,0.75); z-index: 2000;
       align-items: center; justify-content: center;
     }
     .modal-content {
       background: white; width: 92%; max-width: 360px;
-      border-radius: 28px; padding: 25px; text-align: center;
+      border-radius: 28px; padding: 28px 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     }
-    .modal h3 { color: #5E3A7E; margin-bottom: 15px; }
+    .modal h3 {
+      font-size: 22px; font-weight: 700; color: #5E3A7E; margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label {
+      display: block; font-size: 13.5px; margin-bottom: 8px; color: #666; font-weight: 600;
+    }
+    select, input[type="date"] {
+      width: 100%; padding: 14px 16px; border: 2px solid #f0e6f5;
+      border-radius: 14px; font-size: 15px; background: white;
+    }
+    .modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
+    .modal-btn {
+      flex: 1; padding: 15px; border-radius: 14px; border: none;
+      font-weight: 700; font-size: 15px; cursor: pointer;
+    }
+    .btn-cancel { background: #eee; color: #333; }
+    .btn-confirm { background: linear-gradient(90deg, #5E3A7E, #6B4A8A); color: white; }
+
+    /* Review Modal */
     .proof-preview {
       width: 100%; max-height: 280px; border: 2px solid #f0e6f5;
       border-radius: 16px; object-fit: contain; background: #f8f4fa; margin: 15px 0;
     }
-    .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
-    .modal-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; }
-    .btn-cancel { background: #eee; color: #333; }
-    .btn-grant { background: #4caf50; color: white; }
-    .btn-decline { background: #e07a5f; color: white; }
   </style>
 </head>
 <body>
@@ -116,10 +131,14 @@
     </div>
   </div>
 
-  <!-- Premium Management Modal -->
+  <!-- Manage Premium Modal - Modern Design -->
   <div id="premiumModal" class="modal">
     <div class="modal-content">
-      <h3>Set Premium for <span id="modalUserName"></span></h3>
+      <h3>Manage Premium</h3>
+      <p style="margin-bottom:24px; color:#555; font-size:15px;">
+        for <strong id="modalUserName"></strong>
+      </p>
+      
       <div class="form-group">
         <label>Premium Type</label>
         <select id="premiumType">
@@ -132,6 +151,7 @@
         <label>Expires On</label>
         <input type="date" id="expiryDate">
       </div>
+
       <div class="modal-buttons">
         <button class="modal-btn btn-cancel" onclick="closePremiumModal()">Cancel</button>
         <button class="modal-btn btn-confirm" onclick="savePremium()">Save Changes</button>
@@ -139,24 +159,25 @@
     </div>
   </div>
 
-  <!-- Payment Review Modal -->
+  <!-- Review Payment Modal -->
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <h3>Review Payment</h3>
-      <div style="text-align:left; margin:15px 0; font-size:15.5px;">
+      <div style="text-align:left; margin:15px 0; font-size:15.5px; line-height:1.6;">
         <p><strong>Duration:</strong> <span id="review-duration"></span></p>
         <p><strong>Price:</strong> ₱<span id="review-price"></span></p>
       </div>
       <img id="proofImage" class="proof-preview" src="" alt="Proof of Payment">
+      
       <div class="modal-buttons">
-        <button class="modal-btn btn-decline" onclick="declinePayment()">Decline</button>
-        <button class="modal-btn btn-grant" onclick="grantPremium()">Grant Premium</button>
+        <button class="modal-btn btn-cancel" onclick="declinePayment()">Decline</button>
+        <button class="modal-btn btn-confirm" onclick="grantPremium()">Grant Premium</button>
       </div>
-      <button class="modal-btn btn-cancel" style="margin-top:10px;" onclick="closeReviewModal()">Close</button>
+      <button class="modal-btn btn-cancel" style="margin-top:12px; background:#ddd;" onclick="closeReviewModal()">Close</button>
     </div>
   </div>
 
-  <!-- Settings Modal (QR Upload) -->
+  <!-- Settings Modal -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h3>Payment QR Code</h3>
@@ -165,9 +186,9 @@
         <div id="noQrMessage" style="padding:40px 0; color:#888; font-style:italic;">No QR code uploaded yet</div>
       </div>
       <input type="file" id="qrUpload" accept="image/*" style="display:none;">
-      <button class="upload-btn" onclick="document.getElementById('qrUpload').click()" 
-              style="background:#EF9875; color:white; padding:14px; border:none; border-radius:14px; font-weight:700; width:100%; margin-top:10px;">
-        📤 Upload QR
+      <button onclick="document.getElementById('qrUpload').click()" 
+              style="background:#EF9875; color:white; padding:14px; border:none; border-radius:14px; font-weight:700; width:100%; margin-top:15px;">
+        📤 Upload New QR
       </button>
     </div>
   </div>
@@ -235,37 +256,27 @@
       });
     }
 
-    // ==================== REVIEW PAYMENT ====================
+    // Review Payment
     window.reviewPayment = async function(uid) {
       currentUserId = uid;
       const paymentRef = ref(database, `users/${uid}/payment`);
 
       try {
         const snapshot = await get(paymentRef);
-        if (!snapshot.exists()) {
-          alert("No pending payment found for this user.");
-          return;
-        }
+        if (!snapshot.exists()) return alert("No pending payment found.");
 
         const payments = snapshot.val();
-        // Get the latest payment (highest timestamp)
-        const sortedKeys = Object.keys(payments).sort((a, b) => 
-          (payments[b].timestamp || 0) - (payments[a].timestamp || 0)
-        );
-        const latestKey = sortedKeys[0];
-        const latestPayment = payments[latestKey];
+        const sortedKeys = Object.keys(payments).sort((a,b) => (payments[b].timestamp||0) - (payments[a].timestamp||0));
+        const latestPayment = payments[sortedKeys[0]];
 
-        currentReviewPayment = { key: latestKey, data: latestPayment };
+        currentReviewPayment = { data: latestPayment };
 
-        // Fill modal
         document.getElementById('review-duration').textContent = latestPayment.duration || 'N/A';
         document.getElementById('review-price').textContent = latestPayment.price || '0';
 
         const imgEl = document.getElementById('proofImage');
         if (latestPayment.proofImage) {
-          imgEl.src = latestPayment.proofImage.startsWith('data:') 
-            ? latestPayment.proofImage 
-            : 'data:image/webp;base64,' + latestPayment.proofImage;
+          imgEl.src = latestPayment.proofImage.startsWith('data:') ? latestPayment.proofImage : 'data:image/webp;base64,' + latestPayment.proofImage;
           imgEl.style.display = 'block';
         } else {
           imgEl.style.display = 'none';
@@ -273,51 +284,40 @@
 
         document.getElementById('reviewModal').style.display = 'flex';
       } catch (err) {
-        console.error(err);
-        alert("Error loading payment details.");
+        alert("Error loading payment.");
       }
     };
 
     window.grantPremium = async function() {
       if (!currentReviewPayment || !currentUserId) return;
-
       const durationStr = currentReviewPayment.data.duration || "30 days";
-      const daysMatch = durationStr.match(/(\d+)/);
-      const days = daysMatch ? parseInt(daysMatch[1]) : 30;
-
-      const expiryTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+      const days = parseInt(durationStr) || 30;
+      const expiry = Date.now() + (days * 86400000);
 
       try {
-        await update(ref(database, `users/${currentUserId}`), { premium: expiryTimestamp });
+        await update(ref(database, `users/${currentUserId}`), { premium: expiry });
         await remove(ref(database, `users/${currentUserId}/payment`));
-
         alert(`✅ Premium granted for ${days} days!`);
         closeReviewModal();
         loadAllUsers();
-      } catch (err) {
-        alert("Error granting premium: " + err.message);
-      }
+      } catch (err) { alert("Error: " + err.message); }
     };
 
     window.declinePayment = async function() {
-      if (!currentUserId || !confirm("Decline this payment and remove all records?")) return;
-
+      if (!currentUserId || !confirm("Decline this payment?")) return;
       try {
         await remove(ref(database, `users/${currentUserId}/payment`));
-        alert("Payment declined and removed.");
+        alert("Payment declined.");
         closeReviewModal();
         loadAllUsers();
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+      } catch (err) { alert("Error: " + err.message); }
     };
 
     window.closeReviewModal = function() {
       document.getElementById('reviewModal').style.display = 'none';
-      currentReviewPayment = null;
     };
 
-    // ==================== PREMIUM MODAL ====================
+    // Manage Premium
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -326,9 +326,7 @@
       document.getElementById('premiumType').value = 'none';
     };
 
-    window.closePremiumModal = () => {
-      document.getElementById('premiumModal').style.display = 'none';
-    };
+    window.closePremiumModal = () => document.getElementById('premiumModal').style.display = 'none';
 
     document.getElementById('premiumType').addEventListener('change', function() {
       document.getElementById('dateGroup').style.display = this.value === 'date' ? 'block' : 'none';
@@ -337,31 +335,30 @@
     window.savePremium = function() {
       if (!currentUserId) return;
       const type = document.getElementById('premiumType').value;
-      let premiumValue = null;
-      if (type === 'lifetime') premiumValue = -1;
+      let value = null;
+      if (type === 'lifetime') value = -1;
       else if (type === 'date') {
         const d = document.getElementById('expiryDate').value;
-        if (d) premiumValue = new Date(d).getTime();
+        if (d) value = new Date(d).getTime();
       }
-      update(ref(database, `users/${currentUserId}`), { premium: premiumValue })
+      update(ref(database, `users/${currentUserId}`), { premium: value })
         .then(() => { closePremiumModal(); loadAllUsers(); })
-        .catch(err => console.error("Update error:", err));
+        .catch(err => console.error(err));
     };
 
-    // ==================== QR SETTINGS ====================
+    // QR Settings
     function loadCurrentQR() {
-      const qrRef = ref(database, 'settings/qrpayment');
-      onValue(qrRef, (snapshot) => {
-        const qrBase64 = snapshot.val();
+      onValue(ref(database, 'settings/qrpayment'), (snapshot) => {
+        const data = snapshot.val();
         const img = document.getElementById('qrPreview');
-        const noMsg = document.getElementById('noQrMessage');
-        if (qrBase64) {
-          img.src = qrBase64;
+        const msg = document.getElementById('noQrMessage');
+        if (data) {
+          img.src = data;
           img.style.display = 'block';
-          noMsg.style.display = 'none';
+          msg.style.display = 'none';
         } else {
           img.style.display = 'none';
-          noMsg.style.display = 'block';
+          msg.style.display = 'block';
         }
       }, { onlyOnce: true });
     }
@@ -370,32 +367,22 @@
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = ev => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, img.width, img.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          if (code) {
-            const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
-            set(ref(database, 'settings/qrpayment'), compressedBase64)
-              .then(() => loadCurrentQR())
-              .catch(err => console.error(err));
-          } else {
-            alert("No QR code detected. Please try a clearer image.");
-          }
+          canvas.width = img.width; canvas.height = img.height;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          const compressed = canvas.toDataURL('image/webp', 0.6);
+          set(ref(database, 'settings/qrpayment'), compressed).then(loadCurrentQR);
         };
-        img.src = event.target.result;
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
-    // Dropdown & Search
-    document.getElementById('profileBtn').onclick = (e) => {
+    // UI Controls
+    document.getElementById('profileBtn').onclick = e => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
     };
@@ -407,18 +394,16 @@
 
     document.addEventListener('click', () => document.getElementById('dropdownMenu').classList.remove('show'));
 
-    document.getElementById('searchInput').addEventListener('input', (e) => {
+    document.getElementById('searchInput').addEventListener('input', e => {
       const term = e.target.value.toLowerCase().trim();
-      const filtered = Object.fromEntries(
-        Object.entries(allUsers).filter(([_, u]) =>
-          (u.name || "").toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)
-        )
-      );
+      const filtered = Object.fromEntries(Object.entries(allUsers).filter(([_, u]) =>
+        (u.name || "").toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)
+      ));
       renderUsers(filtered);
     });
 
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    document.querySelectorAll('.modal').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; });
     });
 
     // Initialize
