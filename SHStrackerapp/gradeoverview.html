@@ -57,7 +57,7 @@
     th, td {
       padding: 12px 10px;
       text-align: center;
-      font-size: 13px;
+      font-size: 13.5px;
       border-bottom: 1px solid #ecdde6;
     }
 
@@ -65,10 +65,6 @@
       background: #4E356F;
       color: white;
       font-weight: 600;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
     }
 
     .subject-name {
@@ -83,16 +79,18 @@
       color: #4E356F;
     }
 
-    .final-row {
-      background: #f8f4fa;
+    .final-grade {
+      background: #f0e6f0;
       font-weight: 700;
+      color: #4E356F;
     }
 
     .no-data {
       text-align: center;
       color: #888;
-      padding: 40px 20px;
+      padding: 50px 20px;
       font-size: 15px;
+      line-height: 1.5;
     }
 
     .bottom-nav {
@@ -136,14 +134,15 @@
     </table>
 
     <div id="noDataMessage" class="no-data" style="display:none;">
-      No grades recorded yet for this semester.
+      No grades recorded yet for this semester.<br>
+      Start adding scores in the Grade Tracker.
     </div>
   </div>
 
+  <!-- Bottom Navigation without active Overview button -->
   <div class="bottom-nav">
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
-    <div class="nav-item active"><div class="nav-icon">📋</div>Overview</div>
     <div class="nav-item" onclick="window.location.href='reviewer.html'"><div class="nav-icon">📄</div>Reviewer</div>
     <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">👤</div>Profile</div>
   </div>
@@ -171,7 +170,6 @@
   let currentUserId = null;
   let subjects = {};
   let scores = {};
-
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
   onAuthStateChanged(auth, (user) => {
@@ -185,19 +183,16 @@
   });
 
   function loadOverviewData() {
-    // Load subjects
     onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
       subjects = snapshot.val() || {};
       renderOverview();
     });
 
-    // Load all scores for the semester
     onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
       scores = snapshot.val() || {};
       renderOverview();
     });
 
-    // Update semester title
     document.getElementById('semesterTitle').textContent = 
       `${currentSem === 'S1' ? '1st' : '2nd'} Semester Overview`;
   }
@@ -241,30 +236,29 @@
       const row = document.createElement('tr');
 
       let html = `<td class="subject-name">${subject}</td>`;
-
       let total = 0;
       let count = 0;
 
-      // Quarters Q1 to Q4
+      // Q1 to Q4
       for (let q = 1; q <= 4; q++) {
         const quarter = `Q${q}`;
         const grade = calculateQuarterGrade(subject, quarter);
         
-        if (grade !== null) {
+        if (grade !== null && grade > 0) {
           html += `<td class="grade">${grade.toFixed(1)}</td>`;
           total += grade;
           count++;
         } else {
-          html += `<td style="color:#ccc;">-</td>`;
+          html += `<td style="color:#ccc;">—</td>`;
         }
       }
 
-      // Final Semester Grade (average of available quarters)
+      // Final Semester Grade
       const finalGrade = count > 0 ? (total / count) : null;
       if (finalGrade !== null) {
-        html += `<td class="grade" style="background:#f0e6f0;">${finalGrade.toFixed(1)}</td>`;
+        html += `<td class="final-grade">${finalGrade.toFixed(1)}</td>`;
       } else {
-        html += `<td style="color:#ccc;">-</td>`;
+        html += `<td style="color:#ccc;">—</td>`;
       }
 
       row.innerHTML = html;
