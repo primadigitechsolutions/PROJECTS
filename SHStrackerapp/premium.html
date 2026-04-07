@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Carousel Styles */
+    /* Carousel Styles - FIXED FOR SWIPING */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -119,26 +119,31 @@
       display: flex;
       overflow-x: auto;
       gap: 16px;
-      padding-bottom: 12px;
+      padding: 4px 0 20px 4px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;           /* Firefox */
+      -ms-overflow-style: none;        /* IE/Edge */
     }
-    .carousel::-webkit-scrollbar { display: none; }
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
     .offer-card {
       background: white;
       border-radius: 24px;
       padding: 24px 20px;
-      width: 100%;
-      min-width: 260px;
+      min-width: 260px;           /* Fixed width - important for swiping */
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
       transition: all 0.3s ease;
-      scroll-snap-align: start;
+      scroll-snap-align: center;   /* Changed to center for better feel */
       text-align: center;
+      flex-shrink: 0;              /* Prevent shrinking */
     }
     .offer-card.popular {
       border-color: #EF9875;
       position: relative;
+      transform: scale(1.03);      /* Slight highlight for popular plan */
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
@@ -150,9 +155,10 @@
       color: white;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 16px;
+      padding: 4px 18px;
       border-radius: 50px;
       letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(239, 152, 117, 0.3);
     }
     .offer-duration {
       font-size: 20px;
@@ -165,6 +171,7 @@
       font-weight: 800;
       color: #4E356F;
       line-height: 1;
+      margin-bottom: 4px;
     }
     .offer-price span {
       font-size: 18px;
@@ -185,40 +192,6 @@
       transition: 0.2s;
     }
     .offer-btn:active {
-      transform: scale(0.96);
-    }
-
-    .upgrade-card {
-      background: linear-gradient(135deg, #4E356F, #6B4A8A);
-      color: white;
-      border-radius: 24px;
-      padding: 28px 24px;
-      text-align: center;
-    }
-    .price {
-      font-size: 36px;
-      font-weight: 800;
-      margin: 12px 0 4px;
-    }
-    .price span {
-      font-size: 16px;
-      font-weight: 500;
-      opacity: 0.85;
-    }
-    .upgrade-btn {
-      background: white;
-      color: #4E356F;
-      border: none;
-      width: 100%;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 700;
-      border-radius: 16px;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .upgrade-btn:active {
       transform: scale(0.96);
     }
   </style>
@@ -265,20 +238,8 @@
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div id="offers-carousel" class="carousel">
-        <!-- Populated dynamically by JavaScript -->
+        <!-- Populated by JavaScript -->
       </div>
-    </div>
-
-    <!-- Fallback / Monthly highlight card (kept for visual appeal) -->
-    <div class="upgrade-card" id="monthly-highlight" style="display: none;">
-      <div style="font-size:15px; opacity:0.9;">Monthly Plan</div>
-      <div class="price">₱149 <span>/ month</span></div>
-      <p style="font-size:13.5px; margin-top:8px; opacity:0.85;">
-        7 days free • Cancel anytime
-      </p>
-      <button class="upgrade-btn" onclick="alert('Premium upgrade coming soon.')">
-        Upgrade to Premium
-      </button>
     </div>
   </div>
 </div>
@@ -314,21 +275,16 @@
     }
   });
 
-  // Initialize premium field to 0 if it doesn't exist
   function initializePremiumStatus() {
     if (!currentUid) return;
     const premiumRef = ref(database, `users/${currentUid}/premium`);
     onValue(premiumRef, (snapshot) => {
-      const premiumValue = snapshot.val();
-      if (premiumValue === null || premiumValue === undefined) {
-        set(premiumRef, 0)
-          .then(() => console.log("Premium status initialized to 0"))
-          .catch((error) => console.error("Error initializing premium status:", error));
+      if (snapshot.val() === null || snapshot.val() === undefined) {
+        set(premiumRef, 0);
       }
     }, { onlyOnce: true });
   }
 
-  // Load subscription offers from /subscriptionOffers or use defaults
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
     const carousel = document.getElementById("offers-carousel");
@@ -339,14 +295,13 @@
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Convert object to array if stored as object with keys
         offers = Object.keys(data).map(key => ({
           id: key,
           ...data[key]
         }));
       }
 
-      // Fallback to defaults if no data or empty
+      // Default fallback
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
@@ -357,8 +312,7 @@
 
       renderOffers(offers);
     } catch (error) {
-      console.error("Error loading subscription offers:", error);
-      // Fallback on error
+      console.error("Error loading offers:", error);
       renderOffers([
         { duration: "1 month", price: 49, period: "month" },
         { duration: "6 months", price: 249, period: "6 months" },
@@ -372,7 +326,7 @@
     carousel.innerHTML = "";
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1; // Mark 6 months as popular (you can change logic)
+      const isPopular = index === 1; // 6 months as most popular
 
       const cardHTML = `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
@@ -387,10 +341,8 @@
     });
   }
 
-  // Example upgrade handler (replace alert with your actual purchase flow later)
   window.handleUpgrade = function(duration, price) {
-    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
-    // Future: integrate payment gateway or Firebase Functions here
+    alert(`Selected: ${duration} - ₱${price}\n\nPremium upgrade coming soon!`);
   };
 </script>
 </body>
