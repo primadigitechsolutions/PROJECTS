@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Carousel Styles - FIXED FOR SWIPING */
+    /* Improved Carousel */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -118,12 +118,12 @@
     .carousel {
       display: flex;
       overflow-x: auto;
-      gap: 16px;
-      padding: 4px 0 20px 4px;
+      gap: 18px;
+      padding: 12px 4px 20px 4px;     /* Extra top padding for "Most Popular" banner */
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;           /* Firefox */
-      -ms-overflow-style: none;        /* IE/Edge */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
     .carousel::-webkit-scrollbar {
       display: none;
@@ -131,47 +131,50 @@
     .offer-card {
       background: white;
       border-radius: 24px;
-      padding: 24px 20px;
-      min-width: 260px;           /* Fixed width - important for swiping */
+      padding: 24px 20px 20px;
+      min-width: 265px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
       transition: all 0.3s ease;
-      scroll-snap-align: center;   /* Changed to center for better feel */
+      scroll-snap-align: center;        /* Better snapping to center */
       text-align: center;
-      flex-shrink: 0;              /* Prevent shrinking */
+      flex-shrink: 0;
+      position: relative;
     }
     .offer-card.popular {
       border-color: #EF9875;
-      position: relative;
-      transform: scale(1.03);      /* Slight highlight for popular plan */
+      transform: scale(1.04);
+      box-shadow: 0 15px 35px rgba(239, 152, 117, 0.15);
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
       position: absolute;
-      top: -12px;
+      top: -14px;
       left: 50%;
       transform: translateX(-50%);
       background: #EF9875;
       color: white;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      padding: 4px 18px;
+      padding: 5px 18px;
       border-radius: 50px;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 10px rgba(239, 152, 117, 0.3);
+      letter-spacing: 0.6px;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.3);
+      z-index: 10;
     }
     .offer-duration {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 700;
       color: #4E356F;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .offer-price {
-      font-size: 42px;
+      font-size: 44px;
       font-weight: 800;
       color: #4E356F;
       line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .offer-price span {
       font-size: 18px;
@@ -183,11 +186,11 @@
       color: white;
       border: none;
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       font-size: 16px;
       font-weight: 700;
       border-radius: 16px;
-      margin-top: 20px;
+      margin-top: 22px;
       cursor: pointer;
       transition: 0.2s;
     }
@@ -234,11 +237,10 @@
       </div>
     </div>
 
-    <!-- Dynamic Subscription Offers Carousel -->
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div id="offers-carousel" class="carousel">
-        <!-- Populated by JavaScript -->
+        <!-- Populated dynamically -->
       </div>
     </div>
   </div>
@@ -247,7 +249,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -295,13 +297,9 @@
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        offers = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key]
-        }));
+        offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
       }
 
-      // Default fallback
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
@@ -326,7 +324,7 @@
     carousel.innerHTML = "";
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1; // 6 months as most popular
+      const isPopular = index === 1;   // 6 months = most popular
 
       const cardHTML = `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
@@ -342,7 +340,7 @@
   }
 
   window.handleUpgrade = function(duration, price) {
-    alert(`Selected: ${duration} - ₱${price}\n\nPremium upgrade coming soon!`);
+    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
   };
 </script>
 </body>
