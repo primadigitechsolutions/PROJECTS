@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto QR Cropper</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input[type="file"] {
+      margin: 15px 0;
+    }
+    img {
+      max-width: 100%;
+      max-height: 400px;
+      margin: 15px 0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      padding: 12px 25px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .upload-btn {
+      background: #007bff;
+      color: white;
+    }
+    .download-btn {
+      background: #28a745;
+      color: white;
+    }
+    .download-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Auto QR Code Cropper</h1>
+    <p>Upload an image containing a QR code → It will auto-crop to QR only</p>
+
+    <input type="file" id="fileInput" accept="image/*">
+    
+    <div>
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose Image</button>
+    </div>
+
+    <div id="originalSection" style="display:none;">
+      <h3>Original Image</h3>
+      <img id="originalImage" alt="Original Image">
+    </div>
+
+    <div id="resultSection" class="result" style="display:none;">
+      <h3>Cropped QR Code</h3>
+      <img id="croppedImage" alt="Cropped QR Code">
+      <br>
+      <button id="downloadBtn" class="download-btn" onclick="downloadQR()">Download Cropped QR</button>
+    </div>
+
+    <p id="status" style="color: #666; margin-top: 15px;"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const originalImage = document.getElementById('originalImage');
+    const croppedImage = document.getElementById('croppedImage');
+    const originalSection = document.getElementById('originalSection');
+    const resultSection = document.getElementById('resultSection');
+    const status = document.getElementById('status');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let croppedCanvas = null;
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      status.textContent = "Processing image...";
+      downloadBtn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        originalImage.src = event.target.result;
+        originalSection.style.display = 'block';
+
+        // Process the image after it loads
+        originalImage.onload = function() {
+          autoCropQR(originalImage);
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function autoCropQR(img) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      // Use jsQR to detect the QR code
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+      if (code) {
+        // Get the bounding box of the QR code
+        const points = code.location.points;
+        
+        // Find min and max coordinates
+        let minX = Infinity, minY = Infinity;
+        let maxX = 0, maxY = 0;
+
+        points.forEach(point => {
+          minX = Math.min(minX, point.x);
+          minY = Math.min(minY, point.y);
+          maxX = Math.max(maxX, point.x);
+          maxY = Math.max(maxY, point.y);
+        });
+
+        // Add some padding (10% of the QR size)
+        const padding = Math.round(Math.max(maxX - minX, maxY - minY) * 0.1);
+        
+        minX = Math.max(0, Math.floor(minX - padding));
+        minY = Math.max(0, Math.floor(minY - padding));
+        maxX = Math.min(canvas.width, Math.ceil(maxX + padding));
+        maxY = Math.min(canvas.height, Math.ceil(maxY + padding));
+
+        const qrWidth = maxX - minX;
+        const qrHeight = maxY - minY;
+
+        // Create cropped canvas
+        croppedCanvas = document.createElement('canvas');
+        const cropCtx = croppedCanvas.getContext('2d');
+        croppedCanvas.width = qrWidth;
+        croppedCanvas.height = qrHeight;
+
+        cropCtx.drawImage(
+          canvas,
+          minX, minY, qrWidth, qrHeight,   // source rectangle
+          0, 0, qrWidth, qrHeight           // destination rectangle
+        );
+
+        // Show cropped result
+        croppedImage.src = croppedCanvas.toDataURL('image/png');
+        resultSection.style.display = 'block';
+        status.textContent = "✅ QR Code successfully detected and cropped!";
+        downloadBtn.disabled = false;
+
+      } else {
+        status.textContent = "❌ Could not detect QR code in the image. Try another image or improve lighting/angle.";
+        resultSection.style.display = 'none';
+      }
+    }
+
+    function downloadQR() {
+      if (!croppedCanvas) return;
+
+      const link = document.createElement('a');
+      link.download = 'qr-code.png';
+      link.href = croppedCanvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
