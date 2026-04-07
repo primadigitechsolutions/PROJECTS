@@ -47,18 +47,6 @@
       margin-bottom: 12px;
       letter-spacing: 0.5px;
     }
-    .badge::after {
-      content: '✨';
-      position: absolute;
-      top: -5px;
-      right: 8px;
-      font-size: 18px;
-      animation: twinkle 1.5s infinite ease-in-out;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.4; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
     .title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
     .subtitle { font-size: 15.5px; color: #666; line-height: 1.4; }
 
@@ -73,23 +61,18 @@
     .feature-text h3 { font-size: 17px; font-weight: 700; color: #4E356F; margin-bottom: 4px; }
     .feature-text p { font-size: 14px; color: #555; line-height: 1.5; }
 
-    /* ==================== CAROUSEL ==================== */
+    /* Carousel */
     .offers-section { margin-bottom: 30px; }
     .section-title {
       font-size: 18px; font-weight: 700; color: #4E356F;
       margin-bottom: 16px; padding-left: 4px;
     }
-
-    .carousel-container {
-      margin: 0 -24px;
-      padding: 0 24px;
-    }
-
+    .carousel-container { margin: 0 -24px; padding: 0 24px; }
     .carousel {
       display: flex;
       overflow-x: auto;
       gap: 20px;
-      padding: 20px 24px 30px 24px;     /* Important: generous side padding */
+      padding: 20px 24px 30px 24px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
@@ -104,8 +87,7 @@
       min-width: 260px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
-      transition: all 0.3s ease;
-      scroll-snap-align: center;           /* This makes tapping side cards center them */
+      scroll-snap-align: center;
       text-align: center;
       flex-shrink: 0;
       position: relative;
@@ -113,7 +95,6 @@
     .offer-card.popular {
       border-color: #EF9875;
       transform: scale(1.05);
-      z-index: 2;
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
@@ -129,17 +110,10 @@
       border-radius: 50px;
       box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
       white-space: nowrap;
-      z-index: 10;
     }
-    .offer-duration {
-      font-size: 20px; font-weight: 700; color: #4E356F; margin-bottom: 8px;
-    }
-    .offer-price {
-      font-size: 42px; font-weight: 800; color: #4E356F; line-height: 1; margin-bottom: 4px;
-    }
-    .offer-price span {
-      font-size: 18px; font-weight: 500; opacity: 0.8;
-    }
+    .offer-duration { font-size: 20px; font-weight: 700; color: #4E356F; margin-bottom: 8px; }
+    .offer-price { font-size: 42px; font-weight: 800; color: #4E356F; line-height: 1; margin-bottom: 4px; }
+    .offer-price span { font-size: 18px; font-weight: 500; opacity: 0.8; }
     .offer-btn {
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
       color: white;
@@ -153,6 +127,70 @@
       cursor: pointer;
     }
     .offer-btn:active { transform: scale(0.96); }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      width: 92%;
+      max-width: 360px;
+      border-radius: 28px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 20px;
+    }
+    .modal-steps {
+      text-align: left;
+      font-size: 15.5px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      color: #333;
+    }
+    .modal-steps ol {
+      padding-left: 20px;
+    }
+    .qr-container {
+      margin: 20px 0;
+      padding: 16px;
+      background: #f8f4fa;
+      border-radius: 16px;
+      border: 1px solid #e0d0f0;
+    }
+    .qr-image {
+      width: 100%;
+      max-width: 240px;
+      height: auto;
+      border-radius: 12px;
+      margin: 0 auto;
+      display: block;
+    }
+    .modal-btn {
+      background: linear-gradient(90deg, #5E3A7E, #EF9875);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .modal-btn:active { transform: scale(0.96); }
   </style>
 </head>
 <body>
@@ -170,6 +208,7 @@
     </div>
 
     <div class="features">
+      <!-- Your existing features remain unchanged -->
       <div class="feature">
         <div class="feature-icon">🏆</div>
         <div class="feature-text">
@@ -197,10 +236,38 @@
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
         <div id="offers-carousel" class="carousel">
-          <!-- Populated by JS -->
+          <!-- Offers populated by JS -->
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Subscription Modal -->
+<div id="subscribe-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">How to Subscribe?</div>
+    
+    <div class="modal-steps">
+      <ol>
+        <li>Screenshot the QR below</li>
+        <li>Then Upload QR via GCash</li>
+        <li>Enter the amount you choose then Pay</li>
+        <li>Click "Done Paying"</li>
+      </ol>
+    </div>
+
+    <div class="qr-container">
+      <img id="qr-image" class="qr-image" src="" alt="Payment QR Code">
+      <p id="qr-placeholder" style="display:none; color:#888; font-size:14px; margin-top:8px;">
+        Loading QR Code...
+      </p>
+    </div>
+
+    <button class="modal-btn" onclick="donePaying()">Done Paying</button>
+    <button class="modal-btn" style="background:#ccc; color:#333; margin-top:12px;" onclick="closeModal()">
+      Cancel
+    </button>
   </div>
 </div>
 
@@ -224,12 +291,14 @@
   const database = getDatabase(app);
 
   let currentUid = null;
+  let selectedPlan = "";
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUid = user.uid;
       initializePremiumStatus();
       loadSubscriptionOffers();
+      loadQRCode();
     } else {
       window.location.href = "login.html";
     }
@@ -247,6 +316,8 @@
 
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
+    const carousel = document.getElementById("offers-carousel");
+
     try {
       const snapshot = await get(offersRef);
       let offers = [];
@@ -286,7 +357,7 @@
         <div class="offer-card ${isPopular ? 'popular' : ''}">
           <div class="offer-duration">${offer.duration}</div>
           <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
-          <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
+          <button class="offer-btn" onclick="showSubscribeModal('${offer.duration}', ${offer.price})">
             Choose Plan
           </button>
         </div>
@@ -295,8 +366,53 @@
     });
   }
 
-  window.handleUpgrade = function(duration, price) {
-    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
+  // Load QR Code from /settings/qrpayment (base64)
+  let qrBase64 = "";
+  async function loadQRCode() {
+    try {
+      const qrRef = ref(database, "settings/qrpayment");
+      const snapshot = await get(qrRef);
+      if (snapshot.exists()) {
+        qrBase64 = snapshot.val();
+      }
+    } catch (error) {
+      console.error("Error loading QR code:", error);
+    }
+  }
+
+  window.showSubscribeModal = function(duration, price) {
+    selectedPlan = `${duration} - ₱${price}`;
+    document.getElementById("subscribe-modal").style.display = "flex";
+
+    const img = document.getElementById("qr-image");
+    const placeholder = document.getElementById("qr-placeholder");
+
+    if (qrBase64 && qrBase64.startsWith("data:image")) {
+      img.src = qrBase64;
+      img.style.display = "block";
+      placeholder.style.display = "none";
+    } else if (qrBase64) {
+      // If stored without data: prefix
+      img.src = "data:image/png;base64," + qrBase64;
+      img.style.display = "block";
+      placeholder.style.display = "none";
+    } else {
+      img.style.display = "none";
+      placeholder.style.display = "block";
+      placeholder.textContent = "QR Code not available yet";
+    }
+  };
+
+  window.closeModal = function() {
+    document.getElementById("subscribe-modal").style.display = "none";
+  };
+
+  window.donePaying = function() {
+    closeModal();
+    setTimeout(() => {
+      alert(`Thank you! 🎉\n\nWe received your payment for:\n${selectedPlan}\n\nYour Premium will be activated soon after verification.`);
+      // TODO: Later you can call a function here to update user premium status in Firebase
+    }, 300);
   };
 </script>
 </body>
