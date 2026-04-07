@@ -268,7 +268,7 @@
     }
   });
 
-  // Check Premium Status & Show Badge
+  // Check Premium Status & Show Badge + Log Timestamp
   function checkPremiumStatus() {
     if (!currentUid) return;
 
@@ -278,13 +278,21 @@
       const val = snapshot.val();
       const badge = document.getElementById('premiumBadge');
 
+      console.log(`[Dashboard] Premium value for user ${currentUid}:`, val);
+
       let isActive = false;
 
       if (val === -1) {
         isActive = true;                    // Lifetime Premium
+        console.log("→ Lifetime Premium (-1) detected");
       } 
       else if (typeof val === 'number' && val > 0) {
         isActive = Date.now() < val;        // Timestamp = Expiration Time
+        console.log(`→ Timestamp-based premium. Expires at: ${new Date(val).toLocaleString()}`);
+        console.log(`→ Active: ${isActive}`);
+      } 
+      else {
+        console.log("→ No active premium (0 or missing)");
       }
 
       badge.style.display = isActive ? 'block' : 'none';
@@ -306,7 +314,7 @@
         hasActivePremium = true;
       } 
       else if (typeof val === 'number' && val > 0) {
-        hasActivePremium = Date.now() < val;   // Timestamp is expiration time
+        hasActivePremium = Date.now() < val;
       }
 
       if (hasActivePremium) {
