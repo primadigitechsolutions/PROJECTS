@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Improved Carousel */
+    /* FIXED CAROUSEL */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -118,68 +118,64 @@
     .carousel {
       display: flex;
       overflow-x: auto;
-      gap: 18px;
-      padding: 12px 4px 20px 4px;     /* Extra top padding for "Most Popular" banner */
+      gap: 16px;
+      padding: 20px 4px 24px 4px;     /* Increased top padding for banner */
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
-    .carousel::-webkit-scrollbar {
-      display: none;
-    }
+    .carousel::-webkit-scrollbar { display: none; }
+
     .offer-card {
       background: white;
       border-radius: 24px;
-      padding: 24px 20px 20px;
-      min-width: 265px;
+      padding: 28px 20px 22px;
+      min-width: 255px;
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
-      transition: all 0.3s ease;
-      scroll-snap-align: center;        /* Better snapping to center */
+      scroll-snap-align: center;
       text-align: center;
       flex-shrink: 0;
       position: relative;
     }
     .offer-card.popular {
       border-color: #EF9875;
-      transform: scale(1.04);
-      box-shadow: 0 15px 35px rgba(239, 152, 117, 0.15);
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px rgba(239, 152, 117, 0.18);
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
       position: absolute;
-      top: -14px;
+      top: -13px;
       left: 50%;
       transform: translateX(-50%);
       background: #EF9875;
       color: white;
       font-size: 11.5px;
       font-weight: 700;
-      padding: 5px 18px;
+      padding: 5px 20px;
       border-radius: 50px;
-      letter-spacing: 0.6px;
-      white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.3);
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
       z-index: 10;
     }
     .offer-duration {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: 700;
       color: #4E356F;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .offer-price {
-      font-size: 44px;
+      font-size: 42px;
       font-weight: 800;
       color: #4E356F;
       line-height: 1;
-      margin-bottom: 6px;
     }
     .offer-price span {
       font-size: 18px;
       font-weight: 500;
-      opacity: 0.8;
+      opacity: 0.85;
     }
     .offer-btn {
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
@@ -190,12 +186,12 @@
       font-size: 16px;
       font-weight: 700;
       border-radius: 16px;
-      margin-top: 22px;
+      margin-top: 24px;
       cursor: pointer;
-      transition: 0.2s;
+      transition: all 0.2s;
     }
     .offer-btn:active {
-      transform: scale(0.96);
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -237,10 +233,11 @@
       </div>
     </div>
 
+    <!-- Offers Carousel -->
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div id="offers-carousel" class="carousel">
-        <!-- Populated dynamically -->
+        <!-- Dynamically filled by JS -->
       </div>
     </div>
   </div>
@@ -300,7 +297,8 @@
         offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
       }
 
-      if (!offers.length) {
+      // Default offers if nothing in database
+      if (offers.length === 0) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
           { duration: "6 months", price: 249, period: "6 months" },
@@ -310,7 +308,7 @@
 
       renderOffers(offers);
     } catch (error) {
-      console.error("Error loading offers:", error);
+      console.error("Error loading subscription offers:", error);
       renderOffers([
         { duration: "1 month", price: 49, period: "month" },
         { duration: "6 months", price: 249, period: "6 months" },
@@ -324,23 +322,23 @@
     carousel.innerHTML = "";
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1;   // 6 months = most popular
+      const isPopular = index === 1; // 6 months is most popular
 
-      const cardHTML = `
-        <div class="offer-card ${isPopular ? 'popular' : ''}">
-          <div class="offer-duration">${offer.duration}</div>
-          <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
-          <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
-            Choose Plan
-          </button>
-        </div>
+      const card = document.createElement("div");
+      card.className = `offer-card ${isPopular ? 'popular' : ''}`;
+      card.innerHTML = `
+        <div class="offer-duration">${offer.duration}</div>
+        <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
+        <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
+          Choose Plan
+        </button>
       `;
-      carousel.innerHTML += cardHTML;
+      carousel.appendChild(card);
     });
   }
 
   window.handleUpgrade = function(duration, price) {
-    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
+    alert(`Selected: ${duration} - ₱${price}\n\nPremium upgrade coming soon!`);
   };
 </script>
 </body>
