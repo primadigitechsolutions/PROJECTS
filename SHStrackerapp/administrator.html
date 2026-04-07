@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Administrator Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -16,16 +17,10 @@
       padding: 10px;
     }
     .phone-frame {
-      width: 100%; 
-      max-width: 400px; 
-      height: 92vh;
-      background: white; 
-      border-radius: 40px;
+      width: 100%; max-width: 400px; height: 92vh;
+      background: white; border-radius: 40px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; 
-      display: flex; 
-      flex-direction: column; 
-      position: relative;
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
     .header { 
       padding: 24px 24px 12px; 
@@ -45,16 +40,11 @@
       font-size: 18px;
     }
     .profile-circle {
-      width: 42px; 
-      height: 42px;
+      width: 42px; height: 42px;
       background: #5E3A7E;
-      color: white; 
-      border-radius: 50%;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      font-weight: 700; 
-      cursor: pointer;
+      color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; cursor: pointer;
       box-shadow: 0 4px 10px rgba(94, 58, 126, 0.2);
     }
     .main-content { 
@@ -83,23 +73,10 @@
       padding: 18px;
       box-shadow: 0 6px 20px rgba(78, 53, 111, 0.06);
       border: 1px solid #f0e6f5;
-      transition: all 0.2s ease;
     }
-    .user-card:active {
-      transform: scale(0.97);
-      box-shadow: 0 8px 25px rgba(78, 53, 111, 0.12);
-    }
-    .user-name {
-      font-size: 17px;
-      font-weight: 700;
-      color: #2c1e3f;
-      margin-bottom: 4px;
-    }
-    .user-email {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 12px;
-    }
+    .user-card:active { transform: scale(0.97); }
+    .user-name { font-size: 17px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
+    .user-email { font-size: 13px; color: #666; margin-bottom: 12px; }
     .premium-status {
       display: inline-block;
       padding: 6px 14px;
@@ -121,23 +98,13 @@
       font-size: 14px;
       width: 100%;
     }
-    .btn-premium { 
-      background: #5E3A7E; 
-      color: white; 
-    }
+    .btn-premium { background: #5E3A7E; color: white; }
 
     .dropdown-content {
-      display: none; 
-      position: absolute; 
-      right: 20px; 
-      top: 75px;
-      background: white; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      border-radius: 16px; 
-      width: 180px; 
-      z-index: 1000; 
-      border: 1px solid #f0e6f5;
-      overflow: hidden;
+      display: none; position: absolute; right: 20px; top: 75px;
+      background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-radius: 16px; width: 200px; z-index: 1000; 
+      border: 1px solid #f0e6f5; overflow: hidden;
     }
     .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
     .dropdown-item { 
@@ -149,51 +116,39 @@
     }
     .dropdown-item:active { background: #f8f4fa; }
 
+    /* Settings Modal */
     .modal {
-      display: none; 
-      position: fixed; 
-      top: 0; left: 0; 
+      display: none; position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 2000; 
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; 
+      z-index: 2000; backdrop-filter: blur(4px);
     }
     .modal-content {
-      background: white; 
-      width: 85%; 
-      max-width: 340px; 
-      border-radius: 28px;
-      padding: 25px; 
-      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: white; width: 90%; max-width: 360px; border-radius: 28px;
+      padding: 25px; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .modal h3 { color: #5E3A7E; margin-bottom: 15px; }
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
-    select, input[type="date"] {
+    .modal h3 { color: #5E3A7E; margin-bottom: 15px; text-align: center; }
+    .qr-preview {
       width: 100%;
-      padding: 12px;
+      max-height: 280px;
       border: 2px solid #f0e6f5;
-      border-radius: 12px;
-      font-size: 15px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: #f8f4fa;
+      margin: 15px 0;
     }
-    .modal-buttons { 
-      display: flex; 
-      gap: 12px; 
-      margin-top: 20px; 
+    .upload-btn {
+      background: #EF9875;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
     }
-    .modal-btn { 
-      flex: 1; 
-      padding: 14px; 
-      border-radius: 16px; 
-      border: none; 
-      font-weight: 700; 
-      cursor: pointer; 
-      font-size: 14px; 
-    }
-    .btn-cancel { background: #f0e6f5; color: #5E3A7E; }
-    .btn-confirm { background: #5E3A7E; color: white; }
+    .no-qr { text-align: center; color: #888; font-style: italic; padding: 40px 0; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -201,32 +156,28 @@
 </head>
 <body>
   <div class="phone-frame">
-    <!-- Header -->
     <div class="header">
       <div>
         <div class="greeting">Admin Panel <span class="role">👑</span></div>
       </div>
       <div class="profile-circle" id="profileBtn">A</div>
       
-      <!-- Dropdown -->
       <div class="dropdown-content" id="dropdownMenu">
-        <div class="dropdown-item" style="color:#e07a5f;" id="logoutBtn">🚪 Sign Out</div>
+        <div class="dropdown-item" id="settingsBtn">⚙️ Settings</div>
+        <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="logoutBtn">🚪 Sign Out</div>
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
       <input type="text" id="searchInput" class="search-bar" placeholder="Search by name or email...">
-
       <div class="user-grid" id="userGrid"></div>
     </div>
   </div>
 
-  <!-- Premium Modal -->
+  <!-- Premium Modal (unchanged) -->
   <div id="premiumModal" class="modal">
     <div class="modal-content">
       <h3>Set Premium for <span id="modalUserName"></span></h3>
-      
       <div class="form-group">
         <label>Premium Type</label>
         <select id="premiumType">
@@ -235,22 +186,41 @@
           <option value="lifetime">Lifetime Premium</option>
         </select>
       </div>
-      
       <div class="form-group" id="dateGroup" style="display:none;">
         <label>Expires On</label>
         <input type="date" id="expiryDate">
       </div>
-
       <div class="modal-buttons">
-        <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn btn-cancel" onclick="closePremiumModal()">Cancel</button>
         <button class="modal-btn btn-confirm" onclick="savePremium()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <h3>Payment QR Code</h3>
+      
+      <div id="qrPreviewContainer">
+        <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none;">
+        <div id="noQrMessage" class="no-qr">No QR code uploaded yet</div>
+      </div>
+
+      <input type="file" id="qrUpload" accept="image/*" style="display:none;">
+      <button class="upload-btn" onclick="document.getElementById('qrUpload').click()">
+        📤 Upload New QR Code (Auto Crop)
+      </button>
+      
+      <div style="margin-top:20px; text-align:center; font-size:12px; color:#888;">
+        The system will automatically detect and crop the QR code.
       </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -268,6 +238,7 @@
     let currentUserId = null;
     let allUsers = {};
 
+    // Load Users (same as before)
     function loadAllUsers() {
       const usersRef = ref(database, 'users');
       onValue(usersRef, (snapshot) => {
@@ -285,7 +256,6 @@
         const email = userData.email || "No Email";
 
         let premiumHTML = `<span class="premium-status no-premium">No Premium</span>`;
-
         if (userData.premium === -1) {
           premiumHTML = `<span class="premium-status lifetime">Lifetime Premium</span>`;
         } else if (typeof userData.premium === 'number' && userData.premium > Date.now()) {
@@ -299,27 +269,25 @@
           <div class="user-name">${name}</div>
           <div class="user-email">${email}</div>
           ${premiumHTML}
-          <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">
-            Manage Premium
-          </button>
+          <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">Manage Premium</button>
         `;
         grid.appendChild(card);
       });
     }
 
-    // Search Functionality
+    // Search
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase().trim();
       const filtered = Object.fromEntries(
-        Object.entries(allUsers).filter(([_, user]) => 
-          (user.name || "").toLowerCase().includes(term) || 
-          (user.email || "").toLowerCase().includes(term)
+        Object.entries(allUsers).filter(([_, u]) => 
+          (u.name || "").toLowerCase().includes(term) || 
+          (u.email || "").toLowerCase().includes(term)
         )
       );
       renderUsers(filtered);
     });
 
-    // Modal Functions
+    // Premium Modal Functions
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -328,7 +296,7 @@
       document.getElementById('premiumType').value = 'none';
     };
 
-    window.closeModal = function() {
+    window.closePremiumModal = () => {
       document.getElementById('premiumModal').style.display = 'none';
     };
 
@@ -338,35 +306,111 @@
 
     window.savePremium = function() {
       if (!currentUserId) return;
-
       const type = document.getElementById('premiumType').value;
       let premiumValue = null;
-
       if (type === 'lifetime') premiumValue = -1;
       else if (type === 'date') {
-        const dateStr = document.getElementById('expiryDate').value;
-        if (dateStr) premiumValue = new Date(dateStr).getTime();
+        const d = document.getElementById('expiryDate').value;
+        if (d) premiumValue = new Date(d).getTime();
       }
 
       update(ref(database), { [`users/${currentUserId}/premium`]: premiumValue })
         .then(() => {
-          alert("✅ Premium status updated successfully!");
-          closeModal();
-          loadAllUsers(); // Refresh list
+          alert("✅ Premium updated!");
+          closePremiumModal();
+          loadAllUsers();
         })
-        .catch((error) => {
-          console.error(error);
-          alert("❌ Failed to update premium status.");
-        });
+        .catch(err => alert("❌ Error: " + err.message));
     };
 
-    // Profile Dropdown
+    // Settings Modal + QR Upload with Auto-Crop
+    let qrBase64 = null;
+
+    function loadCurrentQR() {
+      const qrRef = ref(database, 'settings/qrpayment');
+      onValue(qrRef, (snapshot) => {
+        qrBase64 = snapshot.val();
+        const img = document.getElementById('qrPreview');
+        const noMsg = document.getElementById('noQrMessage');
+
+        if (qrBase64) {
+          img.src = qrBase64;
+          img.style.display = 'block';
+          noMsg.style.display = 'none';
+        } else {
+          img.style.display = 'none';
+          noMsg.style.display = 'block';
+        }
+      }, { onlyOnce: true });
+    }
+
+    document.getElementById('qrUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const sourceCanvas = document.createElement('canvas');
+          const sCtx = sourceCanvas.getContext('2d');
+          sourceCanvas.width = img.width;
+          sourceCanvas.height = img.height;
+          sCtx.drawImage(img, 0, 0);
+
+          const imageData = sCtx.getImageData(0, 0, img.width, img.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+          if (code) {
+            const loc = code.location;
+            const x = Math.min(loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomLeftCorner.x, loc.bottomRightCorner.x);
+            const y = Math.min(loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomLeftCorner.y, loc.bottomRightCorner.y);
+            const qrWidth = Math.max(loc.topRightCorner.x, loc.bottomRightCorner.x) - Math.min(loc.topLeftCorner.x, loc.bottomLeftCorner.x);
+            const qrHeight = Math.max(loc.bottomLeftCorner.y, loc.bottomRightCorner.y) - Math.min(loc.topLeftCorner.y, loc.topRightCorner.y);
+
+            const padding = 15;
+            const destCanvas = document.createElement('canvas');
+            const dCtx = destCanvas.getContext('2d');
+            destCanvas.width = qrWidth + padding * 2;
+            destCanvas.height = qrHeight + padding * 2;
+
+            dCtx.drawImage(
+              img,
+              x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2,
+              0, 0, qrWidth + padding * 2, qrHeight + padding * 2
+            );
+
+            const croppedBase64 = destCanvas.toDataURL('image/png');
+
+            // Save to Firebase
+            set(ref(database, 'settings/qrpayment'), croppedBase64)
+              .then(() => {
+                alert("✅ QR Code uploaded and cropped successfully!");
+                loadCurrentQR(); // Refresh preview
+              })
+              .catch(err => alert("❌ Failed to save: " + err.message));
+          } else {
+            alert("No QR code detected in the uploaded image. Please try again.");
+          }
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Dropdown Controls
     document.getElementById('profileBtn').onclick = (e) => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
     };
 
+    document.getElementById('settingsBtn').onclick = () => {
+      document.getElementById('dropdownMenu').classList.remove('show');
+      document.getElementById('settingsModal').style.display = 'flex';
+    };
+
     document.getElementById('logoutBtn').onclick = () => {
+      document.getElementById('dropdownMenu').classList.remove('show');
       if (confirm("Sign out from Admin Panel?")) {
         window.location.href = "index.html";
       }
@@ -376,8 +420,16 @@
       document.getElementById('dropdownMenu').classList.remove('show');
     });
 
+    // Close modals when clicking outside content
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+      });
+    });
+
     // Initialize
     loadAllUsers();
+    loadCurrentQR();
   </script>
 </body>
 </html>
