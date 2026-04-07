@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    /* Carousel with proper side padding */
+    /* Carousel - Fixed Most Popular banner + Center snapping */
     .offers-section {
       margin-bottom: 30px;
     }
@@ -117,16 +117,16 @@
     }
 
     .carousel-container {
+      margin: 0 -24px;
+      padding: 0 24px;
       position: relative;
-      margin: 0 -20px;
-      padding: 0 20px;
     }
 
     .carousel {
       display: flex;
       overflow-x: auto;
       gap: 16px;
-      padding: 4px 8px 20px 8px;
+      padding: 20px 12px 28px 12px;   /* Extra top padding for banner */
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
@@ -142,29 +142,32 @@
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
       transition: all 0.3s ease;
-      scroll-snap-align: start;
+      scroll-snap-align: center;        /* Changed to center - this enables clicking side cards to center */
       text-align: center;
       flex-shrink: 0;
+      position: relative;
     }
     .offer-card.popular {
       border-color: #EF9875;
-      position: relative;
-      transform: scale(1.03);
+      transform: scale(1.04);
+      z-index: 2;
     }
     .offer-card.popular::before {
       content: "MOST POPULAR";
       position: absolute;
-      top: -12px;
+      top: -14px;
       left: 50%;
       transform: translateX(-50%);
       background: #EF9875;
       color: white;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 18px;
+      padding: 5px 18px;
       border-radius: 50px;
       letter-spacing: 0.5px;
-      box-shadow: 0 4px 10px rgba(239, 152, 117, 0.3);
+      box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
+      white-space: nowrap;
+      z-index: 10;
     }
     .offer-duration {
       font-size: 20px;
@@ -244,7 +247,7 @@
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
         <div id="offers-carousel" class="carousel">
-          <!-- Offers populated by JavaScript -->
+          <!-- Dynamically populated -->
         </div>
       </div>
     </div>
@@ -282,20 +285,16 @@
     }
   });
 
-  // Initialize premium field to 0 if it doesn't exist
   function initializePremiumStatus() {
     if (!currentUid) return;
     const premiumRef = ref(database, `users/${currentUid}/premium`);
     onValue(premiumRef, (snapshot) => {
       if (snapshot.val() === null || snapshot.val() === undefined) {
-        set(premiumRef, 0)
-          .then(() => console.log("Premium status initialized to 0"))
-          .catch((error) => console.error("Error initializing premium:", error));
+        set(premiumRef, 0);
       }
     }, { onlyOnce: true });
   }
 
-  // Load subscription offers from RTDB or use defaults
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
     const carousel = document.getElementById("offers-carousel");
@@ -306,13 +305,9 @@
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        offers = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key]
-        }));
+        offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
       }
 
-      // Fallback to default offers
       if (!offers.length) {
         offers = [
           { duration: "1 month", price: 49, period: "month" },
@@ -323,7 +318,7 @@
 
       renderOffers(offers);
     } catch (error) {
-      console.error("Error loading subscription offers:", error);
+      console.error("Error loading offers:", error);
       renderOffers([
         { duration: "1 month", price: 49, period: "month" },
         { duration: "6 months", price: 249, period: "6 months" },
@@ -337,7 +332,7 @@
     carousel.innerHTML = "";
 
     offers.forEach((offer, index) => {
-      const isPopular = index === 1; // 6 months as most popular
+      const isPopular = index === 1;
 
       const cardHTML = `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
