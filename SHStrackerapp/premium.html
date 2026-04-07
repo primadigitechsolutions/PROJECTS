@@ -53,8 +53,6 @@
       position: relative;
       overflow: hidden;
     }
-
-    /* Twinkle Animation */
     .badge::after {
       content: '✨';
       position: absolute;
@@ -63,7 +61,6 @@
       font-size: 18px;
       animation: twinkle 1.5s infinite ease-in-out;
     }
-
     @keyframes twinkle {
       0%, 100% { opacity: 0.4; transform: scale(0.8); }
       50% { opacity: 1; transform: scale(1.2); }
@@ -169,7 +166,6 @@
           <p>Get smart predictions on making the Dean’s List or academic honors.</p>
         </div>
       </div>
-
       <div class="feature">
         <div class="feature-icon">⚠️</div>
         <div class="feature-text">
@@ -177,7 +173,6 @@
           <p>Early alerts for low grades and at-risk subjects.</p>
         </div>
       </div>
-
       <div class="feature">
         <div class="feature-icon">📄</div>
         <div class="feature-text">
@@ -199,5 +194,58 @@
     </div>
   </div>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
+    authDomain: "shstrackerapp.firebaseapp.com",
+    databaseURL: "https://shstrackerapp-default-rtdb.firebaseio.com",
+    projectId: "shstrackerapp",
+    storageBucket: "shstrackerapp.firebasestorage.app",
+    messagingSenderId: "807451936679",
+    appId: "1:807451936679:web:37fa86f3b272afe9505882"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+
+  let currentUid = null;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUid = user.uid;
+      initializePremiumStatus();
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  // Check and initialize premium status if missing
+  function initializePremiumStatus() {
+    if (!currentUid) return;
+
+    const premiumRef = ref(database, `users/${currentUid}/premium`);
+
+    onValue(premiumRef, (snapshot) => {
+      const premiumValue = snapshot.val();
+
+      // If premium field doesn't exist or is null, set it to "none"
+      if (premiumValue === null || premiumValue === undefined) {
+        set(premiumRef, "none")
+          .then(() => {
+            console.log("Premium status initialized to 'none'");
+          })
+          .catch((error) => {
+            console.error("Error initializing premium status:", error);
+          });
+      }
+    }, { onlyOnce: true }); // Run only once on page load
+  }
+</script>
 </body>
 </html>
