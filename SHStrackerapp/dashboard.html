@@ -21,7 +21,6 @@
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
       overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
-    /* Header Section */
     .header { padding: 24px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
     .greeting { font-size: 22px; font-weight: 700; color: #2c1e3f; }
     .greeting .name { color: #EF9875; }
@@ -34,7 +33,6 @@
       font-weight: 700; cursor: pointer;
       box-shadow: 0 4px 10px rgba(94, 58, 126, 0.2);
     }
-    /* Segmented Control (Semester Toggle) */
     .sem-toggle-wrapper { padding: 0 24px 20px; }
     .segmented-control {
       background: #f0e6f5; padding: 4px; border-radius: 14px;
@@ -49,26 +47,39 @@
         transition: 0.3s cubic-bezier(0.65, 0, 0.35, 1);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    /* Content Area */
     .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
-   
+  
     .progress-card {
-        background: white; 
-        border-radius: 24px; 
+        background: white;
+        border-radius: 24px;
         padding: 18px;
         box-shadow: 0 10px 30px rgba(78, 53, 111, 0.05);
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
         border: 1px solid #f0e6f5;
         cursor: pointer;
         transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
     }
     .progress-card:active {
         transform: scale(0.97);
         box-shadow: 0 12px 35px rgba(78, 53, 111, 0.12);
     }
+    .premium-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(90deg, #EF9875, #e07a5f);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(239, 152, 117, 0.3);
+    }
 
     .progress-wrapper { display: flex; align-items: center; gap: 15px; }
-   
+  
     .circular-progress { position: relative; width: 90px; height: 90px; }
     .circular-progress svg { transform: rotate(-90deg); }
     .circular-progress .bg-circle { fill: none; stroke: #f0e6f5; stroke-width: 10; }
@@ -82,10 +93,9 @@
     .performance-right { flex: 1; }
     .performance-right .label { font-size: 12px; color: #666; }
     .performance-right .big-number { font-size: 28px; font-weight: 800; color: #5E3A7E; margin: 2px 0; }
-   
+  
     .progress-bar-bg { height: 8px; background: #f0e6f5; border-radius: 10px; overflow: hidden; margin-top: 5px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #5E3A7E, #EF9875); transition: width 0.8s ease-in-out; }
-
     .section-title { font-size: 18px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
     .tip-text { font-size: 11px; color: #9C6A82; margin-bottom: 15px; }
     .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -99,7 +109,6 @@
     .subject-subtitle { font-size: 11px; color: #9C6A82; margin: 4px 0 8px; text-transform: capitalize; }
     .subject-grade-val { font-size: 15px; font-weight: 800; color: #5E3A7E; margin-top: 8px; }
 
-    /* Bottom Navigation */
     .bottom-nav {
         position: absolute; bottom: 0; left: 0; right: 0; background: white;
         border-top: 1px solid #e9dee4; display: flex; justify-content: space-around;
@@ -109,7 +118,6 @@
     .nav-item.active { color: #5E3A7E; font-weight: 700; }
     .nav-icon { font-size: 20px; margin-bottom: 4px; }
 
-    /* Dropdown & Modals */
     .dropdown-content {
       display: none; position: absolute; right: 20px; top: 75px;
       background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -149,7 +157,6 @@
       <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="openSignoutBtn">🚪 Sign Out</div>
     </div>
   </div>
-
   <div class="sem-toggle-wrapper">
     <div class="segmented-control" id="semToggle">
       <div class="segment active" data-sem="S1">1st Semester</div>
@@ -157,10 +164,10 @@
       <div class="glider" id="glider"></div>
     </div>
   </div>
-
   <div class="main-content">
-    <!-- Overall Grade Card - Clickable to go to Grade Overview -->
+    <!-- Overall Grade Card -->
     <div class="progress-card" id="overallProgressCard">
+      <div id="premiumBadge" class="premium-badge" style="display: none;">PREMIUM</div>
       <div class="progress-wrapper">
         <div class="circular-progress">
           <svg width="90" height="90" viewBox="0 0 100 100">
@@ -242,13 +249,14 @@
   let timer;
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  // Modal Helper
+  // Premium validity in days (change as needed)
+  const PREMIUM_VALIDITY_DAYS = 30;
+
   window.closeAllModals = () => {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     subjectToDel = null;
   };
 
-  // Auth State
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUid = user.uid;
@@ -258,14 +266,62 @@
       document.getElementById('profileBtn').textContent = name[0].toUpperCase();
       initToggle();
       loadData();
+      checkPremiumStatus();
     } else {
       window.location.href = "index.html";
     }
   });
 
-  // Click on Overall Progress Card → Go to Grade Overview
+  // Check Premium Status and show badge
+  function checkPremiumStatus() {
+    if (!currentUid) return;
+
+    const premiumRef = ref(database, `users/${currentUid}/premium`);
+
+    onValue(premiumRef, (snapshot) => {
+      const premiumValue = snapshot.val();
+      const badge = document.getElementById('premiumBadge');
+
+      if (premiumValue && premiumValue !== "none") {
+        const purchaseTime = Number(premiumValue);
+        const now = Date.now();
+        const daysPassed = (now - purchaseTime) / (1000 * 60 * 60 * 24);
+
+        if (daysPassed < PREMIUM_VALIDITY_DAYS) {
+          badge.style.display = 'block';   // Show Premium badge
+        } else {
+          badge.style.display = 'none';
+        }
+      } else {
+        badge.style.display = 'none';
+      }
+    });
+  }
+
+  // Click on Overall Progress Card
   document.getElementById('overallProgressCard').addEventListener('click', () => {
-    window.location.href = 'gradeoverview.html';
+    if (!currentUid) return;
+
+    const premiumRef = ref(database, `users/${currentUid}/premium`);
+
+    onValue(premiumRef, (snapshot) => {
+      const premiumValue = snapshot.val();
+
+      if (!premiumValue || premiumValue === "none") {
+        window.location.href = 'premium.html';
+        return;
+      }
+
+      const purchaseTime = Number(premiumValue);
+      const now = Date.now();
+      const daysPassed = (now - purchaseTime) / (1000 * 60 * 60 * 24);
+
+      if (daysPassed < PREMIUM_VALIDITY_DAYS) {
+        window.location.href = 'gradeoverview.html';
+      } else {
+        window.location.href = 'premium.html';   // Expired → go to premium page
+      }
+    }, { onlyOnce: true });
   });
 
   // Sign Out
@@ -286,7 +342,7 @@
     onValue(ref(database, `users/${currentUid}`), (snapshot) => {
       const data = snapshot.val() || {};
       renderDashboard(
-        data.semesters?.[currentSem]?.subjects || {}, 
+        data.semesters?.[currentSem]?.subjects || {},
         data.trackerScores?.[currentSem] || {}
       );
     });
@@ -305,7 +361,6 @@
       const card = document.createElement('div');
       card.className = 'subject-card';
 
-      // Long press to delete
       card.onmousedown = card.ontouchstart = () => {
         timer = setTimeout(() => {
           subjectToDel = subName;
@@ -334,8 +389,6 @@
     });
 
     const avg = count > 0 ? (totalGrades / count) : 0;
-
-    // Update Overall Grade Display
     document.getElementById('overallPct').textContent = Math.round(avg) + '%';
     document.getElementById('overallBigNum').textContent = avg.toFixed(1) + '%';
     document.getElementById('overallBar').style.width = avg + '%';
@@ -364,14 +417,11 @@
   function initToggle() {
     const segments = document.querySelectorAll('.segment');
     const glider = document.getElementById('glider');
-
     const updateUI = (sem) => {
       segments.forEach(s => s.classList.toggle('active', s.dataset.sem === sem));
       glider.style.transform = sem === 'S1' ? 'translateX(0)' : 'translateX(100%)';
     };
-
     updateUI(currentSem);
-
     segments.forEach(s => {
       s.onclick = () => {
         currentSem = s.dataset.sem;
@@ -382,7 +432,6 @@
     });
   }
 
-  // Profile Dropdown
   document.getElementById('profileBtn').onclick = (e) => {
     e.stopPropagation();
     document.getElementById('dropdownMenu').classList.toggle('show');
