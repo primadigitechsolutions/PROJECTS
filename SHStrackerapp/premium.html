@@ -225,7 +225,7 @@
     }
   });
 
-  // Check and initialize premium status if missing
+  // Initialize premium field to 0 if it doesn't exist
   function initializePremiumStatus() {
     if (!currentUid) return;
 
@@ -234,17 +234,17 @@
     onValue(premiumRef, (snapshot) => {
       const premiumValue = snapshot.val();
 
-      // If premium field doesn't exist or is null, set it to "none"
+      // If premium key does not exist or is null/undefined, set it to 0
       if (premiumValue === null || premiumValue === undefined) {
-        set(premiumRef, "none")
+        set(premiumRef, 0)
           .then(() => {
-            console.log("Premium status initialized to 'none'");
+            console.log("Premium status initialized to 0 (no premium)");
           })
           .catch((error) => {
             console.error("Error initializing premium status:", error);
           });
       }
-    }, { onlyOnce: true }); // Run only once on page load
+    }, { onlyOnce: true }); // Run only once
   }
 </script>
 </body>
