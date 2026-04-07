@@ -48,7 +48,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
-  
+ 
     .progress-card {
         background: white;
         border-radius: 24px;
@@ -79,7 +79,7 @@
     }
 
     .progress-wrapper { display: flex; align-items: center; gap: 15px; }
-  
+ 
     .circular-progress { position: relative; width: 90px; height: 90px; }
     .circular-progress svg { transform: rotate(-90deg); }
     .circular-progress .bg-circle { fill: none; stroke: #f0e6f5; stroke-width: 10; }
@@ -93,7 +93,7 @@
     .performance-right { flex: 1; }
     .performance-right .label { font-size: 12px; color: #666; }
     .performance-right .big-number { font-size: 28px; font-weight: 800; color: #5E3A7E; margin: 2px 0; }
-  
+ 
     .progress-bar-bg { height: 8px; background: #f0e6f5; border-radius: 10px; overflow: hidden; margin-top: 5px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #5E3A7E, #EF9875); transition: width 0.8s ease-in-out; }
     .section-title { font-size: 18px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
@@ -249,7 +249,7 @@
   let timer;
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  // Premium validity in days (only applies if value is a timestamp)
+  // Premium validity in days (only applies to timestamp values)
   const PREMIUM_VALIDITY_DAYS = 30;
 
   window.closeAllModals = () => {
@@ -282,17 +282,17 @@
       const premiumValue = snapshot.val();
       const badge = document.getElementById('premiumBadge');
 
-      if (premiumValue === true) {
-        badge.style.display = 'block';        // Lifetime / Permanent Premium
+      let hasActivePremium = false;
+
+      if (premiumValue === -1) {
+        hasActivePremium = true;                    // Lifetime premium
       } 
-      else if (typeof premiumValue === 'number') {
-        // Timestamp-based premium
+      else if (typeof premiumValue === 'number' && premiumValue > 0) {
         const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
-        badge.style.display = (daysPassed < PREMIUM_VALIDITY_DAYS) ? 'block' : 'none';
-      } 
-      else {
-        badge.style.display = 'none';
+        hasActivePremium = (daysPassed < PREMIUM_VALIDITY_DAYS);
       }
+
+      badge.style.display = hasActivePremium ? 'block' : 'none';
     });
   }
 
@@ -305,21 +305,19 @@
     onValue(premiumRef, (snapshot) => {
       const premiumValue = snapshot.val();
 
-      if (premiumValue === true) {
-        // Permanent premium
-        window.location.href = 'gradeoverview.html';
+      let hasActivePremium = false;
+
+      if (premiumValue === -1) {
+        hasActivePremium = true;                    // Lifetime
       } 
-      else if (typeof premiumValue === 'number') {
-        // Timestamp-based premium
+      else if (typeof premiumValue === 'number' && premiumValue > 0) {
         const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
-        if (daysPassed < PREMIUM_VALIDITY_DAYS) {
-          window.location.href = 'gradeoverview.html';
-        } else {
-          window.location.href = 'premium.html';   // Expired
-        }
-      } 
-      else {
-        // No premium or "none"
+        hasActivePremium = (daysPassed < PREMIUM_VALIDITY_DAYS);
+      }
+
+      if (hasActivePremium) {
+        window.location.href = 'gradeoverview.html';
+      } else {
         window.location.href = 'premium.html';
       }
     }, { onlyOnce: true });
