@@ -116,7 +116,7 @@
     }
     .dropdown-item:active { background: #f8f4fa; }
 
-    /* Settings Modal */
+    /* Modal Styles */
     .modal {
       display: none; position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
@@ -149,6 +149,14 @@
       cursor: pointer;
     }
     .no-qr { text-align: center; color: #888; font-style: italic; padding: 40px 0; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: #666; }
+    select, input[type="date"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+    .btn-cancel { background: #eee; }
+    .btn-confirm { background: #5E3A7E; color: white; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -174,7 +182,6 @@
     </div>
   </div>
 
-  <!-- Premium Modal (unchanged) -->
   <div id="premiumModal" class="modal">
     <div class="modal-content">
       <h3>Set Premium for <span id="modalUserName"></span></h3>
@@ -197,7 +204,6 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h3>Payment QR Code</h3>
@@ -209,11 +215,11 @@
 
       <input type="file" id="qrUpload" accept="image/*" style="display:none;">
       <button class="upload-btn" onclick="document.getElementById('qrUpload').click()">
-        📤 Upload New QR Code (Auto Crop)
+        📤 Upload New QR Code (Auto-Optimized)
       </button>
       
-      <div style="margin-top:20px; text-align:center; font-size:12px; color:#888;">
-        The system will automatically detect and crop the QR code.
+      <div style="margin-top:20px; text-align:center; font-size:11px; color:#888;">
+        The system automatically crops and compresses the QR for max performance.
       </div>
     </div>
   </div>
@@ -238,7 +244,6 @@
     let currentUserId = null;
     let allUsers = {};
 
-    // Load Users (same as before)
     function loadAllUsers() {
       const usersRef = ref(database, 'users');
       onValue(usersRef, (snapshot) => {
@@ -323,13 +328,11 @@
         .catch(err => alert("❌ Error: " + err.message));
     };
 
-    // Settings Modal + QR Upload with Auto-Crop
-    let qrBase64 = null;
-
+    // Settings Modal + QR Upload with AUTO-COMPRESSION
     function loadCurrentQR() {
       const qrRef = ref(database, 'settings/qrpayment');
       onValue(qrRef, (snapshot) => {
-        qrBase64 = snapshot.val();
+        const qrBase64 = snapshot.val();
         const img = document.getElementById('qrPreview');
         const noMsg = document.getElementById('noQrMessage');
 
@@ -371,26 +374,40 @@
             const padding = 15;
             const destCanvas = document.createElement('canvas');
             const dCtx = destCanvas.getContext('2d');
-            destCanvas.width = qrWidth + padding * 2;
-            destCanvas.height = qrHeight + padding * 2;
+            
+            // AUTO-RESIZE logic: Cap at 400px wide for massive space savings
+            const MAX_SIZE = 400;
+            let finalW = qrWidth + padding * 2;
+            let finalH = qrHeight + padding * 2;
+            
+            if(finalW > MAX_SIZE) {
+                const ratio = MAX_SIZE / finalW;
+                finalW = MAX_SIZE;
+                finalH = finalH * ratio;
+            }
+
+            destCanvas.width = finalW;
+            destCanvas.height = finalH;
 
             dCtx.drawImage(
               img,
               x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2,
-              0, 0, qrWidth + padding * 2, qrHeight + padding * 2
+              0, 0, finalW, finalH
             );
 
-            const croppedBase64 = destCanvas.toDataURL('image/png');
+            // COMPRESSION: Convert to WebP at 0.6 quality (Super Small)
+            const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
 
             // Save to Firebase
-            set(ref(database, 'settings/qrpayment'), croppedBase64)
+            set(ref(database, 'settings/qrpayment'), compressedBase64)
               .then(() => {
-                alert("✅ QR Code uploaded and cropped successfully!");
-                loadCurrentQR(); // Refresh preview
+                const kb = Math.round((compressedBase64.length * 3) / 4 / 1024);
+                alert(`✅ Success! Compressed to ${kb} KB`);
+                loadCurrentQR();
               })
               .catch(err => alert("❌ Failed to save: " + err.message));
           } else {
-            alert("No QR code detected in the uploaded image. Please try again.");
+            alert("No QR code detected. Try a clearer photo.");
           }
         };
         img.src = event.target.result;
@@ -398,7 +415,7 @@
       reader.readAsDataURL(file);
     });
 
-    // Dropdown Controls
+    // Dropdown and UI Controls
     document.getElementById('profileBtn').onclick = (e) => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
@@ -411,23 +428,17 @@
 
     document.getElementById('logoutBtn').onclick = () => {
       document.getElementById('dropdownMenu').classList.remove('show');
-      if (confirm("Sign out from Admin Panel?")) {
-        window.location.href = "index.html";
-      }
+      if (confirm("Sign out from Admin Panel?")) window.location.href = "index.html";
     };
 
     document.addEventListener('click', () => {
       document.getElementById('dropdownMenu').classList.remove('show');
     });
 
-    // Close modals when clicking outside content
     document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-      });
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
     });
 
-    // Initialize
     loadAllUsers();
     loadCurrentQR();
   </script>
