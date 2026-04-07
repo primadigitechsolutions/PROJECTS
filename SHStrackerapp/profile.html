@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Profile | Academic Portal</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -18,75 +23,359 @@
     }
 
     .phone-frame {
-      width: 100%; max-width: 400px; height: 92vh;
-      background: white; border-radius: 40px;
+      width: 100%;
+      max-width: 400px;
+      height: 92vh;
+      background: white;
+      border-radius: 40px;
       box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; display: flex; flex-direction: column; position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
 
-    /* CUSTOM MODAL SYSTEM */
+    /* Custom scroll */
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 20px 100px;
+    }
+
+    /* Profile header area (dashboard-like spacing) */
+    .profile-header {
+      padding: 24px 24px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      border-bottom: 1px solid #f0e6f5;
+    }
+
+    .profile-avatar {
+      width: 84px;
+      height: 84px;
+      background: linear-gradient(135deg, #5E3A7E, #9C6A82);
+      color: white;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 20px rgba(94, 58, 126, 0.2);
+      overflow: hidden;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #2c1e3f;
+      letter-spacing: -0.3px;
+    }
+
+    .profile-email {
+      font-size: 13px;
+      color: #9C6A82;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Cards (same as dashboard) */
+    .progress-card {
+      background: white;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(78, 53, 111, 0.05);
+      margin-bottom: 20px;
+      border: 1px solid #f0e6f5;
+      transition: all 0.2s ease;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c1e3f;
+      margin-bottom: 6px;
+    }
+
+    .tip-text {
+      font-size: 11px;
+      color: #9C6A82;
+      margin-bottom: 15px;
+    }
+
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .circular-progress {
+      position: relative;
+      width: 90px;
+      height: 90px;
+    }
+
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .bg-circle {
+      fill: none;
+      stroke: #f0e6f5;
+      stroke-width: 10;
+    }
+
+    .progress-circle {
+      fill: none;
+      stroke: #5E3A7E;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: 0.8s ease-in-out;
+    }
+
+    .progress-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .progress-percentage {
+      font-size: 20px;
+      font-weight: 800;
+      color: #2c1e3f;
+    }
+
+    .overall-text {
+      font-size: 10px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .performance-right {
+      flex: 1;
+    }
+
+    .performance-right .label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .big-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: #5E3A7E;
+      margin: 2px 0;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #f0e6f5;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #5E3A7E, #EF9875);
+      transition: width 0.8s ease-in-out;
+    }
+
+    .honor-badge {
+      display: inline-block;
+      background: #EF9875;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 40px;
+      margin-top: 12px;
+      box-shadow: 0 2px 8px rgba(239, 152, 117, 0.3);
+    }
+
+    .honor-ineligible {
+      background: #9C6A82;
+      opacity: 0.8;
+    }
+
+    .info-card {
+      background: #fcfaff;
+      border: 1px solid #f0e6f5;
+      border-radius: 24px;
+      padding: 8px 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0e6f5;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9C6A82;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .info-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2c1e3f;
+      word-break: break-all;
+    }
+
+    .subscription-chip {
+      background: #f0e6f5;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5E3A7E;
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 18px;
+      background: #4E356F;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(78, 53, 111, 0.2);
+      margin-top: 8px;
+      margin-bottom: 20px;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    /* Bottom navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e9dee4;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 28px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #9C6A82;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #5E3A7E;
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* Modal overlay */
     .modal-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(44, 30, 63, 0.4); backdrop-filter: blur(5px);
-      display: none; align-items: center; justify-content: center; z-index: 1000;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 30, 63, 0.5);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
+
     .modal {
-      width: 82%; background: white; border-radius: 28px; padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center;
+      width: 82%;
+      background: white;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
     }
-    .modal h3 { font-size: 18px; color: #2c1e3f; margin-bottom: 8px; font-weight: 800; }
-    .modal p { font-size: 14px; color: #9C6A82; margin-bottom: 24px; line-height: 1.5; }
-    .modal-actions { display: flex; gap: 12px; }
-    .modal-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; }
-    .btn-cancel { background: #f8f4fa; color: #9C6A82; }
-    .btn-danger { background: #e07a5f; color: white; }
 
-    /* Header & Hero */
-    .header { padding: 30px 24px 10px; display: flex; justify-content: center; background: white; }
-    .header h1 { font-size: 20px; font-weight: 800; color: #2c1e3f; }
-
-    .profile-hero { text-align: center; padding: 20px 24px 30px; background: white; }
-    .profile-avatar { 
-      width: 100px; height: 100px; background: #f0e6f5; color: #4E356F; 
-      border-radius: 32px; margin: 0 auto 16px; display: flex; align-items: center; 
-      justify-content: center; font-size: 36px; font-weight: 800; overflow: hidden; 
-      border: 4px solid #fff; box-shadow: 0 12px 24px rgba(78, 53, 111, 0.12); 
+    .modal h3 {
+      font-size: 18px;
+      color: #2c1e3f;
+      margin-bottom: 8px;
+      font-weight: 800;
     }
-    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-name { font-size: 22px; font-weight: 800; color: #2c1e3f; letter-spacing: -0.5px; }
-    .profile-email { font-size: 14px; color: #9C6A82; margin-top: 4px; font-weight: 500; }
 
-    /* Content Area */
-    .content { flex: 1; overflow-y: auto; padding: 0 24px 110px; background: white; }
-    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; color: #9C6A82; margin-bottom: 12px; }
-    .info-card { background: #fcfaff; border: 1px solid #f0e6f5; border-radius: 24px; padding: 8px 20px; margin-bottom: 24px; }
-    
-    .info-item { display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px solid #f0e6f5; }
-    .info-item:last-child { border-bottom: none; }
-    .info-label { font-size: 11px; font-weight: 700; color: #9C6A82; margin-bottom: 4px; }
-    .info-value { font-size: 15px; font-weight: 600; color: #2c1e3f; word-break: break-all; }
-
-    .logout-btn { 
-      width: 100%; padding: 18px; background: #4E356F; color: white; border: none; 
-      border-radius: 20px; font-size: 15px; font-weight: 700; cursor: pointer; 
-      transition: 0.2s; box-shadow: 0 4px 12px rgba(78, 53, 111, 0.2); 
+    .modal p {
+      font-size: 14px;
+      color: #9C6A82;
+      margin-bottom: 24px;
+      line-height: 1.5;
     }
-    .logout-btn:active { transform: scale(0.97); opacity: 0.9; }
 
-    /* Bottom Navigation */
-    .bottom-nav { 
-      position: absolute; bottom: 0; left: 0; right: 0; background: white; 
-      border-top: 1px solid #f0e6f5; display: flex; justify-content: space-around; 
-      padding: 12px 0 28px; 
+    .modal-actions {
+      display: flex;
+      gap: 12px;
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: #9C6A82; font-size: 11px; cursor: pointer; }
-    .nav-item.active { color: #4E356F; font-weight: 700; }
-    .nav-icon { font-size: 22px; margin-bottom: 4px; }
+
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-cancel {
+      background: #f8f4fa;
+      color: #9C6A82;
+    }
+
+    .btn-danger {
+      background: #e07a5f;
+      color: white;
+    }
   </style>
 </head>
 <body>
 
 <div class="phone-frame">
+  <!-- Sign out modal -->
   <div class="modal-overlay" id="logoutModal">
     <div class="modal">
       <h3>Sign Out</h3>
@@ -98,18 +387,52 @@
     </div>
   </div>
 
-  <div class="header">
-    <h1>My Profile</h1>
-  </div>
-
-  <div class="profile-hero">
-    <div class="profile-avatar" id="profileAvatar">...</div>
+  <!-- Profile header (like dashboard style) -->
+  <div class="profile-header">
+    <div class="profile-avatar" id="profileAvatar">?</div>
     <div class="profile-name" id="profileName">Loading...</div>
-    <div class="profile-email" id="profileEmail">...</div>
+    <div class="profile-email" id="profileEmail">—</div>
   </div>
 
-  <div class="content">
-    <p class="section-label">Account Details</p>
+  <!-- Scrollable content -->
+  <div class="main-scroll">
+    <!-- ACADEMIC OVERALL CARD (combined sem average) -->
+    <div class="progress-card" id="academicOverviewCard">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="section-title" style="margin-bottom: 0;">Overall Standing</div>
+        <div id="honorChip" style="font-size: 11px; font-weight: 700; background: #f0e6f5; padding: 4px 12px; border-radius: 40px;">—</div>
+      </div>
+      <div class="progress-wrapper" style="margin-top: 10px;">
+        <div class="circular-progress">
+          <svg width="90" height="90" viewBox="0 0 100 100">
+            <circle class="bg-circle" cx="50" cy="50" r="42"/>
+            <circle class="progress-circle" id="combinedCircle" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div class="progress-center">
+            <div class="progress-percentage" id="combinedPercent">0%</div>
+            <div class="overall-text">Avg</div>
+          </div>
+        </div>
+        <div class="performance-right">
+          <div class="label">1st & 2nd Semester Combined</div>
+          <div class="big-number" id="combinedBigNum">0%</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="combinedBar" style="width: 0%"></div>
+          </div>
+          <div id="honorMessage" style="font-size: 11px; color: #5E3A7E; margin-top: 6px; font-weight: 500;">Analyzing...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION CARD (expiry / lifetime) -->
+    <div class="progress-card">
+      <div class="section-title">Premium Access</div>
+      <div id="subscriptionStatus" style="font-size: 14px; font-weight: 600; color: #2c1e3f; margin-top: 6px;">Loading subscription...</div>
+      <div id="premiumExpiryDetail" style="font-size: 12px; color: #9C6A82; margin-top: 6px;"></div>
+    </div>
+
+    <!-- ACCOUNT DETAILS (same as before but styled) -->
+    <div class="section-title" style="margin-bottom: 6px;">Account Details</div>
     <div class="info-card">
       <div class="info-item">
         <span class="info-label">Full Name</span>
@@ -128,6 +451,7 @@
     <button class="logout-btn" id="signOutTrigger">Sign Out</button>
   </div>
 
+  <!-- Bottom Navigation (active profile) -->
   <div class="bottom-nav">
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
@@ -139,6 +463,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -152,53 +477,263 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const database = getDatabase(app);
 
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      const name = user.displayName || user.email.split('@')[0];
-      
-      document.getElementById('profileAvatar').innerHTML = user.photoURL 
-        ? `<img src="${user.photoURL}" alt="Profile">` 
-        : name.charAt(0).toUpperCase();
+  let currentUid = null;
+  let honorThreshold = 90; // default
+  let combinedAverage = 0;
+  let totalSubjectsCount = 0;
 
-      document.getElementById('profileName').textContent = name;
-      document.getElementById('fullName').textContent = name;
-      document.getElementById('profileEmail').textContent = user.email;
-      document.getElementById('userId').textContent = user.uid;
-      
-      if (user.metadata.creationTime) {
-        document.getElementById('createdAt').textContent = new Date(user.metadata.creationTime).toLocaleDateString('en-US', { 
-          month: 'long', day: 'numeric', year: 'numeric' 
-        });
+  // Helper: compute grade for a subject using same logic as dashboard
+  function calculateGrade(subjectName, subjectType, subjectScores) {
+    if (!subjectScores) return 0;
+    let qs = [];
+    ['Q1', 'Q2', 'Q3', 'Q4'].forEach(quarter => {
+      const qData = subjectScores[quarter];
+      if (qData) {
+        const getAvg = (obj) => {
+          if (!obj) return 0;
+          const values = Object.values(obj);
+          if (values.length === 0) return 0;
+          let totalScore = 0, totalMax = 0;
+          values.forEach(item => {
+            if (item && typeof item.score === 'number' && typeof item.total === 'number') {
+              totalScore += item.score;
+              totalMax += item.total;
+            }
+          });
+          return totalMax > 0 ? (totalScore / totalMax) * 100 : 0;
+        };
+        const quizAvg = getAvg(qData.Quiz);
+        const activityAvg = getAvg(qData.Activity);
+        const petaAvg = getAvg(qData.PETA);
+        const examAvg = getAvg(qData.Exam);
+        const ww = (quizAvg + activityAvg) / 2;
+        const isCore = subjectType === 'core';
+        const quarterGrade = (ww * 0.25) + (petaAvg * (isCore ? 0.5 : 0.45)) + (examAvg * (isCore ? 0.25 : 0.3));
+        qs.push(quarterGrade);
+      }
+    });
+    if (qs.length === 0) return 0;
+    return qs.reduce((a, b) => a + b, 0) / qs.length;
+  }
+
+  // Fetch all subjects from both semesters and compute combined average
+  function computeCombinedAverage(userData, trackerScores) {
+    const semesters = userData?.semesters || {};
+    const s1Subjects = semesters.S1?.subjects || {};
+    const s2Subjects = semesters.S2?.subjects || {};
+    const allSubjects = [
+      ...Object.entries(s1Subjects).map(([name, type]) => ({ name, type, sem: 'S1' })),
+      ...Object.entries(s2Subjects).map(([name, type]) => ({ name, type, sem: 'S2' }))
+    ];
+    
+    let totalGradeSum = 0;
+    let validCount = 0;
+    
+    for (const sub of allSubjects) {
+      const semScores = trackerScores?.[sub.sem] || {};
+      const subjectScoreData = semScores[sub.name] || null;
+      const grade = calculateGrade(sub.name, sub.type, subjectScoreData);
+      if (grade > 0 || subjectScoreData) { // include even zero if has structure
+        totalGradeSum += grade;
+        validCount++;
+      } else if (subjectScoreData === undefined && Object.keys(semScores).length === 0) {
+        // no scores at all, skip
+      } else {
+        totalGradeSum += grade;
+        validCount++;
+      }
+    }
+    if (validCount === 0) return 0;
+    return totalGradeSum / validCount;
+  }
+
+  // Ensure settings/honorthreshold exists with default 90
+  async function ensureHonorThreshold() {
+    const settingsRef = ref(database, 'settings/honorthreshold');
+    try {
+      const snapshot = await get(settingsRef);
+      if (!snapshot.exists()) {
+        await set(settingsRef, 90);
+        return 90;
+      } else {
+        const val = snapshot.val();
+        return typeof val === 'number' ? val : 90;
+      }
+    } catch (err) {
+      console.warn("Error setting threshold", err);
+      return 90;
+    }
+  }
+
+  // Update UI with combined average & honor status
+  function updateAcademicUI(avg, threshold) {
+    const percentRounded = Math.round(avg);
+    document.getElementById('combinedPercent').textContent = percentRounded + '%';
+    document.getElementById('combinedBigNum').textContent = avg.toFixed(1) + '%';
+    document.getElementById('combinedBar').style.width = Math.min(avg, 100) + '%';
+    const circumference = 263.89;
+    const offset = circumference - (avg / 100) * circumference;
+    document.getElementById('combinedCircle').style.strokeDashoffset = offset;
+    
+    const isEligible = avg >= threshold;
+    const honorChip = document.getElementById('honorChip');
+    const honorMessageDiv = document.getElementById('honorMessage');
+    
+    if (totalSubjectsCount === 0 && avg === 0) {
+      honorChip.textContent = '⚠️ No Data';
+      honorChip.style.background = '#e9dee4';
+      honorChip.style.color = '#9C6A82';
+      honorMessageDiv.textContent = 'Add subjects & scores to see honor eligibility.';
+      return;
+    }
+    
+    if (isEligible) {
+      honorChip.textContent = '🏅 Honor Eligible';
+      honorChip.style.background = '#EF9875';
+      honorChip.style.color = 'white';
+      honorMessageDiv.innerHTML = `✅ You’re on track! Combined average ≥ ${threshold}% — Academic Honor probability high.`;
+    } else {
+      honorChip.textContent = '📘 Under Honor Threshold';
+      honorChip.style.background = '#f0e6f5';
+      honorChip.style.color = '#5E3A7E';
+      honorMessageDiv.innerHTML = `📈 Need ${threshold}% to be eligible. Current: ${avg.toFixed(1)}% · Keep improving!`;
+    }
+  }
+
+  // Premium subscription display
+  function updatePremiumUI(premiumValue) {
+    const statusDiv = document.getElementById('subscriptionStatus');
+    const expiryDetail = document.getElementById('premiumExpiryDetail');
+    if (premiumValue === -1) {
+      statusDiv.innerHTML = '👑 Lifetime Premium';
+      statusDiv.style.color = '#EF9875';
+      expiryDetail.innerHTML = 'Active forever · Unlimited access';
+    } else if (typeof premiumValue === 'number' && premiumValue > 0) {
+      const expiryDate = new Date(premiumValue);
+      const now = Date.now();
+      if (now < premiumValue) {
+        statusDiv.innerHTML = '✨ Premium Active';
+        statusDiv.style.color = '#5E3A7E';
+        expiryDetail.innerHTML = `Valid until ${expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+      } else {
+        statusDiv.innerHTML = '⏰ Premium Expired';
+        statusDiv.style.color = '#9C6A82';
+        expiryDetail.innerHTML = 'Renew to unlock grade insights & advanced analytics';
       }
     } else {
-      // Redirect to index if not logged in
+      statusDiv.innerHTML = '🔓 Free Account';
+      statusDiv.style.color = '#9C6A82';
+      expiryDetail.innerHTML = 'Upgrade to Premium for detailed grade predictions & advanced features.';
+    }
+  }
+
+  // Load all data: user profile from RTDB + semesters + scores + premium + threshold
+  async function loadUserProfileAndAcademics(user) {
+    if (!currentUid) return;
+    
+    // Get user RTDB reference
+    const userRef = ref(database, `users/${currentUid}`);
+    const premiumRef = ref(database, `users/${currentUid}/premium`);
+    
+    // Load threshold first (ensure it exists)
+    const thresholdVal = await ensureHonorThreshold();
+    honorThreshold = thresholdVal;
+    
+    // Listen to user data changes (subjects, scores, name, email)
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      // Update profile display using RTDB name/email if available (fallback to auth)
+      const rtdbName = data.name || user.displayName || user.email?.split('@')[0] || "Student";
+      const rtdbEmail = data.email || user.email || "No email";
+      document.getElementById('profileName').textContent = rtdbName;
+      document.getElementById('profileEmail').textContent = rtdbEmail;
+      document.getElementById('fullName').textContent = rtdbName;
+      document.getElementById('userId').textContent = currentUid;
+      document.getElementById('profileAvatar').innerHTML = rtdbName.charAt(0).toUpperCase();
+      
+      // Member Since from auth metadata if available
+      if (user.metadata.creationTime) {
+        document.getElementById('createdAt').textContent = new Date(user.metadata.creationTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      } else {
+        document.getElementById('createdAt').textContent = "—";
+      }
+      
+      // Get trackerScores
+      const trackerScores = data.trackerScores || {};
+      // Compute combined average across both semesters
+      const avg = computeCombinedAverage(data, trackerScores);
+      combinedAverage = avg;
+      totalSubjectsCount = (Object.keys(data.semesters?.S1?.subjects || {}).length + Object.keys(data.semesters?.S2?.subjects || {}).length);
+      updateAcademicUI(avg, honorThreshold);
+    });
+    
+    // Premium listener
+    onValue(premiumRef, (snap) => {
+      const premVal = snap.val();
+      if (premVal === undefined || premVal === null) updatePremiumUI(null);
+      else updatePremiumUI(premVal);
+    });
+  }
+
+  // also re-check threshold if settings changed externally
+  function subscribeToThresholdChanges() {
+    const settingsRef = ref(database, 'settings/honorthreshold');
+    onValue(settingsRef, (snap) => {
+      const val = snap.val();
+      if (typeof val === 'number') {
+        honorThreshold = val;
+        if (combinedAverage !== undefined) {
+          updateAcademicUI(combinedAverage, honorThreshold);
+        }
+      }
+    });
+  }
+
+  // Auth state handler
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUid = user.uid;
+      // Ensure user document in RTDB has basic name/email (same as dashboard logic)
+      const userRef = ref(database, `users/${currentUid}`);
+      const snapshot = await get(userRef);
+      const existing = snapshot.val() || {};
+      const fullNameFromAuth = user.displayName || user.email?.split('@')[0] || "Student";
+      if (!existing.name && fullNameFromAuth) {
+        await set(ref(database, `users/${currentUid}/name`), fullNameFromAuth);
+      }
+      if (!existing.email && user.email) {
+        await set(ref(database, `users/${currentUid}/email`), user.email);
+      }
+      
+      // Load full data
+      await loadUserProfileAndAcademics(user);
+      subscribeToThresholdChanges();
+    } else {
       window.location.href = "index.html";
     }
   });
-
+  
+  // Sign out modal logic
   const modal = document.getElementById('logoutModal');
   const trigger = document.getElementById('signOutTrigger');
   const cancel = document.getElementById('cancelBtn');
-  const confirm = document.getElementById('confirmBtn');
-
+  const confirmBtn = document.getElementById('confirmBtn');
+  
   trigger.onclick = () => modal.style.display = 'flex';
   cancel.onclick = () => modal.style.display = 'none';
-  
-  confirm.onclick = () => {
+  confirmBtn.onclick = () => {
     signOut(auth).then(() => {
-      // Redirect to index after successful sign out
       window.location.href = "index.html";
     }).catch(err => {
       console.error(err);
       modal.style.display = 'none';
     });
   };
-
   window.onclick = (event) => {
-    if (event.target == modal) modal.style.display = "none";
-  }
+    if (event.target === modal) modal.style.display = "none";
+  };
 </script>
-
 </body>
 </html>
