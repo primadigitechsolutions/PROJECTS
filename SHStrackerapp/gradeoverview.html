@@ -96,7 +96,7 @@
       transition: background 0.2s;
     }
 
-    /* Warning for low grades */
+    /* Low grade warning */
     .grade.low {
       color: #e07a5f !important;
       background: #ffe8e8 !important;
@@ -283,29 +283,21 @@
     document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
   }
 
-  // Check if a quarter is "complete" based on your criteria
-  function isQuarterComplete(subject, quarter) {
+  // Check if quarter has any scores
+  function hasAnyScores(subject, quarter) {
     const data = scores[subject]?.[quarter];
     if (!data) return false;
-
-    const hasQuiz = data.Quiz && Object.keys(data.Quiz).length > 0;
-    const hasActivity = data.Activity && Object.keys(data.Activity).length > 0;
-    const hasPETA = data.PETA && Object.keys(data.PETA).length > 0;
-    const hasExam = data.Exam && Object.keys(data.Exam).length > 0;
-
-    // Complete if all major components have at least one score
-    return hasQuiz && hasActivity && hasPETA && hasExam;
+    return ['Quiz', 'Activity', 'PETA', 'Exam'].some(type => 
+      data[type] && Object.keys(data[type]).length > 0
+    );
   }
 
-  function shouldShowAsFinal(subject, quarter) {
+  // Determine if we should treat a blank quarter as 0
+  function shouldTreatAsZero(subject, quarter) {
     const qNum = parseInt(quarter.replace('Q', ''));
-    
-    // If this quarter is complete → show as final
-    if (isQuarterComplete(subject, quarter)) return true;
-
-    // If not complete, but next quarter has any data → treat as final
+    // If this quarter has no scores, but any later quarter has scores → treat as 0
     for (let next = qNum + 1; next <= 4; next++) {
-      if (scores[subject]?.[`Q${next}`]) {
+      if (hasAnyScores(subject, `Q${next}`)) {
         return true;
       }
     }
@@ -314,6 +306,12 @@
 
   function calculateQuarterGrade(subject, quarter) {
     const data = scores[subject]?.[quarter];
+
+    // If no data but should be treated as zero because later quarters exist
+    if (!data && shouldTreatAsZero(subject, quarter)) {
+      return 0;
+    }
+
     if (!data) return null;
 
     const getAvg = (type) => {
@@ -334,6 +332,19 @@
     return (ww * 0.25) + (pt * ptW) + (ex * exW);
   }
 
+  // Check if quarter is considered "final" for warning purposes
+  function shouldShowAsFinal(subject, quarter) {
+    const qNum = parseInt(quarter.replace('Q', ''));
+
+    // Has actual scores → final
+    if (hasAnyScores(subject, quarter)) return true;
+
+    // No scores but should be treated as 0 because later quarter exists
+    if (shouldTreatAsZero(subject, quarter)) return true;
+
+    return false;
+  }
+
   window.showQuarterPreview = function(subject, quarter) {
     const data = scores[subject]?.[quarter];
     const modalTitle = document.getElementById('modalTitle');
@@ -342,7 +353,7 @@
     modalTitle.textContent = `${subject} - ${quarter} Quarter`;
 
     if (!data) {
-      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded.</p>`;
+      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded in this quarter.</p>`;
     } else {
       let html = '';
       ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
@@ -389,7 +400,7 @@
         const quarter = `Q${q}`;
         const grade = calculateQuarterGrade(subject, quarter);
 
-        if (grade !== null && grade > 0) {
+        if (grade !== null) {
           const isFinal = shouldShowAsFinal(subject, quarter);
           const isLow = isFinal && grade < 60;
 
@@ -416,7 +427,7 @@
     let count = 0;
     for (let q = 1; q <= 4; q++) {
       const grade = calculateQuarterGrade(subject, `Q${q}`);
-      if (grade !== null && grade > 0) {
+      if (grade !== null) {
         total += grade;
         count++;
       }
