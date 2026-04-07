@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Premium | Academic Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+   
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f8f4fa 0%, #f0e6f5 100%);
+      color: #2c1e3f;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .phone-frame {
+      max-width: 400px; width: 100%; background: white;
+      border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(78, 53, 111, 0.25);
+      overflow: hidden; height: 92vh; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .header {
+      padding: 24px 24px 12px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .back-btn { font-size: 26px; cursor: pointer; color: #4E356F; }
+    .page-title { font-size: 22px; font-weight: 700; }
+
+    .main-content { 
+      flex: 1; 
+      padding: 20px 24px; 
+      overflow-y: auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #5E3A7E, #EF9875);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 20px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Twinkle Animation */
+    .badge::after {
+      content: '✨';
+      position: absolute;
+      top: -5px;
+      right: 8px;
+      font-size: 18px;
+      animation: twinkle 1.5s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15.5px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .features {
+      margin-bottom: 40px;
+    }
+    .feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: white;
+      padding: 18px 20px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 15px rgba(78, 53, 111, 0.06);
+      border: 1px solid #f0e6f0;
+    }
+    .feature-icon {
+      font-size: 26px;
+      width: 36px;
+    }
+    .feature-text h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 4px;
+    }
+    .feature-text p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .upgrade-card {
+      background: linear-gradient(135deg, #4E356F, #6B4A8A);
+      color: white;
+      border-radius: 24px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .price {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 12px 0 4px;
+    }
+    .price span {
+      font-size: 16px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .upgrade-btn {
+      background: white;
+      color: #4E356F;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .upgrade-btn:active {
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="header">
+    <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
+    <div class="page-title">Premium</div>
+    <div style="width:24px;"></div>
+  </div>
+
+  <div class="main-content">
+    <div class="hero">
+      <div class="badge">PREMIUM</div>
+      <div class="title">Level Up Your Academics</div>
+      <div class="subtitle">Powerful tools to help you excel</div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-text">
+          <h3>Academic Honor Prediction</h3>
+          <p>Get smart predictions on making the Dean’s List or academic honors.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">⚠️</div>
+        <div class="feature-text">
+          <h3>Advanced Warning System</h3>
+          <p>Early alerts for low grades and at-risk subjects.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">📄</div>
+        <div class="feature-text">
+          <h3>Instant PDF Export</h3>
+          <p>Instantly export your notes and reviewers to PDF.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="upgrade-card">
+      <div style="font-size:15px; opacity:0.9;">Monthly Plan</div>
+      <div class="price">₱149 <span>/ month</span></div>
+      <p style="font-size:13.5px; margin-top:8px; opacity:0.85;">
+        7 days free • Cancel anytime
+      </p>
+      <button class="upgrade-btn" onclick="alert('Premium upgrade coming soon.')">
+        Upgrade to Premium
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
