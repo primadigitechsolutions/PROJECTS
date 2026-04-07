@@ -2,232 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Grade Overview | Academic Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dashboard | Academic Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-   
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: #f8f4fa;
-      color: #2c1e3f;
-      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 100vh;
       padding: 10px;
     }
     .phone-frame {
-      max-width: 400px; width: 100%; background: white;
-      border-radius: 40px; box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
-      overflow: hidden; height: 92vh; position: relative;
-      display: flex; flex-direction: column;
+      width: 100%; max-width: 400px; height: 92vh;
+      background: white; border-radius: 40px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
-    .header {
-      padding: 20px 24px 10px; display: flex;
-      justify-content: space-between; align-items: center; flex-shrink: 0;
+    /* Header Section */
+    .header { padding: 24px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
+    .greeting { font-size: 22px; font-weight: 700; color: #2c1e3f; }
+    .greeting .name { color: #EF9875; }
+    .user-email { font-size: 13px; color: #888; margin-top: 2px; }
+    .profile-circle {
+      width: 42px; height: 42px;
+      background: #5E3A7E;
+      color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 10px rgba(94, 58, 126, 0.2);
     }
-    .page-title { font-size: 22px; font-weight: 700; color: #2c1e3f; }
-    .back-btn { font-size: 24px; cursor: pointer; color: #4E356F; text-decoration: none; padding: 5px; }
-    .greeting { font-size: 18px; font-weight: 600; color: #4E356F; margin: 0 24px 15px; }
+    /* Segmented Control (Semester Toggle) */
+    .sem-toggle-wrapper { padding: 0 24px 20px; }
+    .segmented-control {
+      background: #f0e6f5; padding: 4px; border-radius: 14px;
+      display: flex; position: relative; cursor: pointer; user-select: none;
+    }
+    .segment { flex: 1; padding: 10px 0; text-align: center; font-size: 13px; font-weight: 700; color: #9C6A82; z-index: 2; transition: 0.3s; }
+    .segment.active { color: #5E3A7E; }
+    .glider {
+        position: absolute; top: 4px; left: 4px;
+        height: calc(100% - 8px); width: calc(50% - 4px);
+        background: white; border-radius: 11px; z-index: 1;
+        transition: 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    /* Content Area */
+    .main-content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
+   
+    .progress-card {
+        background: white; 
+        border-radius: 24px; 
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(78, 53, 111, 0.05);
+        margin-bottom: 20px; 
+        border: 1px solid #f0e6f5;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+    .progress-card:active {
+        transform: scale(0.97);
+        box-shadow: 0 12px 35px rgba(78, 53, 111, 0.12);
+    }
 
-    .main-content { 
-      flex: 1; 
-      overflow-y: auto; 
-      padding: 0 20px 80px; 
+    .progress-wrapper { display: flex; align-items: center; gap: 15px; }
+   
+    .circular-progress { position: relative; width: 90px; height: 90px; }
+    .circular-progress svg { transform: rotate(-90deg); }
+    .circular-progress .bg-circle { fill: none; stroke: #f0e6f5; stroke-width: 10; }
+    .circular-progress .progress-circle {
+        fill: none; stroke: #5E3A7E; stroke-width: 10;
+        stroke-linecap: round; transition: 0.8s ease-in-out;
     }
+    .progress-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .progress-percentage { font-size: 20px; font-weight: 800; color: #2c1e3f; }
+    .overall-text { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .performance-right { flex: 1; }
+    .performance-right .label { font-size: 12px; color: #666; }
+    .performance-right .big-number { font-size: 28px; font-weight: 800; color: #5E3A7E; margin: 2px 0; }
+   
+    .progress-bar-bg { height: 8px; background: #f0e6f5; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #5E3A7E, #EF9875); transition: width 0.8s ease-in-out; }
 
-    /* Semester Tabs */
-    .semester-tabs {
-      display: flex;
-      background: #f0e6f0;
-      border-radius: 16px;
-      padding: 6px;
-      margin: 10px 0 20px;
+    .section-title { font-size: 18px; font-weight: 700; color: #2c1e3f; margin-bottom: 4px; }
+    .tip-text { font-size: 11px; color: #9C6A82; margin-bottom: 15px; }
+    .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .subject-card {
+        background: white; border-radius: 18px; padding: 16px;
+        border: 1px solid #f0e6f5; cursor: pointer; transition: 0.2s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
-    .tab {
-      flex: 1;
-      padding: 13px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab.active {
-      background: #4E356F;
-      color: white;
-    }
+    .subject-card:active { transform: scale(0.96); background: #fcfaff; }
+    .subject-name { font-size: 14px; font-weight: 700; color: #2c1e3f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .subject-subtitle { font-size: 11px; color: #9C6A82; margin: 4px 0 8px; text-transform: capitalize; }
+    .subject-grade-val { font-size: 15px; font-weight: 800; color: #5E3A7E; margin-top: 8px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 16px;
+    /* Bottom Navigation */
+    .bottom-nav {
+        position: absolute; bottom: 0; left: 0; right: 0; background: white;
+        border-top: 1px solid #e9dee4; display: flex; justify-content: space-around;
+        padding: 12px 0 28px;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #9C6A82; font-size: 11px; cursor: pointer; }
+    .nav-item.active { color: #5E3A7E; font-weight: 700; }
+    .nav-icon { font-size: 20px; margin-bottom: 4px; }
+
+    /* Dropdown & Modals */
+    .dropdown-content {
+      display: none; position: absolute; right: 20px; top: 75px;
+      background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-radius: 16px; width: 180px; z-index: 1000; border: 1px solid #f0e6f5;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(78, 53, 111, 0.08);
     }
-
-    th, td {
-      padding: 13px 10px;
-      text-align: center;
-      font-size: 13.5px;
-      border-bottom: 1px solid #ecdde6;
-    }
-
-    th {
-      background: #4E356F;
-      color: white;
-      font-weight: 600;
-    }
-
-    .subject-name {
-      text-align: left;
-      font-weight: 600;
-      color: #2c1e3f;
-      padding-left: 14px;
-    }
-
-    .grade {
-      font-weight: 700;
-      color: #4E356F;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    /* Warning for low grades */
-    .grade.low {
-      color: #e07a5f !important;
-      background: #ffe8e8 !important;
-      border-radius: 8px;
-    }
-
-    .final-grade {
-      background: #f0e6f0;
-      font-weight: 700;
-      color: #4E356F;
-    }
-
-    .no-data {
-      text-align: center;
-      color: #888;
-      padding: 60px 20px;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    /* Modal */
+    .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
+    .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; color: #2c1e3f; font-weight: 600; }
+    .dropdown-item:active { background: #f8f4fa; }
     .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 20px;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px);
     }
     .modal-content {
-      background: white;
-      width: 100%;
-      max-width: 340px;
-      border-radius: 20px;
-      padding: 20px;
-      max-height: 70vh;
-      overflow-y: auto;
+        background: white; width: 85%; max-width: 320px; border-radius: 28px;
+        padding: 25px; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ecdde6;
-    }
-    .modal-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: #4E356F;
-    }
-    .close-btn {
-      font-size: 24px;
-      cursor: pointer;
-      color: #9C6A82;
-    }
-
-    .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: white; border-top: 1px solid #e9dee4;
-      display: flex; justify-content: space-around; padding: 10px 0 25px;
-    }
-    .nav-item { 
-      display: flex; flex-direction: column; 
-      align-items: center; color: #9C6A82; 
-      font-size: 11px; cursor: pointer; 
-    }
-    .nav-icon { font-size: 22px; margin-bottom: 4px; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 24px; }
+    .modal-btn { flex: 1; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; }
+    .btn-cancel { background: #f0e6f5; color: #5E3A7E; }
+    .btn-confirm { background: #5E3A7E; color: white; }
+    .btn-danger { background: #e07a5f; color: white; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
 <div class="phone-frame">
   <div class="header">
-    <div class="back-btn" onclick="window.location.href='dashboard.html'">←</div>
-    <div class="page-title">Grade Overview</div>
-    <div style="width:24px;"></div>
+    <div>
+      <div class="greeting">Hi, <span class="name" id="userName">Student</span> 👋</div>
+      <div class="user-email" id="userEmail">Syncing profile...</div>
+    </div>
+    <div class="profile-circle" id="profileBtn">?</div>
+    <div class="dropdown-content" id="dropdownMenu">
+      <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
+      <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="openSignoutBtn">🚪 Sign Out</div>
+    </div>
   </div>
-  <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
+
+  <div class="sem-toggle-wrapper">
+    <div class="segmented-control" id="semToggle">
+      <div class="segment active" data-sem="S1">1st Semester</div>
+      <div class="segment" data-sem="S2">2nd Semester</div>
+      <div class="glider" id="glider"></div>
+    </div>
+  </div>
 
   <div class="main-content">
-    <div class="semester-tabs">
-      <div class="tab active" id="tabS1" onclick="switchSemester('S1')">1st Semester</div>
-      <div class="tab" id="tabS2" onclick="switchSemester('S2')">2nd Semester</div>
+    <!-- Overall Grade Card - Clickable to go to Grade Overview -->
+    <div class="progress-card" id="overallProgressCard">
+      <div class="progress-wrapper">
+        <div class="circular-progress">
+          <svg width="90" height="90" viewBox="0 0 100 100">
+            <circle class="bg-circle" cx="50" cy="50" r="42"/>
+            <circle class="progress-circle" id="overallCircle" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div class="progress-center">
+            <div class="progress-percentage" id="overallPct">0%</div>
+            <div class="overall-text">Avg</div>
+          </div>
+        </div>
+        <div class="performance-right">
+          <div class="label" id="perfLabel">1st Sem Performance</div>
+          <div class="big-number" id="overallBigNum">0%</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="overallBar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <table id="gradeTable">
-      <thead>
-        <tr>
-          <th>Subject</th>
-          <th>Q1</th>
-          <th>Q2</th>
-          <th>Q3</th>
-          <th>Q4</th>
-          <th>Final</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-
-    <div id="noDataMessage" class="no-data" style="display:none;">
-      No grades recorded yet for this semester.<br>
-      Start adding scores in the Grade Tracker.
-    </div>
+    <div class="section-title">Academic Load</div>
+    <div class="tip-text">Hold card to remove a subject</div>
+    <div class="subject-grid" id="subjectGrid"></div>
   </div>
 
   <div class="bottom-nav">
-    <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
     <div class="nav-item" onclick="window.location.href='reviewer.html'"><div class="nav-icon">📄</div>Reviewer</div>
     <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">👤</div>Profile</div>
   </div>
 </div>
 
-<!-- Preview Modal -->
-<div id="previewModal" class="modal">
+<!-- Modals -->
+<div id="deleteModal" class="modal">
   <div class="modal-content">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Quarter Preview</div>
-      <span class="close-btn" onclick="closeModal()">×</span>
+    <h3 style="color: #5E3A7E; margin-bottom: 8px;">Delete Subject?</h3>
+    <p style="font-size: 14px; color: #666; line-height: 1.4;">Removing <b id="targetSubDisplay" style="color: #EF9875;"></b> will permanently clear its scores for this semester.</p>
+    <div class="modal-buttons">
+      <button class="modal-btn btn-cancel" onclick="closeAllModals()">Cancel</button>
+      <button class="modal-btn btn-confirm" id="confirmDelete">Confirm</button>
     </div>
-    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div id="signoutModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color: #e07a5f; margin-bottom: 8px;">Sign Out?</h3>
+    <p style="font-size: 14px; color: #666;">Are you sure you want to end your session?</p>
+    <div class="modal-buttons">
+      <button class="modal-btn btn-cancel" onclick="closeAllModals()">Stay</button>
+      <button class="modal-btn btn-danger" id="confirmSignout">Sign Out</button>
+    </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -243,186 +237,160 @@
   const auth = getAuth(app);
   const database = getDatabase(app);
 
-  let currentUserId = null;
-  let subjects = {};
-  let scores = {};
+  let currentUid = null;
+  let subjectToDel = null;
+  let timer;
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  window.switchSemester = function(sem) {
-    currentSem = sem;
-    localStorage.setItem('lastSem', sem);
-    loadOverviewData();
+  // Modal Helper
+  window.closeAllModals = () => {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    subjectToDel = null;
   };
 
+  // Auth State
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      currentUserId = user.uid;
-      document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0];
-      loadOverviewData();
+      currentUid = user.uid;
+      const name = user.displayName || user.email.split('@')[0];
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('profileBtn').textContent = name[0].toUpperCase();
+      initToggle();
+      loadData();
     } else {
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     }
   });
 
-  function loadOverviewData() {
-    onValue(ref(database, `users/${currentUserId}/semesters/${currentSem}/subjects`), (snapshot) => {
-      subjects = snapshot.val() || {};
-      renderOverview();
+  // Click on Overall Progress Card → Go to Grade Overview
+  document.getElementById('overallProgressCard').addEventListener('click', () => {
+    window.location.href = 'gradeoverview.html';
+  });
+
+  // Sign Out
+  document.getElementById('openSignoutBtn').onclick = () => {
+    document.getElementById('dropdownMenu').classList.remove('show');
+    document.getElementById('signoutModal').style.display = 'flex';
+  };
+
+  document.getElementById('confirmSignout').onclick = () => {
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
     });
+  };
 
-    onValue(ref(database, `users/${currentUserId}/trackerScores/${currentSem}`), (snapshot) => {
-      scores = snapshot.val() || {};
-      renderOverview();
-    });
-
-    updateActiveTab();
-  }
-
-  function updateActiveTab() {
-    document.getElementById('tabS1').classList.toggle('active', currentSem === 'S1');
-    document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
-  }
-
-  // Check if a quarter is "complete" based on your criteria
-  function isQuarterComplete(subject, quarter) {
-    const data = scores[subject]?.[quarter];
-    if (!data) return false;
-
-    const hasQuiz = data.Quiz && Object.keys(data.Quiz).length > 0;
-    const hasActivity = data.Activity && Object.keys(data.Activity).length > 0;
-    const hasPETA = data.PETA && Object.keys(data.PETA).length > 0;
-    const hasExam = data.Exam && Object.keys(data.Exam).length > 0;
-
-    // Complete if all major components have at least one score
-    return hasQuiz && hasActivity && hasPETA && hasExam;
-  }
-
-  function shouldShowAsFinal(subject, quarter) {
-    const qNum = parseInt(quarter.replace('Q', ''));
+  function loadData() {
+    document.getElementById('perfLabel').textContent = `${currentSem === 'S1' ? '1st' : '2nd'} Sem Performance`;
     
-    // If this quarter is complete → show as final
-    if (isQuarterComplete(subject, quarter)) return true;
-
-    // If not complete, but next quarter has any data → treat as final
-    for (let next = qNum + 1; next <= 4; next++) {
-      if (scores[subject]?.[`Q${next}`]) {
-        return true;
-      }
-    }
-    return false;
+    onValue(ref(database, `users/${currentUid}`), (snapshot) => {
+      const data = snapshot.val() || {};
+      renderDashboard(
+        data.semesters?.[currentSem]?.subjects || {}, 
+        data.trackerScores?.[currentSem] || {}
+      );
+    });
   }
 
-  function calculateQuarterGrade(subject, quarter) {
-    const data = scores[subject]?.[quarter];
-    if (!data) return null;
+  function renderDashboard(subjects, scores) {
+    const grid = document.getElementById('subjectGrid');
+    grid.innerHTML = '';
+    let totalGrades = 0, count = 0;
 
-    const getAvg = (type) => {
-      if (!data[type]) return 0;
-      const values = Object.values(data[type]);
-      if (values.length === 0) return 0;
-      return (values.reduce((a, b) => a + (b.score / b.total), 0) / values.length) * 100;
+    Object.entries(subjects).forEach(([subName, type]) => {
+      const grade = calculateGrade(subName, type, scores[subName]);
+      totalGrades += grade;
+      count++;
+
+      const card = document.createElement('div');
+      card.className = 'subject-card';
+
+      // Long press to delete
+      card.onmousedown = card.ontouchstart = () => {
+        timer = setTimeout(() => {
+          subjectToDel = subName;
+          document.getElementById('targetSubDisplay').textContent = subName;
+          document.getElementById('deleteModal').style.display = 'flex';
+        }, 700);
+      };
+
+      card.onmouseup = card.ontouchend = () => {
+        clearTimeout(timer);
+        if (!subjectToDel) {
+          localStorage.setItem(`lastSub_${currentSem}`, subName);
+          window.location.href = 'tracker.html';
+        }
+      };
+
+      card.innerHTML = `
+        <div class="subject-name">${subName}</div>
+        <div class="subject-subtitle">${type}</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${grade}%"></div>
+        </div>
+        <div class="subject-grade-val">${grade.toFixed(1)}%</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    const avg = count > 0 ? (totalGrades / count) : 0;
+
+    // Update Overall Grade Display
+    document.getElementById('overallPct').textContent = Math.round(avg) + '%';
+    document.getElementById('overallBigNum').textContent = avg.toFixed(1) + '%';
+    document.getElementById('overallBar').style.width = avg + '%';
+    document.getElementById('overallCircle').style.strokeDashoffset = 263.89 - (avg / 100) * 263.89;
+  }
+
+  function calculateGrade(subName, type, subScores) {
+    if (!subScores) return 0;
+    let qs = [];
+    ['Q1','Q2','Q3','Q4'].forEach(q => {
+      const d = subScores[q];
+      if (d) {
+        const getAvg = (o) => {
+          if (!o) return 0;
+          const v = Object.values(o);
+          return (v.reduce((a,b) => a + (b.score / b.total), 0) / v.length) * 100;
+        };
+        const ww = (getAvg(d.Quiz) + getAvg(d.Activity)) / 2;
+        const isCore = type === 'core';
+        qs.push((ww * 0.25) + (getAvg(d.PETA) * (isCore ? 0.5 : 0.45)) + (getAvg(d.Exam) * (isCore ? 0.25 : 0.3)));
+      }
+    });
+    return qs.length ? (qs.reduce((a,b) => a + b) / qs.length) : 0;
+  }
+
+  function initToggle() {
+    const segments = document.querySelectorAll('.segment');
+    const glider = document.getElementById('glider');
+
+    const updateUI = (sem) => {
+      segments.forEach(s => s.classList.toggle('active', s.dataset.sem === sem));
+      glider.style.transform = sem === 'S1' ? 'translateX(0)' : 'translateX(100%)';
     };
 
-    const isCore = subjects[subject] === 'core';
-    const ww = (getAvg('Quiz') + getAvg('Activity')) / 2;
-    const pt = getAvg('PETA');
-    const ex = getAvg('Exam');
+    updateUI(currentSem);
 
-    const ptW = isCore ? 0.50 : 0.45;
-    const exW = isCore ? 0.25 : 0.30;
-
-    return (ww * 0.25) + (pt * ptW) + (ex * exW);
-  }
-
-  window.showQuarterPreview = function(subject, quarter) {
-    const data = scores[subject]?.[quarter];
-    const modalTitle = document.getElementById('modalTitle');
-    const modalContent = document.getElementById('modalContent');
-
-    modalTitle.textContent = `${subject} - ${quarter} Quarter`;
-
-    if (!data) {
-      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded.</p>`;
-    } else {
-      let html = '';
-      ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
-        if (data[type] && Object.keys(data[type]).length > 0) {
-          html += `<div style="margin:18px 0 8px; font-size:13px; font-weight:700; color:#6b5a7a;">${type}</div>`;
-          Object.keys(data[type]).forEach(key => {
-            const entry = data[type][key];
-            html += `
-              <div style="background:#fcfaff; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13.5px;">
-                <strong>${entry.score} / ${entry.total}</strong>
-                <div style="font-size:12px; color:#9C6A82; margin-top:3px;">${entry.date}</div>
-              </div>`;
-          });
-        }
-      });
-      modalContent.innerHTML = html || `<p style="text-align:center; color:#888; padding:30px;">No entries yet.</p>`;
-    }
-
-    document.getElementById('previewModal').style.display = 'flex';
-  };
-
-  window.closeModal = function() {
-    document.getElementById('previewModal').style.display = 'none';
-  };
-
-  function renderOverview() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-
-    const subjectList = Object.keys(subjects).sort();
-
-    if (subjectList.length === 0) {
-      document.getElementById('noDataMessage').style.display = 'block';
-      return;
-    }
-
-    document.getElementById('noDataMessage').style.display = 'none';
-
-    subjectList.forEach(subject => {
-      const row = document.createElement('tr');
-      let html = `<td class="subject-name">${subject}</td>`;
-
-      for (let q = 1; q <= 4; q++) {
-        const quarter = `Q${q}`;
-        const grade = calculateQuarterGrade(subject, quarter);
-
-        if (grade !== null && grade > 0) {
-          const isFinal = shouldShowAsFinal(subject, quarter);
-          const isLow = isFinal && grade < 60;
-
-          let className = 'grade';
-          if (isLow) className += ' low';
-
-          html += `<td class="${className}" onclick="showQuarterPreview('${subject}', '${quarter}')">${grade.toFixed(1)}</td>`;
-        } else {
-          html += `<td style="color:#ccc;">—</td>`;
-        }
-      }
-
-      // Final Semester Grade
-      const finalGrade = calculateFinalGrade(subject);
-      html += `<td class="final-grade">${finalGrade ? finalGrade.toFixed(1) : '—'}</td>`;
-
-      row.innerHTML = html;
-      tbody.appendChild(row);
+    segments.forEach(s => {
+      s.onclick = () => {
+        currentSem = s.dataset.sem;
+        localStorage.setItem('lastSem', currentSem);
+        updateUI(currentSem);
+        loadData();
+      };
     });
   }
 
-  function calculateFinalGrade(subject) {
-    let total = 0;
-    let count = 0;
-    for (let q = 1; q <= 4; q++) {
-      const grade = calculateQuarterGrade(subject, `Q${q}`);
-      if (grade !== null && grade > 0) {
-        total += grade;
-        count++;
-      }
-    }
-    return count > 0 ? total / count : null;
-  }
+  // Profile Dropdown
+  document.getElementById('profileBtn').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('dropdownMenu').classList.toggle('show');
+  };
+
+  document.addEventListener('click', () => {
+    document.getElementById('dropdownMenu').classList.remove('show');
+  });
 </script>
 </body>
 </html>
