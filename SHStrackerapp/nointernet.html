@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>No Internet | Academic Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f8f4fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 400px;
+      height: 92vh;
+      background: white;
+      border-radius: 40px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    /* Offline icon */
+    .offline-icon {
+      width: 100px;
+      height: 100px;
+      background: #f0e6f5;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .offline-icon svg {
+      width: 52px;
+      height: 52px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #2c1e3f;
+      margin-bottom: 12px;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #9C6A82;
+      line-height: 1.5;
+      margin-bottom: 32px;
+      max-width: 260px;
+    }
+
+    .reload-button {
+      background: linear-gradient(90deg, #5E3A7E, #7B4F9E);
+      border: none;
+      border-radius: 40px;
+      padding: 14px 32px;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(94, 58, 126, 0.3);
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .reload-button:active {
+      transform: scale(0.96);
+    }
+
+    /* Bottom nav (disabled state) */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e9dee4;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 28px;
+      opacity: 0.4;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #9C6A82;
+      font-size: 11px;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="main-content">
+    <!-- Offline icon -->
+    <div class="offline-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 18C12.5523 18 13 17.5523 13 17C13 16.4477 12.5523 16 12 16C11.4477 16 11 16.4477 11 17C11 17.5523 11.4477 18 12 18Z" fill="#5E3A7E" stroke="#5E3A7E" stroke-width="1.5"/>
+        <path d="M8 10C8 8.4087 8.63214 6.88258 9.75736 5.75736C10.8826 4.63214 12.4087 4 14 4C15.5913 4 17.1174 4.63214 18.2426 5.75736C19.3679 6.88258 20 8.4087 20 10" stroke="#5E3A7E" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 3"/>
+        <path d="M5 7C5 5.67392 5.52678 4.40215 6.46447 3.46447C7.40215 2.52678 8.67392 2 10 2" stroke="#9C6A82" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 3"/>
+        <path d="M3 13C3 11.4087 3.63214 9.88258 4.75736 8.75736C5.88258 7.63214 7.4087 7 9 7" stroke="#EF9875" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 3"/>
+        <path d="M2 20L22 4" stroke="#e07a5f" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <h1>No Internet</h1>
+    <p class="description">
+      Please check your connection and try again.
+    </p>
+
+    <button class="reload-button" id="reloadBtn">
+      ⟳ Reload
+    </button>
+  </div>
+
+  <!-- Bottom navigation (disabled look) -->
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+    <div class="nav-item"><div class="nav-icon">📊</div>Tracker</div>
+    <div class="nav-item"><div class="nav-icon">📄</div>Reviewer</div>
+    <div class="nav-item"><div class="nav-icon">👤</div>Profile</div>
+  </div>
+</div>
+
+<script>
+  const reloadBtn = document.getElementById('reloadBtn');
+  
+  // Simple reload - tries to reload the current page
+  reloadBtn.addEventListener('click', () => {
+    window.location.reload();
+  });
+  
+  // Optional: Listen for when connection comes back
+  window.addEventListener('online', () => {
+    // Auto reload when connection is restored
+    window.location.reload();
+  });
+</script>
+</body>
+</html>
