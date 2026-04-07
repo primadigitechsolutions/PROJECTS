@@ -34,10 +34,8 @@
       padding: 20px 24px;
       overflow-y: auto;
     }
-    .hero {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+
+    .hero { text-align: center; margin-bottom: 32px; }
     .badge {
       display: inline-block;
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
@@ -48,8 +46,6 @@
       border-radius: 50px;
       margin-bottom: 12px;
       letter-spacing: 0.5px;
-      position: relative;
-      overflow: hidden;
     }
     .badge::after {
       content: '✨';
@@ -63,70 +59,37 @@
       0%, 100% { opacity: 0.4; transform: scale(0.8); }
       50% { opacity: 1; transform: scale(1.2); }
     }
-    .title {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      font-size: 15.5px;
-      color: #666;
-      line-height: 1.4;
-    }
-    .features {
-      margin-bottom: 40px;
-    }
+    .title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+    .subtitle { font-size: 15.5px; color: #666; line-height: 1.4; }
+
+    .features { margin-bottom: 40px; }
     .feature {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      background: white;
-      padding: 18px 20px;
-      border-radius: 20px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 15px rgba(78, 53, 111, 0.06);
+      display: flex; align-items: flex-start; gap: 16px;
+      background: white; padding: 18px 20px; border-radius: 20px;
+      margin-bottom: 14px; box-shadow: 0 4px 15px rgba(78, 53, 111, 0.06);
       border: 1px solid #f0e6f0;
     }
-    .feature-icon {
-      font-size: 26px;
-      width: 36px;
-    }
-    .feature-text h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: #4E356F;
-      margin-bottom: 4px;
-    }
-    .feature-text p {
-      font-size: 14px;
-      color: #555;
-      line-height: 1.5;
-    }
+    .feature-icon { font-size: 26px; width: 36px; }
+    .feature-text h3 { font-size: 17px; font-weight: 700; color: #4E356F; margin-bottom: 4px; }
+    .feature-text p { font-size: 14px; color: #555; line-height: 1.5; }
 
-    /* Carousel - Fixed Most Popular banner + Center snapping */
-    .offers-section {
-      margin-bottom: 30px;
-    }
+    /* ==================== CAROUSEL ==================== */
+    .offers-section { margin-bottom: 30px; }
     .section-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #4E356F;
-      margin-bottom: 16px;
-      padding-left: 4px;
+      font-size: 18px; font-weight: 700; color: #4E356F;
+      margin-bottom: 16px; padding-left: 4px;
     }
 
     .carousel-container {
       margin: 0 -24px;
       padding: 0 24px;
-      position: relative;
     }
 
     .carousel {
       display: flex;
       overflow-x: auto;
-      gap: 16px;
-      padding: 20px 12px 28px 12px;   /* Extra top padding for banner */
+      gap: 20px;
+      padding: 20px 24px 30px 24px;     /* Important: generous side padding */
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
@@ -142,14 +105,14 @@
       box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
       border: 2px solid transparent;
       transition: all 0.3s ease;
-      scroll-snap-align: center;        /* Changed to center - this enables clicking side cards to center */
+      scroll-snap-align: center;           /* This makes tapping side cards center them */
       text-align: center;
       flex-shrink: 0;
       position: relative;
     }
     .offer-card.popular {
       border-color: #EF9875;
-      transform: scale(1.04);
+      transform: scale(1.05);
       z-index: 2;
     }
     .offer-card.popular::before {
@@ -164,28 +127,18 @@
       font-weight: 700;
       padding: 5px 18px;
       border-radius: 50px;
-      letter-spacing: 0.5px;
       box-shadow: 0 4px 12px rgba(239, 152, 117, 0.35);
       white-space: nowrap;
       z-index: 10;
     }
     .offer-duration {
-      font-size: 20px;
-      font-weight: 700;
-      color: #4E356F;
-      margin-bottom: 8px;
+      font-size: 20px; font-weight: 700; color: #4E356F; margin-bottom: 8px;
     }
     .offer-price {
-      font-size: 42px;
-      font-weight: 800;
-      color: #4E356F;
-      line-height: 1;
-      margin-bottom: 4px;
+      font-size: 42px; font-weight: 800; color: #4E356F; line-height: 1; margin-bottom: 4px;
     }
     .offer-price span {
-      font-size: 18px;
-      font-weight: 500;
-      opacity: 0.8;
+      font-size: 18px; font-weight: 500; opacity: 0.8;
     }
     .offer-btn {
       background: linear-gradient(90deg, #5E3A7E, #EF9875);
@@ -198,11 +151,8 @@
       border-radius: 16px;
       margin-top: 20px;
       cursor: pointer;
-      transition: 0.2s;
     }
-    .offer-btn:active {
-      transform: scale(0.96);
-    }
+    .offer-btn:active { transform: scale(0.96); }
   </style>
 </head>
 <body>
@@ -247,7 +197,7 @@
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
         <div id="offers-carousel" class="carousel">
-          <!-- Dynamically populated -->
+          <!-- Populated by JS -->
         </div>
       </div>
     </div>
@@ -297,8 +247,6 @@
 
   async function loadSubscriptionOffers() {
     const offersRef = ref(database, "subscriptionOffers");
-    const carousel = document.getElementById("offers-carousel");
-
     try {
       const snapshot = await get(offersRef);
       let offers = [];
