@@ -255,6 +255,67 @@
       margin-top: 8px;
     }
 
+    .premium-button {
+      background: linear-gradient(90deg, #EF9875, #e07a5f);
+      border: none;
+      border-radius: 40px;
+      padding: 8px 18px;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 8px rgba(239, 152, 117, 0.3);
+      margin-left: 12px;
+    }
+
+    .premium-button:active {
+      transform: scale(0.96);
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .premium-locked-card {
+      background: #fef8f0;
+      border: 1px dashed #EF9875;
+      text-align: center;
+      padding: 24px 20px;
+    }
+
+    .premium-locked-card .lock-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .premium-locked-card h4 {
+      color: #5E3A7E;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .premium-locked-card p {
+      font-size: 13px;
+      color: #9C6A82;
+      margin-bottom: 16px;
+    }
+
+    .premium-upsell-btn {
+      background: #EF9875;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
     .logout-btn {
       width: 100%;
       padding: 18px;
@@ -387,7 +448,7 @@
     </div>
   </div>
 
-  <!-- Profile header (like dashboard style) -->
+  <!-- Profile header -->
   <div class="profile-header">
     <div class="profile-avatar" id="profileAvatar">?</div>
     <div class="profile-name" id="profileName">Loading...</div>
@@ -396,8 +457,8 @@
 
   <!-- Scrollable content -->
   <div class="main-scroll">
-    <!-- ACADEMIC OVERALL CARD (combined sem average) -->
-    <div class="progress-card" id="academicOverviewCard">
+    <!-- ACADEMIC OVERVIEW (visible only for premium) -->
+    <div id="academicOverviewContainer" class="progress-card" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div class="section-title" style="margin-bottom: 0;">Overall Standing</div>
         <div id="honorChip" style="font-size: 11px; font-weight: 700; background: #f0e6f5; padding: 4px 12px; border-radius: 40px;">—</div>
@@ -424,14 +485,25 @@
       </div>
     </div>
 
-    <!-- SUBSCRIPTION CARD (expiry / lifetime) -->
+    <!-- Premium Locked Placeholder (shown for non-premium) -->
+    <div id="premiumLockedCard" class="progress-card premium-locked-card" style="display: none;">
+      <div class="lock-icon">🔒✨</div>
+      <h4>Academic Insights Locked</h4>
+      <p>Your combined average & honor eligibility are premium features.<br>Upgrade to see your full academic standing and unlock predictions.</p>
+      <button class="premium-upsell-btn" id="upsellPremiumBtn">Go Premium →</button>
+    </div>
+
+    <!-- SUBSCRIPTION CARD (with Go Premium button if needed) -->
     <div class="progress-card">
-      <div class="section-title">Premium Access</div>
-      <div id="subscriptionStatus" style="font-size: 14px; font-weight: 600; color: #2c1e3f; margin-top: 6px;">Loading subscription...</div>
+      <div class="flex-between">
+        <div class="section-title" style="margin-bottom: 0;">Premium Access</div>
+        <div id="premiumButtonWrapper"></div>
+      </div>
+      <div id="subscriptionStatus" style="font-size: 14px; font-weight: 600; color: #2c1e3f; margin-top: 12px;">Loading subscription...</div>
       <div id="premiumExpiryDetail" style="font-size: 12px; color: #9C6A82; margin-top: 6px;"></div>
     </div>
 
-    <!-- ACCOUNT DETAILS (same as before but styled) -->
+    <!-- ACCOUNT DETAILS -->
     <div class="section-title" style="margin-bottom: 6px;">Account Details</div>
     <div class="info-card">
       <div class="info-item">
@@ -451,7 +523,7 @@
     <button class="logout-btn" id="signOutTrigger">Sign Out</button>
   </div>
 
-  <!-- Bottom Navigation (active profile) -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
@@ -480,9 +552,10 @@
   const database = getDatabase(app);
 
   let currentUid = null;
-  let honorThreshold = 90; // default
+  let honorThreshold = 90;
   let combinedAverage = 0;
   let totalSubjectsCount = 0;
+  let isPremiumActive = false; // track premium status
 
   // Helper: compute grade for a subject using same logic as dashboard
   function calculateGrade(subjectName, subjectType, subjectScores) {
@@ -535,7 +608,7 @@
       const semScores = trackerScores?.[sub.sem] || {};
       const subjectScoreData = semScores[sub.name] || null;
       const grade = calculateGrade(sub.name, sub.type, subjectScoreData);
-      if (grade > 0 || subjectScoreData) { // include even zero if has structure
+      if (grade > 0 || subjectScoreData) {
         totalGradeSum += grade;
         validCount++;
       } else if (subjectScoreData === undefined && Object.keys(semScores).length === 0) {
@@ -567,7 +640,7 @@
     }
   }
 
-  // Update UI with combined average & honor status
+  // Update academic UI (only called when premium is active)
   function updateAcademicUI(avg, threshold) {
     const percentRounded = Math.round(avg);
     document.getElementById('combinedPercent').textContent = percentRounded + '%';
@@ -602,49 +675,99 @@
     }
   }
 
-  // Premium subscription display
+  // Premium subscription display + toggle visibility of academic card / locked card + button
   function updatePremiumUI(premiumValue) {
     const statusDiv = document.getElementById('subscriptionStatus');
     const expiryDetail = document.getElementById('premiumExpiryDetail');
+    const buttonWrapper = document.getElementById('premiumButtonWrapper');
+    const academicCard = document.getElementById('academicOverviewContainer');
+    const lockedCard = document.getElementById('premiumLockedCard');
+    
+    let active = false;
+    let expiryText = '';
+    let statusText = '';
+    
     if (premiumValue === -1) {
-      statusDiv.innerHTML = '👑 Lifetime Premium';
-      statusDiv.style.color = '#EF9875';
-      expiryDetail.innerHTML = 'Active forever · Unlimited access';
+      active = true;
+      statusText = '👑 Lifetime Premium';
+      expiryText = 'Active forever · Unlimited access';
+      buttonWrapper.innerHTML = ''; // no button for lifetime
     } else if (typeof premiumValue === 'number' && premiumValue > 0) {
       const expiryDate = new Date(premiumValue);
       const now = Date.now();
       if (now < premiumValue) {
-        statusDiv.innerHTML = '✨ Premium Active';
-        statusDiv.style.color = '#5E3A7E';
-        expiryDetail.innerHTML = `Valid until ${expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+        active = true;
+        statusText = '✨ Premium Active';
+        expiryText = `Valid until ${expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+        buttonWrapper.innerHTML = '';
       } else {
-        statusDiv.innerHTML = '⏰ Premium Expired';
-        statusDiv.style.color = '#9C6A82';
-        expiryDetail.innerHTML = 'Renew to unlock grade insights & advanced analytics';
+        active = false;
+        statusText = '⏰ Premium Expired';
+        expiryText = 'Renew to unlock grade insights & advanced analytics';
+        buttonWrapper.innerHTML = '<button class="premium-button" id="goPremiumBtn">Go Premium →</button>';
       }
     } else {
-      statusDiv.innerHTML = '🔓 Free Account';
-      statusDiv.style.color = '#9C6A82';
-      expiryDetail.innerHTML = 'Upgrade to Premium for detailed grade predictions & advanced features.';
+      active = false;
+      statusText = '🔓 Free Account';
+      expiryText = 'Upgrade to Premium for detailed grade predictions & advanced features.';
+      buttonWrapper.innerHTML = '<button class="premium-button" id="goPremiumBtn">Go Premium →</button>';
+    }
+    
+    isPremiumActive = active;
+    statusDiv.innerHTML = statusText;
+    statusDiv.style.color = active ? '#5E3A7E' : '#9C6A82';
+    expiryDetail.innerHTML = expiryText;
+    
+    // Show/hide academic content based on premium status
+    if (active) {
+      academicCard.style.display = 'block';
+      lockedCard.style.display = 'none';
+      // Refresh academic data if we have current user data
+      if (currentUid) {
+        const userRef = ref(database, `users/${currentUid}`);
+        onValue(userRef, (snapshot) => {
+          const data = snapshot.val() || {};
+          const trackerScores = data.trackerScores || {};
+          const avg = computeCombinedAverage(data, trackerScores);
+          combinedAverage = avg;
+          totalSubjectsCount = (Object.keys(data.semesters?.S1?.subjects || {}).length + Object.keys(data.semesters?.S2?.subjects || {}).length);
+          updateAcademicUI(avg, honorThreshold);
+        }, { onlyOnce: true });
+      }
+    } else {
+      academicCard.style.display = 'none';
+      lockedCard.style.display = 'block';
+    }
+    
+    // Attach click listener for go premium button (if exists)
+    const premiumBtn = document.getElementById('goPremiumBtn');
+    if (premiumBtn) {
+      premiumBtn.onclick = () => {
+        window.location.href = 'premium.html';
+      };
+    }
+    const upsellBtn = document.getElementById('upsellPremiumBtn');
+    if (upsellBtn) {
+      upsellBtn.onclick = () => {
+        window.location.href = 'premium.html';
+      };
     }
   }
 
-  // Load all data: user profile from RTDB + semesters + scores + premium + threshold
+  // Load user data & subscribe to premium changes
   async function loadUserProfileAndAcademics(user) {
     if (!currentUid) return;
     
-    // Get user RTDB reference
     const userRef = ref(database, `users/${currentUid}`);
     const premiumRef = ref(database, `users/${currentUid}/premium`);
     
-    // Load threshold first (ensure it exists)
+    // Ensure threshold exists
     const thresholdVal = await ensureHonorThreshold();
     honorThreshold = thresholdVal;
     
-    // Listen to user data changes (subjects, scores, name, email)
+    // Listen to user data for profile display
     onValue(userRef, (snapshot) => {
       const data = snapshot.val() || {};
-      // Update profile display using RTDB name/email if available (fallback to auth)
       const rtdbName = data.name || user.displayName || user.email?.split('@')[0] || "Student";
       const rtdbEmail = data.email || user.email || "No email";
       document.getElementById('profileName').textContent = rtdbName;
@@ -653,38 +776,37 @@
       document.getElementById('userId').textContent = currentUid;
       document.getElementById('profileAvatar').innerHTML = rtdbName.charAt(0).toUpperCase();
       
-      // Member Since from auth metadata if available
       if (user.metadata.creationTime) {
         document.getElementById('createdAt').textContent = new Date(user.metadata.creationTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       } else {
         document.getElementById('createdAt').textContent = "—";
       }
       
-      // Get trackerScores
-      const trackerScores = data.trackerScores || {};
-      // Compute combined average across both semesters
-      const avg = computeCombinedAverage(data, trackerScores);
-      combinedAverage = avg;
-      totalSubjectsCount = (Object.keys(data.semesters?.S1?.subjects || {}).length + Object.keys(data.semesters?.S2?.subjects || {}).length);
-      updateAcademicUI(avg, honorThreshold);
+      // If premium is active, compute & show average (academic card already visible via premium UI)
+      if (isPremiumActive) {
+        const trackerScores = data.trackerScores || {};
+        const avg = computeCombinedAverage(data, trackerScores);
+        combinedAverage = avg;
+        totalSubjectsCount = (Object.keys(data.semesters?.S1?.subjects || {}).length + Object.keys(data.semesters?.S2?.subjects || {}).length);
+        updateAcademicUI(avg, honorThreshold);
+      }
     });
     
-    // Premium listener
+    // Listen to premium changes
     onValue(premiumRef, (snap) => {
       const premVal = snap.val();
-      if (premVal === undefined || premVal === null) updatePremiumUI(null);
-      else updatePremiumUI(premVal);
+      updatePremiumUI(premVal === undefined ? null : premVal);
     });
   }
-
-  // also re-check threshold if settings changed externally
+  
+  // Listen to threshold changes from settings
   function subscribeToThresholdChanges() {
     const settingsRef = ref(database, 'settings/honorthreshold');
     onValue(settingsRef, (snap) => {
       const val = snap.val();
       if (typeof val === 'number') {
         honorThreshold = val;
-        if (combinedAverage !== undefined) {
+        if (isPremiumActive && combinedAverage !== undefined) {
           updateAcademicUI(combinedAverage, honorThreshold);
         }
       }
@@ -695,7 +817,7 @@
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUid = user.uid;
-      // Ensure user document in RTDB has basic name/email (same as dashboard logic)
+      // Ensure user document has basic name/email
       const userRef = ref(database, `users/${currentUid}`);
       const snapshot = await get(userRef);
       const existing = snapshot.val() || {};
@@ -707,7 +829,6 @@
         await set(ref(database, `users/${currentUid}/email`), user.email);
       }
       
-      // Load full data
       await loadUserProfileAndAcademics(user);
       subscribeToThresholdChanges();
     } else {
