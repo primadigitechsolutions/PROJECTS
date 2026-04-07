@@ -29,6 +29,7 @@
       align-items: center;
       background: white;
       border-bottom: 1px solid #f0e6f5;
+      position: relative;
     }
     .greeting { font-size: 22px; font-weight: 700; color: #2c1e3f; }
     .greeting .role { color: #EF9875; font-size: 18px; }
@@ -68,15 +69,31 @@
     .btn-premium { background: #5E3A7E; color: white; }
     .btn-review { background: #EF9875; color: white; }
 
+    /* Dropdown - Properly aligned to profile circle */
     .dropdown-content {
-      display: none; position: absolute; right: 20px; top: 75px;
-      background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      border-radius: 16px; width: 200px; z-index: 1000;
-      border: 1px solid #f0e6f5; overflow: hidden;
+      display: none; 
+      position: absolute; 
+      right: 24px; 
+      top: 70px;           /* Adjusted to sit nicely below the circle */
+      background: white; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      border-radius: 16px; 
+      width: 200px; 
+      z-index: 1000;
+      border: 1px solid #f0e6f5; 
+      overflow: hidden;
     }
-    .dropdown-content.show { display: block; }
-    .dropdown-item { padding: 14px 18px; font-size: 14px; cursor: pointer; color: #2c1e3f; font-weight: 600; }
+    .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
+    .dropdown-item { 
+      padding: 14px 18px; 
+      font-size: 14.5px; 
+      cursor: pointer; 
+      color: #2c1e3f; 
+      font-weight: 600; 
+      text-align: left;
+    }
     .dropdown-item:active { background: #f8f4fa; }
+    .dropdown-item:last-child { color: #e07a5f; border-top: 1px solid #f0e6f5; }
 
     /* Modern Modal Design */
     .modal {
@@ -116,6 +133,8 @@
       width: 100%; max-height: 280px; border: 2px solid #f0e6f5;
       border-radius: 16px; object-fit: contain; background: #f8f4fa; margin: 15px 0;
     }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -123,9 +142,11 @@
     <div class="header">
       <div><div class="greeting">Admin Panel <span class="role">👑</span></div></div>
       <div class="profile-circle" id="profileBtn">A</div>
+      
+      <!-- Dropdown aligned properly to the circle -->
       <div class="dropdown-content" id="dropdownMenu">
         <div class="dropdown-item" id="settingsBtn">⚙️ Settings</div>
-        <div class="dropdown-item" style="color:#e07a5f; border-top:1px solid #f0e6f5" id="logoutBtn">🚪 Sign Out</div>
+        <div class="dropdown-item" id="logoutBtn">🚪 Sign Out</div>
       </div>
     </div>
     <div class="main-content">
@@ -178,7 +199,7 @@
     </div>
   </div>
 
-  <!-- Settings Modal - QR Upload -->
+  <!-- Settings Modal -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h3>Payment QR Code</h3>
@@ -347,7 +368,7 @@
         .catch(err => console.error(err));
     };
 
-    // ==================== AUTO QR CROP + COMPRESSION ====================
+    // QR Upload with Auto Crop + Compression
     function loadCurrentQR() {
       onValue(ref(database, 'settings/qrpayment'), (snapshot) => {
         const data = snapshot.val();
@@ -372,14 +393,12 @@
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          // 1. Source Canvas
           const sourceCanvas = document.createElement('canvas');
           const sCtx = sourceCanvas.getContext('2d');
           sourceCanvas.width = img.width;
           sourceCanvas.height = img.height;
           sCtx.drawImage(img, 0, 0);
 
-          // 2. Detect QR Code
           const imageData = sCtx.getImageData(0, 0, img.width, img.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
 
@@ -390,7 +409,6 @@
             const qrWidth = Math.max(loc.topRightCorner.x, loc.bottomRightCorner.x) - Math.min(loc.topLeftCorner.x, loc.bottomLeftCorner.x);
             const qrHeight = Math.max(loc.bottomLeftCorner.y, loc.bottomRightCorner.y) - Math.min(loc.topLeftCorner.y, loc.topRightCorner.y);
 
-            // 3. Padding and Max Size
             const padding = 15;
             const MAX_SIZE = 400;
             let finalW = qrWidth + padding * 2;
@@ -402,7 +420,6 @@
               finalH = finalH * ratio;
             }
 
-            // 4. Destination Canvas - Crop + Resize
             const destCanvas = document.createElement('canvas');
             const dCtx = destCanvas.getContext('2d');
             destCanvas.width = finalW;
@@ -414,10 +431,8 @@
               0, 0, finalW, finalH
             );
 
-            // 5. Compress to WebP 0.6 quality
             const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
 
-            // Save to Firebase
             set(ref(database, 'settings/qrpayment'), compressedBase64)
               .then(() => {
                 alert("✅ QR Code uploaded and compressed successfully!");
@@ -433,7 +448,7 @@
       reader.readAsDataURL(file);
     });
 
-    // UI Controls
+    // Dropdown & Search
     document.getElementById('profileBtn').onclick = e => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
