@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Login | Academic Portal</title>
   <style>
-    /* Your existing CSS remains unchanged */
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       background: #f8f4fa;
@@ -123,8 +122,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Modals (unchanged) -->
   <div class="modal-overlay" id="statusModal">
     <div class="modal-card">
       <div class="modal-icon icon-error" id="statusIcon">✕</div>
@@ -133,7 +130,6 @@
       <button class="modal-btn" onclick="document.getElementById('statusModal').style.display='none'">OK</button>
     </div>
   </div>
-
   <div class="modal-overlay" id="forgotModal">
     <div class="modal-card">
       <div class="modal-icon icon-info">?</div>
@@ -150,7 +146,6 @@
       </div>
     </div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import {
@@ -163,7 +158,6 @@
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
       authDomain: "shstrackerapp.firebaseapp.com",
@@ -172,23 +166,10 @@
       messagingSenderId: "807451936679",
       appId: "1:807451936679:web:37fa86f3b272afe9505882"
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-
     const wrapper = document.getElementById('mainWrapper');
-
-    // ====================== ADMIN OVERRIDE ======================
-    function checkAdminLogin(email, password) {
-      if (email.toLowerCase() === "administrator" && password === "Test1234") {
-        // Bypass Firebase and go directly to admin page
-        window.location.href = "administrator.html";
-        return true;
-      }
-      return false;
-    }
-
     // UI Helpers
     function showModal(title, msg, isSuccess = false) {
       document.getElementById('modalTitle').innerText = title;
@@ -198,10 +179,10 @@
       icon.className = isSuccess ? 'modal-icon icon-info' : 'modal-icon icon-error';
       document.getElementById('statusModal').style.display = 'flex';
     }
-
     // ====================== AUTH GUARD ======================
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Note: Google users are usually auto-verified, but we check for email/password users
         if (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com')) {
           window.location.href = "dashboard.html";
         } else {
@@ -212,26 +193,14 @@
         wrapper.style.display = "flex";
       }
     });
-
-    // ====================== LOGIN LOGIC (with Admin Check) ======================
+    // ====================== LOGIN LOGIC ======================
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-
-      if (!email || !password) {
-        return showModal("Wait!", "Please fill in all fields.");
-      }
-
-      // === ADMIN CHECK FIRST ===
-      if (checkAdminLogin(email, password)) {
-        return; // Admin login successful → redirected
-      }
-
-      // Normal Firebase login
+      if (!email || !password) return showModal("Wait!", "Please fill in all fields.");
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
         if (user.emailVerified) {
           window.location.href = "dashboard.html";
         } else {
@@ -242,29 +211,29 @@
         showModal("Login Failed", "Invalid email or password.");
       }
     });
-
-    // Google login remains unchanged
+    // ====================== GOOGLE LOGIN (WEB + NATIVE) ======================
     document.getElementById('googleBtn').addEventListener('click', async () => {
+      // 1. Android Native Check
       if (typeof Android !== 'undefined' && typeof Android.requestGoogleSignIn === 'function') {
+        console.log("🔄 Android app detected - Requesting native Google Sign-In");
         Android.requestGoogleSignIn();
         return;
       }
-
+      // 2. Standard Web Popup
       try {
         await signInWithPopup(auth, provider);
         window.location.href = "dashboard.html";
       } catch (error) {
-        if (error.code !== 'auth/popup-closed-by-user') {
-          showModal("Error", "Google sign-in failed.");
-        }
+        if (error.code !== 'auth/popup-closed-by-user') showModal("Error", "Google sign-in failed.");
       }
     });
-
+    // ====================== HANDLE NATIVE ANDROID CALLBACK ======================
     window.handleNativeGoogleLogin = async (googleIdToken) => {
       if (!googleIdToken) return console.error("No token received from Android");
       try {
         const credential = GoogleAuthProvider.credential(googleIdToken);
         await signInWithCredential(auth, credential);
+       
         setTimeout(() => {
           window.location.href = "dashboard.html";
         }, 800);
@@ -273,8 +242,7 @@
         showModal("Error", "Failed to authenticate via Android Google account.");
       }
     };
-
-    // Forgot Password (unchanged)
+    // ====================== FORGOT PASSWORD ======================
     const fModal = document.getElementById('forgotModal');
     document.getElementById('forgotBtn').onclick = () => fModal.style.display = 'flex';
     document.getElementById('closeForgot').onclick = () => fModal.style.display = 'none';
