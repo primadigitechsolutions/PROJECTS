@@ -69,7 +69,6 @@
     .btn-premium { background: #5E3A7E; color: white; }
     .btn-review { background: #EF9875; color: white; }
 
-    /* Dropdown aligned to profile circle */
     .dropdown-content {
       display: none; position: absolute; right: 24px; top: 70px;
       background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -95,15 +94,20 @@
       border-radius: 28px; padding: 28px 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       position: relative;
+      text-align: center;
     }
     .modal h3 {
       font-size: 22px; font-weight: 700; color: #5E3A7E; margin-bottom: 20px;
+    }
+    .modal p {
+      font-size: 15.5px; color: #555; margin-bottom: 20px; line-height: 1.5;
     }
     .modal-close {
       position: absolute; top: 16px; right: 20px;
       font-size: 28px; color: #aaa; cursor: pointer; line-height: 1;
     }
     .modal-close:hover { color: #555; }
+
     .form-group { margin-bottom: 20px; text-align: left; }
     .form-group label {
       display: block; font-size: 13.5px; margin-bottom: 8px; color: #666; font-weight: 600;
@@ -133,7 +137,6 @@
     <div class="header">
       <div><div class="greeting">Admin Panel <span class="role">👑</span></div></div>
       <div class="profile-circle" id="profileBtn">A</div>
-      
       <div class="dropdown-content" id="dropdownMenu">
         <div class="dropdown-item" id="settingsBtn">⚙️ Settings</div>
         <div class="dropdown-item" id="logoutBtn">🚪 Sign Out</div>
@@ -149,7 +152,7 @@
   <div id="premiumModal" class="modal">
     <div class="modal-content">
       <h3>Manage Premium</h3>
-      <p style="margin-bottom:24px; color:#555;">for <strong id="modalUserName"></strong></p>
+      <p>for <strong id="modalUserName"></strong></p>
       
       <div class="form-group">
         <label>Premium Type</label>
@@ -203,6 +206,15 @@
               style="background:#EF9875; color:white; padding:15px; border:none; border-radius:14px; font-weight:700; width:100%;">
         📤 Upload New QR
       </button>
+    </div>
+  </div>
+
+  <!-- Custom Message Modal -->
+  <div id="messageModal" class="modal">
+    <div class="modal-content">
+      <h3 id="messageTitle">Message</h3>
+      <p id="messageText" style="margin:20px 0;"></p>
+      <button class="modal-btn btn-confirm" onclick="closeMessageModal()">OK</button>
     </div>
   </div>
 
@@ -269,14 +281,14 @@
       });
     }
 
-    // Review Payment
+    // ==================== REVIEW PAYMENT ====================
     window.reviewPayment = async function(uid) {
       currentUserId = uid;
       const paymentRef = ref(database, `users/${uid}/payment`);
 
       try {
         const snapshot = await get(paymentRef);
-        if (!snapshot.exists()) return alert("No pending payment found.");
+        if (!snapshot.exists()) return showMessage("No pending payment found.", "Info");
 
         const payments = snapshot.val();
         const sortedKeys = Object.keys(payments).sort((a,b) => (payments[b].timestamp||0) - (payments[a].timestamp||0));
@@ -297,7 +309,7 @@
 
         document.getElementById('reviewModal').style.display = 'flex';
       } catch (err) {
-        alert("Error loading payment.");
+        showMessage("Error loading payment.", "Error");
       }
     };
 
@@ -310,27 +322,33 @@
       try {
         await update(ref(database, `users/${currentUserId}`), { premium: expiry });
         await remove(ref(database, `users/${currentUserId}/payment`));
-        alert(`✅ Premium granted for ${days} days!`);
         closeReviewModal();
+        showMessage(`Premium granted for ${days} days!`, "Success");
         loadAllUsers();
-      } catch (err) { alert("Error: " + err.message); }
+      } catch (err) {
+        showMessage("Error granting premium.", "Error");
+      }
     };
 
     window.declinePayment = async function() {
-      if (!currentUserId || !confirm("Decline this payment?")) return;
+      if (!currentUserId) return;
+      if (!await showConfirm("Decline this payment and remove all records?")) return;
+
       try {
         await remove(ref(database, `users/${currentUserId}/payment`));
-        alert("Payment declined.");
         closeReviewModal();
+        showMessage("Payment declined.", "Info");
         loadAllUsers();
-      } catch (err) { alert("Error: " + err.message); }
+      } catch (err) {
+        showMessage("Error declining payment.", "Error");
+      }
     };
 
     window.closeReviewModal = function() {
       document.getElementById('reviewModal').style.display = 'none';
     };
 
-    // Manage Premium
+    // ==================== MANAGE PREMIUM ====================
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -355,11 +373,15 @@
         if (d) value = new Date(d).getTime();
       }
       update(ref(database, `users/${currentUserId}`), { premium: value })
-        .then(() => { closePremiumModal(); loadAllUsers(); })
-        .catch(err => console.error(err));
+        .then(() => { 
+          closePremiumModal(); 
+          loadAllUsers(); 
+          showMessage("Premium settings updated.", "Success");
+        })
+        .catch(err => showMessage("Update failed.", "Error"));
     };
 
-    // QR Upload with Auto Crop + Compression
+    // ==================== QR UPLOAD WITH AUTO CROP ====================
     function loadCurrentQR() {
       onValue(ref(database, 'settings/qrpayment'), (snapshot) => {
         const data = snapshot.val();
@@ -416,22 +438,18 @@
             destCanvas.width = finalW;
             destCanvas.height = finalH;
 
-            dCtx.drawImage(
-              img,
-              x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2,
-              0, 0, finalW, finalH
-            );
+            dCtx.drawImage(img, x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2, 0, 0, finalW, finalH);
 
             const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
 
             set(ref(database, 'settings/qrpayment'), compressedBase64)
               .then(() => {
-                alert("✅ QR Code uploaded and compressed successfully!");
                 loadCurrentQR();
+                showMessage("QR Code uploaded and compressed successfully!", "Success");
               })
-              .catch(err => alert("Upload failed: " + err.message));
+              .catch(err => showMessage("Upload failed.", "Error"));
           } else {
-            alert("No QR code detected. Please try a clearer photo.");
+            showMessage("No QR code detected. Please try a clearer photo.", "Error");
           }
         };
         img.src = event.target.result;
@@ -442,6 +460,36 @@
     window.closeSettingsModal = function() {
       document.getElementById('settingsModal').style.display = 'none';
     };
+
+    // ==================== CUSTOM MODAL FUNCTIONS ====================
+    function showMessage(text, title = "Message") {
+      document.getElementById('messageTitle').textContent = title;
+      document.getElementById('messageText').innerHTML = text;
+      document.getElementById('messageModal').style.display = 'flex';
+    }
+
+    window.closeMessageModal = function() {
+      document.getElementById('messageModal').style.display = 'none';
+    };
+
+    async function showConfirm(message) {
+      return new Promise(resolve => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <h3>Confirm</h3>
+            <p>${message}</p>
+            <div class="modal-buttons">
+              <button class="modal-btn btn-cancel" onclick="this.closest('.modal').remove(); resolve(false);">Cancel</button>
+              <button class="modal-btn btn-confirm" onclick="this.closest('.modal').remove(); resolve(true);">Yes</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+      });
+    }
 
     // UI Controls
     document.getElementById('profileBtn').onclick = e => {
