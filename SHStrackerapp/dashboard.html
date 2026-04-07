@@ -249,10 +249,17 @@
     if (user) {
       currentUid = user.uid;
 
-      // Extract only the first name
+      // Get full name for database
+      let fullName = user.displayName || "";
+      if (!fullName && user.email) {
+        fullName = user.email.split('@')[0].replace(/[._-]/g, " ");
+      }
+      fullName = fullName.trim();
+
+      // Get first name only for greeting
       let firstName = "Student";
-      if (user.displayName) {
-        firstName = user.displayName.split(' ')[0];
+      if (fullName) {
+        firstName = fullName.split(' ')[0];
       } else if (user.email) {
         firstName = user.email.split('@')[0].split(/[._-]/)[0];
         firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
@@ -262,8 +269,8 @@
       document.getElementById('userEmail').textContent = user.email || "No email";
       document.getElementById('profileBtn').textContent = firstName[0].toUpperCase();
 
-      // Save both email and name to RTDB if they don't exist
-      ensureUserProfileInDatabase(user, firstName);
+      // Save full name and email to RTDB if they don't exist
+      ensureUserProfileInDatabase(user, fullName);
 
       initToggle();
       loadData();
@@ -273,8 +280,8 @@
     }
   });
 
-  // Create/Update email and name in RTDB if missing
-  function ensureUserProfileInDatabase(user, firstName) {
+  // Save full name and email to RTDB if missing
+  function ensureUserProfileInDatabase(user, fullName) {
     if (!user || !currentUid) return;
 
     const userRef = ref(database, `users/${currentUid}`);
@@ -286,14 +293,14 @@
       if (!data.email && user.email) {
         updates.email = user.email;
       }
-      if (!data.name && firstName && firstName !== "Student") {
-        updates.name = firstName;
+      if (!data.name && fullName) {
+        updates.name = fullName;
       }
 
-      // Only update if there are missing fields
+      // Only update if something is missing
       if (Object.keys(updates).length > 0) {
         set(ref(database, `users/${currentUid}`), { ...data, ...updates })
-          .then(() => console.log("✅ User profile (name & email) saved to RTDB"))
+          .then(() => console.log("✅ Full name & email saved to RTDB"))
           .catch((error) => console.error("❌ Failed to save user profile:", error));
       }
     }, { onlyOnce: true });
