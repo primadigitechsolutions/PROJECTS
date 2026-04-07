@@ -2,40 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Administrator Panel</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: #f8f4fa;
-      color: #2c1e3f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+    .phone-frame {
+      width: 100%; 
+      max-width: 400px; 
+      height: 92vh;
+      background: white; 
+      border-radius: 40px;
+      box-shadow: 0 25px 45px -12px rgba(78, 53, 111, 0.2);
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative;
+    }
+    .header { 
+      padding: 24px 24px 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      background: white;
+      border-bottom: 1px solid #f0e6f5;
+    }
+    .greeting { 
+      font-size: 22px; 
+      font-weight: 700; 
+      color: #2c1e3f; 
+    }
+    .greeting .role { 
+      color: #EF9875; 
+      font-size: 18px;
+    }
+    .profile-circle {
+      width: 42px; 
+      height: 42px;
+      background: #5E3A7E;
+      color: white; 
+      border-radius: 50%;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-weight: 700; 
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(94, 58, 126, 0.2);
+    }
+    .main-content { 
+      flex: 1; 
+      overflow-y: auto; 
       padding: 20px;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #5E3A7E;
+      background: #f8f4fa;
     }
     .search-bar {
       width: 100%;
-      padding: 12px 16px;
+      padding: 14px 16px;
       border: 2px solid #f0e6f5;
-      border-radius: 12px;
-      font-size: 16px;
+      border-radius: 14px;
+      font-size: 15px;
       margin-bottom: 20px;
+      background: white;
     }
     .user-table {
       width: 100%;
       border-collapse: collapse;
       background: white;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 25px rgba(78, 53, 111, 0.05);
     }
     .user-table th {
       background: #5E3A7E;
@@ -43,10 +86,12 @@
       padding: 14px 12px;
       text-align: left;
       font-weight: 600;
+      font-size: 13px;
     }
     .user-table td {
       padding: 14px 12px;
       border-bottom: 1px solid #f0e6f5;
+      font-size: 14px;
     }
     .user-table tr:hover {
       background: #fcfaff;
@@ -54,8 +99,9 @@
     .premium-status {
       padding: 6px 12px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
+      display: inline-block;
     }
     .no-premium { background: #ffebee; color: #e07a5f; }
     .active-premium { background: #e8f5e9; color: #4caf50; }
@@ -70,86 +116,135 @@
       font-size: 13px;
     }
     .btn-premium { background: #5E3A7E; color: white; }
-    .btn-lifetime { background: #EF9875; color: white; }
-    .btn-remove { background: #e07a5f; color: white; }
+
+    .dropdown-content {
+      display: none; 
+      position: absolute; 
+      right: 20px; 
+      top: 75px;
+      background: white; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-radius: 16px; 
+      width: 180px; 
+      z-index: 1000; 
+      border: 1px solid #f0e6f5;
+      overflow: hidden;
+    }
+    .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
+    .dropdown-item { 
+      padding: 14px 18px; 
+      font-size: 14px; 
+      cursor: pointer; 
+      color: #2c1e3f; 
+      font-weight: 600; 
+    }
+    .dropdown-item:active { background: #f8f4fa; }
 
     .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+      background: rgba(0,0,0,0.6); 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 2000; 
+      backdrop-filter: blur(4px);
     }
     .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 380px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      background: white; 
+      width: 85%; 
+      max-width: 340px; 
+      border-radius: 28px;
+      padding: 25px; 
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .modal h3 { margin-bottom: 15px; color: #5E3A7E; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; }
-    input[type="date"] {
+    .modal h3 { color: #5E3A7E; margin-bottom: 15px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    select, input[type="date"] {
       width: 100%;
-      padding: 10px;
-      border: 2px solid #f0e6f5;
-      border-radius: 10px;
-    }
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .modal-buttons button {
-      flex: 1;
       padding: 12px;
+      border: 2px solid #f0e6f5;
       border-radius: 12px;
-      font-weight: 700;
+      font-size: 15px;
     }
+    .modal-buttons { 
+      display: flex; 
+      gap: 12px; 
+      margin-top: 20px; 
+    }
+    .modal-btn { 
+      flex: 1; 
+      padding: 14px; 
+      border-radius: 16px; 
+      border: none; 
+      font-weight: 700; 
+      cursor: pointer; 
+      font-size: 14px; 
+    }
+    .btn-cancel { background: #f0e6f5; color: #5E3A7E; }
+    .btn-confirm { background: #5E3A7E; color: white; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>👑 Administrator Panel</h1>
-    <input type="text" id="searchInput" class="search-bar" placeholder="Search by name or email...">
+  <div class="phone-frame">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="greeting">Admin Panel <span class="role">👑</span></div>
+      </div>
+      <div class="profile-circle" id="profileBtn">A</div>
+      
+      <!-- Dropdown Menu -->
+      <div class="dropdown-content" id="dropdownMenu">
+        <div class="dropdown-item" style="color:#e07a5f;" id="logoutBtn">🚪 Sign Out</div>
+      </div>
+    </div>
 
-    <table class="user-table" id="userTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Premium Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="userList"></tbody>
-    </table>
+    <!-- Main Content -->
+    <div class="main-content">
+      <input type="text" id="searchInput" class="search-bar" placeholder="Search by name or email...">
+
+      <table class="user-table" id="userTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Premium</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Premium Modal -->
   <div id="premiumModal" class="modal">
     <div class="modal-content">
       <h3>Set Premium for <span id="modalUserName"></span></h3>
+      
       <div class="form-group">
         <label>Premium Type</label>
-        <select id="premiumType" style="width:100%; padding:10px; border-radius:10px; border:2px solid #f0e6f5;">
+        <select id="premiumType">
           <option value="none">No Premium</option>
           <option value="date">Premium until specific date</option>
           <option value="lifetime">Lifetime Premium</option>
         </select>
       </div>
+      
       <div class="form-group" id="dateGroup" style="display:none;">
-        <label>Premium Expires On</label>
+        <label>Expires On</label>
         <input type="date" id="expiryDate">
       </div>
+
       <div class="modal-buttons">
-        <button onclick="closeModal()" style="background:#f0e6f5; color:#5E3A7E;">Cancel</button>
-        <button onclick="savePremium()" style="background:#5E3A7E; color:white;">Save Changes</button>
+        <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn btn-confirm" onclick="savePremium()">Save Changes</button>
       </div>
     </div>
   </div>
@@ -171,10 +266,9 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    let currentUserId = null;   // For modal
+    let currentUserId = null;
     let allUsers = {};
 
-    // Load all users
     function loadAllUsers() {
       const usersRef = ref(database, 'users');
       onValue(usersRef, (snapshot) => {
@@ -190,45 +284,40 @@
       Object.entries(users).forEach(([uid, userData]) => {
         const name = userData.name || "No Name";
         const email = userData.email || "No Email";
-        let premiumHTML = `<span class="premium-status no-premium">No Premium</span>`;
+
+        let premiumHTML = `<span class="premium-status no-premium">None</span>`;
 
         if (userData.premium === -1) {
-          premiumHTML = `<span class="premium-status lifetime">Lifetime Premium</span>`;
+          premiumHTML = `<span class="premium-status lifetime">Lifetime</span>`;
         } else if (typeof userData.premium === 'number' && userData.premium > Date.now()) {
-          const date = new Date(userData.premium).toLocaleDateString();
+          const date = new Date(userData.premium).toLocaleDateString('en-US', {month:'short', day:'numeric'});
           premiumHTML = `<span class="premium-status active-premium">Until ${date}</span>`;
         }
 
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><strong>${name}</strong></td>
-          <td>${email}</td>
+          <td style="font-size:13px; color:#666;">${email}</td>
           <td>${premiumHTML}</td>
-          <td>
-            <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">Manage Premium</button>
-          </td>
+          <td><button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">Manage</button></td>
         `;
         tbody.appendChild(row);
       });
     }
 
-    // Search functionality
+    // Search
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase().trim();
-      const filtered = {};
-
-      Object.entries(allUsers).forEach(([uid, user]) => {
-        const name = (user.name || "").toLowerCase();
-        const email = (user.email || "").toLowerCase();
-        if (name.includes(term) || email.includes(term)) {
-          filtered[uid] = user;
-        }
-      });
-
+      const filtered = Object.fromEntries(
+        Object.entries(allUsers).filter(([_, user]) => 
+          (user.name || "").toLowerCase().includes(term) || 
+          (user.email || "").toLowerCase().includes(term)
+        )
+      );
       renderUsers(filtered);
     });
 
-    // Open modal
+    // Modal Functions
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -237,46 +326,52 @@
       document.getElementById('premiumType').value = 'none';
     };
 
-    // Toggle date input
-    document.getElementById('premiumType').addEventListener('change', function() {
-      document.getElementById('dateGroup').style.display = 
-        this.value === 'date' ? 'block' : 'none';
-    });
-
     window.closeModal = function() {
       document.getElementById('premiumModal').style.display = 'none';
     };
 
-    // Save premium status
+    document.getElementById('premiumType').addEventListener('change', function() {
+      document.getElementById('dateGroup').style.display = this.value === 'date' ? 'block' : 'none';
+    });
+
     window.savePremium = function() {
       if (!currentUserId) return;
 
       const type = document.getElementById('premiumType').value;
       let premiumValue = null;
 
-      if (type === 'lifetime') {
-        premiumValue = -1;                    // Lifetime
-      } else if (type === 'date') {
+      if (type === 'lifetime') premiumValue = -1;
+      else if (type === 'date') {
         const dateStr = document.getElementById('expiryDate').value;
-        if (dateStr) {
-          premiumValue = new Date(dateStr).getTime();   // Timestamp
-        }
+        if (dateStr) premiumValue = new Date(dateStr).getTime();
       }
-      // else 'none' → premiumValue remains null (removes premium)
 
-      const updates = {};
-      updates[`users/${currentUserId}/premium`] = premiumValue;
-
-      update(ref(database), updates)
+      update(ref(database), { [`users/${currentUserId}/premium`]: premiumValue })
         .then(() => {
-          alert("Premium status updated successfully!");
+          alert("✅ Premium status updated successfully!");
           closeModal();
         })
         .catch((error) => {
           console.error(error);
-          alert("Failed to update premium status.");
+          alert("❌ Failed to update.");
         });
     };
+
+    // Dropdown (Logout)
+    document.getElementById('profileBtn').onclick = (e) => {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('show');
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+      if (confirm("Sign out from Admin Panel?")) {
+        window.location.href = "index.html";   // Change if you have a different login page
+      }
+    };
+
+    document.addEventListener('click', () => {
+      document.getElementById('dropdownMenu').classList.remove('show');
+    });
 
     // Initialize
     loadAllUsers();
