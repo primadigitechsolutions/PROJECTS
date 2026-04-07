@@ -95,8 +95,12 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .grade:hover {
-      background: #f0e6f0;
+
+    /* Warning for low grades */
+    .grade.low {
+      color: #e07a5f !important;
+      background: #ffe8e8 !important;
+      border-radius: 8px;
     }
 
     .final-grade {
@@ -176,7 +180,6 @@
   <div class="greeting">Hi, <span id="userName">Student</span> 👋</div>
 
   <div class="main-content">
-    <!-- Semester Tabs -->
     <div class="semester-tabs">
       <div class="tab active" id="tabS1" onclick="switchSemester('S1')">1st Semester</div>
       <div class="tab" id="tabS2" onclick="switchSemester('S2')">2nd Semester</div>
@@ -202,7 +205,6 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><div class="nav-icon">🏠</div>Home</div>
     <div class="nav-item" onclick="window.location.href='tracker.html'"><div class="nav-icon">📊</div>Tracker</div>
@@ -218,9 +220,7 @@
       <div class="modal-title" id="modalTitle">Quarter Preview</div>
       <span class="close-btn" onclick="closeModal()">×</span>
     </div>
-    <div id="modalContent">
-      <!-- Dynamically filled by JavaScript -->
-    </div>
+    <div id="modalContent"></div>
   </div>
 </div>
 
@@ -283,6 +283,35 @@
     document.getElementById('tabS2').classList.toggle('active', currentSem === 'S2');
   }
 
+  // Check if a quarter is "complete" based on your criteria
+  function isQuarterComplete(subject, quarter) {
+    const data = scores[subject]?.[quarter];
+    if (!data) return false;
+
+    const hasQuiz = data.Quiz && Object.keys(data.Quiz).length > 0;
+    const hasActivity = data.Activity && Object.keys(data.Activity).length > 0;
+    const hasPETA = data.PETA && Object.keys(data.PETA).length > 0;
+    const hasExam = data.Exam && Object.keys(data.Exam).length > 0;
+
+    // Complete if all major components have at least one score
+    return hasQuiz && hasActivity && hasPETA && hasExam;
+  }
+
+  function shouldShowAsFinal(subject, quarter) {
+    const qNum = parseInt(quarter.replace('Q', ''));
+    
+    // If this quarter is complete → show as final
+    if (isQuarterComplete(subject, quarter)) return true;
+
+    // If not complete, but next quarter has any data → treat as final
+    for (let next = qNum + 1; next <= 4; next++) {
+      if (scores[subject]?.[`Q${next}`]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function calculateQuarterGrade(subject, quarter) {
     const data = scores[subject]?.[quarter];
     if (!data) return null;
@@ -305,7 +334,6 @@
     return (ww * 0.25) + (pt * ptW) + (ex * exW);
   }
 
-  // Show Preview Modal
   window.showQuarterPreview = function(subject, quarter) {
     const data = scores[subject]?.[quarter];
     const modalTitle = document.getElementById('modalTitle');
@@ -314,25 +342,22 @@
     modalTitle.textContent = `${subject} - ${quarter} Quarter`;
 
     if (!data) {
-      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded in this quarter.</p>`;
+      modalContent.innerHTML = `<p style="text-align:center; color:#888; padding:30px;">No scores recorded.</p>`;
     } else {
       let html = '';
-
       ['Quiz', 'Activity', 'PETA', 'Exam'].forEach(type => {
         if (data[type] && Object.keys(data[type]).length > 0) {
-          html += `<div style="margin: 18px 0 10px; font-size:13px; font-weight:700; color:#6b5a7a;">${type}</div>`;
-
+          html += `<div style="margin:18px 0 8px; font-size:13px; font-weight:700; color:#6b5a7a;">${type}</div>`;
           Object.keys(data[type]).forEach(key => {
             const entry = data[type][key];
             html += `
               <div style="background:#fcfaff; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13.5px;">
-                <div><strong>${entry.score} / ${entry.total}</strong></div>
+                <strong>${entry.score} / ${entry.total}</strong>
                 <div style="font-size:12px; color:#9C6A82; margin-top:3px;">${entry.date}</div>
               </div>`;
           });
         }
       });
-
       modalContent.innerHTML = html || `<p style="text-align:center; color:#888; padding:30px;">No entries yet.</p>`;
     }
 
@@ -358,7 +383,6 @@
 
     subjectList.forEach(subject => {
       const row = document.createElement('tr');
-
       let html = `<td class="subject-name">${subject}</td>`;
 
       for (let q = 1; q <= 4; q++) {
@@ -366,12 +390,19 @@
         const grade = calculateQuarterGrade(subject, quarter);
 
         if (grade !== null && grade > 0) {
-          html += `<td class="grade" onclick="showQuarterPreview('${subject}', '${quarter}')">${grade.toFixed(1)}</td>`;
+          const isFinal = shouldShowAsFinal(subject, quarter);
+          const isLow = isFinal && grade < 60;
+
+          let className = 'grade';
+          if (isLow) className += ' low';
+
+          html += `<td class="${className}" onclick="showQuarterPreview('${subject}', '${quarter}')">${grade.toFixed(1)}</td>`;
         } else {
           html += `<td style="color:#ccc;">—</td>`;
         }
       }
 
+      // Final Semester Grade
       const finalGrade = calculateFinalGrade(subject);
       html += `<td class="final-grade">${finalGrade ? finalGrade.toFixed(1) : '—'}</td>`;
 
