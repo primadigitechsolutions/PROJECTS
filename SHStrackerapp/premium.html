@@ -6,7 +6,7 @@
   <title>Premium | Academic Portal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-   
+  
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: linear-gradient(135deg, #f8f4fa 0%, #f0e6f5 100%);
@@ -29,13 +29,11 @@
     }
     .back-btn { font-size: 26px; cursor: pointer; color: #4E356F; }
     .page-title { font-size: 22px; font-weight: 700; }
-
-    .main-content { 
-      flex: 1; 
-      padding: 20px 24px; 
+    .main-content {
+      flex: 1;
+      padding: 20px 24px;
       overflow-y: auto;
     }
-
     .hero {
       text-align: center;
       margin-bottom: 32px;
@@ -65,7 +63,6 @@
       0%, 100% { opacity: 0.4; transform: scale(0.8); }
       50% { opacity: 1; transform: scale(1.2); }
     }
-
     .title {
       font-size: 28px;
       font-weight: 800;
@@ -77,7 +74,6 @@
       color: #666;
       line-height: 1.4;
     }
-
     .features {
       margin-bottom: 40px;
     }
@@ -106,6 +102,90 @@
       font-size: 14px;
       color: #555;
       line-height: 1.5;
+    }
+
+    /* Carousel Styles */
+    .offers-section {
+      margin-bottom: 30px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 16px;
+      padding-left: 4px;
+    }
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 16px;
+      padding-bottom: 12px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+    .offer-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px 20px;
+      width: 100%;
+      min-width: 260px;
+      box-shadow: 0 10px 30px rgba(78, 53, 111, 0.08);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      scroll-snap-align: start;
+      text-align: center;
+    }
+    .offer-card.popular {
+      border-color: #EF9875;
+      position: relative;
+    }
+    .offer-card.popular::before {
+      content: "MOST POPULAR";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #EF9875;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 16px;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+    }
+    .offer-duration {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4E356F;
+      margin-bottom: 8px;
+    }
+    .offer-price {
+      font-size: 42px;
+      font-weight: 800;
+      color: #4E356F;
+      line-height: 1;
+    }
+    .offer-price span {
+      font-size: 18px;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .offer-btn {
+      background: linear-gradient(90deg, #5E3A7E, #EF9875);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .offer-btn:active {
+      transform: scale(0.96);
     }
 
     .upgrade-card {
@@ -150,7 +230,6 @@
     <div class="page-title">Premium</div>
     <div style="width:24px;"></div>
   </div>
-
   <div class="main-content">
     <div class="hero">
       <div class="badge">PREMIUM</div>
@@ -182,7 +261,16 @@
       </div>
     </div>
 
-    <div class="upgrade-card">
+    <!-- Dynamic Subscription Offers Carousel -->
+    <div class="offers-section">
+      <div class="section-title">Choose your plan</div>
+      <div id="offers-carousel" class="carousel">
+        <!-- Populated dynamically by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Fallback / Monthly highlight card (kept for visual appeal) -->
+    <div class="upgrade-card" id="monthly-highlight" style="display: none;">
       <div style="font-size:15px; opacity:0.9;">Monthly Plan</div>
       <div class="price">₱149 <span>/ month</span></div>
       <p style="font-size:13.5px; margin-top:8px; opacity:0.85;">
@@ -198,7 +286,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -220,6 +308,7 @@
     if (user) {
       currentUid = user.uid;
       initializePremiumStatus();
+      loadSubscriptionOffers();
     } else {
       window.location.href = "login.html";
     }
@@ -228,24 +317,81 @@
   // Initialize premium field to 0 if it doesn't exist
   function initializePremiumStatus() {
     if (!currentUid) return;
-
     const premiumRef = ref(database, `users/${currentUid}/premium`);
-
     onValue(premiumRef, (snapshot) => {
       const premiumValue = snapshot.val();
-
-      // If premium key does not exist or is null/undefined, set it to 0
       if (premiumValue === null || premiumValue === undefined) {
         set(premiumRef, 0)
-          .then(() => {
-            console.log("Premium status initialized to 0 (no premium)");
-          })
-          .catch((error) => {
-            console.error("Error initializing premium status:", error);
-          });
+          .then(() => console.log("Premium status initialized to 0"))
+          .catch((error) => console.error("Error initializing premium status:", error));
       }
-    }, { onlyOnce: true }); // Run only once
+    }, { onlyOnce: true });
   }
+
+  // Load subscription offers from /subscriptionOffers or use defaults
+  async function loadSubscriptionOffers() {
+    const offersRef = ref(database, "subscriptionOffers");
+    const carousel = document.getElementById("offers-carousel");
+
+    try {
+      const snapshot = await get(offersRef);
+      let offers = [];
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        // Convert object to array if stored as object with keys
+        offers = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        }));
+      }
+
+      // Fallback to defaults if no data or empty
+      if (!offers.length) {
+        offers = [
+          { duration: "1 month", price: 49, period: "month" },
+          { duration: "6 months", price: 249, period: "6 months" },
+          { duration: "1 year", price: 499, period: "year" }
+        ];
+      }
+
+      renderOffers(offers);
+    } catch (error) {
+      console.error("Error loading subscription offers:", error);
+      // Fallback on error
+      renderOffers([
+        { duration: "1 month", price: 49, period: "month" },
+        { duration: "6 months", price: 249, period: "6 months" },
+        { duration: "1 year", price: 499, period: "year" }
+      ]);
+    }
+  }
+
+  function renderOffers(offers) {
+    const carousel = document.getElementById("offers-carousel");
+    carousel.innerHTML = "";
+
+    offers.forEach((offer, index) => {
+      const isPopular = index === 1; // Mark 6 months as popular (you can change logic)
+
+      const cardHTML = `
+        <div class="offer-card ${isPopular ? 'popular' : ''}">
+          <div class="offer-duration">${offer.duration}</div>
+          <div class="offer-price">₱${offer.price} <span>/${offer.period || 'mo'}</span></div>
+          <button class="offer-btn" onclick="handleUpgrade('${offer.duration}', ${offer.price})">
+            Choose Plan
+          </button>
+        </div>
+      `;
+      carousel.innerHTML += cardHTML;
+    });
+  }
+
+  // Example upgrade handler (replace alert with your actual purchase flow later)
+  window.handleUpgrade = function(duration, price) {
+    alert(`Selected: ${duration} plan - ₱${price}\n\nPremium upgrade coming soon!`);
+    // Future: integrate payment gateway or Firebase Functions here
+  };
 </script>
 </body>
 </html>
