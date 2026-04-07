@@ -249,7 +249,7 @@
   let timer;
   let currentSem = localStorage.getItem('lastSem') || 'S1';
 
-  // Premium validity in days (change as needed)
+  // Premium validity in days (only applies if value is a timestamp)
   const PREMIUM_VALIDITY_DAYS = 30;
 
   window.closeAllModals = () => {
@@ -272,7 +272,7 @@
     }
   });
 
-  // Check Premium Status and show badge
+  // Check Premium Status & Show Badge
   function checkPremiumStatus() {
     if (!currentUid) return;
 
@@ -282,23 +282,21 @@
       const premiumValue = snapshot.val();
       const badge = document.getElementById('premiumBadge');
 
-      if (premiumValue && premiumValue !== "none") {
-        const purchaseTime = Number(premiumValue);
-        const now = Date.now();
-        const daysPassed = (now - purchaseTime) / (1000 * 60 * 60 * 24);
-
-        if (daysPassed < PREMIUM_VALIDITY_DAYS) {
-          badge.style.display = 'block';   // Show Premium badge
-        } else {
-          badge.style.display = 'none';
-        }
-      } else {
+      if (premiumValue === true) {
+        badge.style.display = 'block';        // Lifetime / Permanent Premium
+      } 
+      else if (typeof premiumValue === 'number') {
+        // Timestamp-based premium
+        const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
+        badge.style.display = (daysPassed < PREMIUM_VALIDITY_DAYS) ? 'block' : 'none';
+      } 
+      else {
         badge.style.display = 'none';
       }
     });
   }
 
-  // Click on Overall Progress Card
+  // Click Handler for Overall Progress Card
   document.getElementById('overallProgressCard').addEventListener('click', () => {
     if (!currentUid) return;
 
@@ -307,19 +305,22 @@
     onValue(premiumRef, (snapshot) => {
       const premiumValue = snapshot.val();
 
-      if (!premiumValue || premiumValue === "none") {
-        window.location.href = 'premium.html';
-        return;
-      }
-
-      const purchaseTime = Number(premiumValue);
-      const now = Date.now();
-      const daysPassed = (now - purchaseTime) / (1000 * 60 * 60 * 24);
-
-      if (daysPassed < PREMIUM_VALIDITY_DAYS) {
+      if (premiumValue === true) {
+        // Permanent premium
         window.location.href = 'gradeoverview.html';
-      } else {
-        window.location.href = 'premium.html';   // Expired → go to premium page
+      } 
+      else if (typeof premiumValue === 'number') {
+        // Timestamp-based premium
+        const daysPassed = (Date.now() - premiumValue) / (1000 * 60 * 60 * 24);
+        if (daysPassed < PREMIUM_VALIDITY_DAYS) {
+          window.location.href = 'gradeoverview.html';
+        } else {
+          window.location.href = 'premium.html';   // Expired
+        }
+      } 
+      else {
+        // No premium or "none"
+        window.location.href = 'premium.html';
       }
     }, { onlyOnce: true });
   });
