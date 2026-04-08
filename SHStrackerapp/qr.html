@@ -2,116 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Auto-Max Image Compressor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vislexia Landing Page</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 40px; background: #f0f2f5; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .box { border: 2px dashed #ccc; padding: 20px; margin: 20px 0; cursor: pointer; }
-        .box:hover { border-color: #007bff; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; }
-        .savings { color: #28a745; font-weight: bold; font-size: 1.2rem; }
-        button { background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 1rem; cursor: pointer; display: none; margin: auto; }
-        img { max-width: 100%; height: auto; margin-top: 15px; border-radius: 4px; display: none; }
+        /* Modern reset and font imports */
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Lexend', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Gradient and Bokeh Background Effect */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #d9e7e9 0%, #ffffff 100%);
+            z-index: -1;
+        }
+
+        /* Simulated Bokeh circles */
+        .bokeh {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.5;
+        }
+
+        .circle-1 { width: 300px; height: 300px; background: #fff; top: 10%; left: 15%; }
+        .circle-2 { width: 200px; height: 200px; background: #fce4ec; top: 15%; right: 20%; }
+        .circle-3 { width: 250px; height: 250px; background: #fff; bottom: 10%; left: 5%; }
+        .circle-4 { width: 150px; height: 150px; background: #e3f2fd; bottom: 20%; right: 10%; }
+
+        /* Main Container */
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Title Styling with subtle glow */
+        h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            color: white;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 40px;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Subtitle Styling */
+        p {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-top: 20px;
+            line-height: 1.3;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Button Styling */
+        .start-btn {
+            margin-top: 30px;
+            background-color: #6a8d9d; /* Muted blue-grey from image */
+            color: white;
+            border: none;
+            padding: 15px 80px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .start-btn:hover {
+            background-color: #5a7a8a;
+            transform: scale(1.05);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Auto-Max Compressor</h2>
-    <p>Upload any image to instantly shrink it to the smallest possible size.</p>
-    
-    <div class="box" onclick="document.getElementById('fileInput').click()">
-        Click to Upload Image
-        <input type="file" id="fileInput" accept="image/*" hidden>
+    <div class="background">
+        <div class="bokeh circle-1"></div>
+        <div class="bokeh circle-2"></div>
+        <div class="bokeh circle-3"></div>
+        <div class="bokeh circle-4"></div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <strong>Original</strong>
-            <div id="oldSize">-</div>
-        </div>
-        <div class="stat-card">
-            <strong>Optimized</strong>
-            <div id="newSize">-</div>
-            <div id="pct" class="savings"></div>
-        </div>
+    <div class="container">
+        <h1>VISLEXIA</h1>
+        <p>Early Dyslexia Detection System via Eye-Tracking Analysis and Gamified Activities for Primary Students</p>
+        <button class="start-btn">START</button>
     </div>
-
-    <img id="preview">
-    <button id="dlBtn">Download Optimized Image</button>
-</div>
-
-<script>
-    const fileInput = document.getElementById('fileInput');
-    const oldSizeEl = document.getElementById('oldSize');
-    const newSizeEl = document.getElementById('newSize');
-    const pctEl = document.getElementById('pct');
-    const dlBtn = document.getElementById('dlBtn');
-    const preview = document.getElementById('preview');
-
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        oldSizeEl.innerText = (file.size / 1024).toFixed(1) + " KB";
-        
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                // AUTO-LOGIC: Hard cap width at 1000px for massive savings
-                let width = img.width;
-                let height = img.height;
-                const MAX_DIM = 1000; 
-
-                if (width > height) {
-                    if (width > MAX_DIM) {
-                        height *= MAX_DIM / width;
-                        width = MAX_DIM;
-                    }
-                } else {
-                    if (height > MAX_DIM) {
-                        width *= MAX_DIM / height;
-                        height = MAX_DIM;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // QUALITY: Set to 0.4 (Aggressive but decent looking)
-                // FORMAT: WebP is 30% smaller than JPG
-                const dataUrl = canvas.toDataURL('image/webp', 0.4);
-                
-                // Calculate size from base64
-                const newSizeBytes = Math.round((dataUrl.length - 22) * 3 / 4);
-                newSizeEl.innerText = (newSizeBytes / 1024).toFixed(1) + " KB";
-                
-                // Show % savings
-                const savings = Math.round((1 - (newSizeBytes / file.size)) * 100);
-                pctEl.innerText = `-${savings}%`;
-
-                // Update UI
-                preview.src = dataUrl;
-                preview.style.display = "block";
-                dlBtn.style.display = "block";
-                dlBtn.onclick = () => {
-                    const link = document.createElement('a');
-                    link.href = dataUrl;
-                    link.download = `optimized_${file.name.split('.')[0]}.webp`;
-                    link.click();
-                };
-            };
-        };
-    });
-</script>
 
 </body>
 </html>
