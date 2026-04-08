@@ -87,6 +87,7 @@
       text-align: center;
       flex-shrink: 0;
       position: relative;
+      transition: all 0.2s ease;
     }
     .offer-card.popular {
       border-color: #EF9875;
@@ -121,6 +122,7 @@
       border-radius: 16px;
       margin-top: 20px;
       cursor: pointer;
+      transition: transform 0.1s ease;
     }
     .offer-btn:active { transform: scale(0.96); }
 
@@ -156,7 +158,9 @@
       margin: 20px 0;
       cursor: pointer;
       background: #faf8fc;
+      transition: background 0.2s;
     }
+    .upload-area:hover { background: #f5effa; }
     .upload-area input { display: none; }
 
     .modal-btn {
@@ -172,10 +176,22 @@
       cursor: pointer;
     }
     .modal-btn.secondary {
-      background: #ddd;
-      color: #333;
+      background: #e2dceb;
+      color: #4E356F;
     }
     .modal-btn:active { transform: scale(0.96); }
+    .loader {
+      text-align: center;
+      font-size: 14px;
+      color: #7a5c9e;
+      padding: 20px;
+    }
+    small.note {
+      display: block;
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -219,7 +235,9 @@
     <div class="offers-section">
       <div class="section-title">Choose your plan</div>
       <div class="carousel-container">
-        <div id="offers-carousel" class="carousel"></div>
+        <div id="offers-carousel" class="carousel">
+          <div class="loader">Loading subscription plans...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -256,12 +274,12 @@
     </div>
 
     <div class="upload-area" onclick="document.getElementById('proof-upload').click()">
-      <p style="margin-bottom:8px;">Upload Proof of Payment Receipt</p>
+      <p style="margin-bottom:8px;">📸 Upload Proof of Payment Receipt</p>
       <input type="file" id="proof-upload" accept="image/*" onchange="handleProofUpload(event)">
       <p id="file-name" style="font-size:13px; color:#666; margin-top:8px;"></p>
     </div>
 
-    <button class="modal-btn" onclick="submitProof()">Done</button>
+    <button class="modal-btn" onclick="submitProof()">Submit Payment</button>
     <button class="modal-btn secondary" onclick="closeProofModal()">Cancel</button>
   </div>
 </div>
@@ -271,8 +289,8 @@
   <div class="modal-content">
     <div class="modal-title">Payment on Review</div>
     <div class="modal-text">
-      Payment received, please wait for the confirmation of the payment to access the premium features.<br><br>
-      Thank you!
+      ✅ Payment received, please wait for the confirmation of the payment to access the premium features.<br><br>
+      Thank you for your patience!
     </div>
     <button class="modal-btn" onclick="closeReviewModal()">Okay</button>
   </div>
@@ -281,7 +299,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getDatabase, ref, get, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  import { getDatabase, ref, get, set, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -300,94 +318,166 @@
   let currentUid = null;
   let selectedDuration = "";
   let selectedPrice = 0;
+  let selectedPeriod = "";
   let proofBase64 = "";
   let qrBase64 = "";
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUid = user.uid;
-      initializePremiumStatus();
-      loadSubscriptionOffers();
-      loadQRCode();
-    } else {
-      window.location.href = "login.html";
-    }
-  });
+  // ---------- DEFAULT OFFERS (in DAYS format) ----------
+  const DEFAULT_OFFERS = [
+    { duration: "30 days", price: 49, period: "30 days", displayOrder: 1 },
+    { duration: "180 days", price: 249, period: "180 days", displayOrder: 2 },
+    { duration: "365 days", price: 499, period: "365 days", displayOrder: 3 }
+  ];
 
-  function initializePremiumStatus() {
-    if (!currentUid) return;
-    const premiumRef = ref(database, `users/${currentUid}/premium`);
-    onValue(premiumRef, (snapshot) => {
-      if (snapshot.val() === null || snapshot.val() === undefined) {
-        set(premiumRef, 0);
-      }
-    }, { onlyOnce: true });
-  }
-
-  async function loadSubscriptionOffers() {
+  // Helper: Write default offers to RTDB if "subscriptionOffers" node is empty or missing
+  async function seedDefaultOffersIfNeeded() {
     const offersRef = ref(database, "subscriptionOffers");
     try {
       const snapshot = await get(offersRef);
-      let offers = [];
+      if (!snapshot.exists()) {
+        console.log("No subscriptionOffers found in RTDB. Seeding default offers...");
+        // Create an object with unique keys for each offer (using duration as key for stability)
+        const offersMap = {};
+        DEFAULT_OFFERS.forEach((offer, idx) => {
+          const key = `plan_${idx + 1}`;
+          offersMap[key] = {
+            duration: offer.duration,
+            price: offer.price,
+            period: offer.period,
+            displayOrder: offer.displayOrder
+          };
+        });
+        await set(offersRef, offersMap);
+        console.log("Default subscription offers successfully added to database.");
+        return true;
+      } else {
+        // Additional safety: if data exists but missing required fields? 
+        // We will check if at least one offer has price/duration; else we merge defaults carefully.
+        const data = snapshot.val();
+        const existingOffers = Object.values(data);
+        if (existingOffers.length === 0 || !existingOffers.some(off => off.price && off.duration)) {
+          console.log("Existing offers structure invalid, merging default offers.");
+          const merged = { ...data };
+          DEFAULT_OFFERS.forEach((offer, idx) => {
+            const key = `plan_${idx + 1}`;
+            if (!merged[key]) {
+              merged[key] = {
+                duration: offer.duration,
+                price: offer.price,
+                period: offer.period,
+                displayOrder: offer.displayOrder
+              };
+            }
+          });
+          await set(offersRef, merged);
+        }
+        return false;
+      }
+    } catch (err) {
+      console.error("Error checking/seeding offers:", err);
+      return false;
+    }
+  }
+
+  // Load offers from RTDB (after ensuring defaults exist)
+  async function loadSubscriptionOffers() {
+    const carouselDiv = document.getElementById("offers-carousel");
+    carouselDiv.innerHTML = '<div class="loader">Loading plans...</div>';
+    
+    // First, ensure defaults are seeded if DB empty
+    await seedDefaultOffersIfNeeded();
+    
+    const offersRef = ref(database, "subscriptionOffers");
+    try {
+      const snapshot = await get(offersRef);
+      let offersArray = [];
       if (snapshot.exists()) {
         const data = snapshot.val();
-        offers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        // Convert object to array and sort by displayOrder if available, else index
+        offersArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        // Sort by displayOrder (low to high) to keep consistent order: 30d, 180d, 365d
+        offersArray.sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
       }
-
-      // Default values in DAYS format
-      if (!offers.length) {
-        offers = [
-          { duration: "30 days", price: 49, period: "30 days" },
-          { duration: "180 days", price: 249, period: "180 days" },
-          { duration: "365 days", price: 499, period: "365 days" }
-        ];
+      
+      // Final fallback: if still no offers after seed (should not happen but robust)
+      if (!offersArray.length) {
+        offersArray = DEFAULT_OFFERS.map((offer, idx) => ({ ...offer, id: `fallback_${idx}` }));
       }
-
-      renderOffers(offers);
+      
+      renderOffers(offersArray);
     } catch (error) {
       console.error("Error loading offers:", error);
-      renderOffers([
-        { duration: "30 days", price: 49, period: "30 days" },
-        { duration: "180 days", price: 249, period: "180 days" },
-        { duration: "365 days", price: 499, period: "365 days" }
-      ]);
+      // Fallback to display default offers in UI but don't write again to avoid loops
+      renderOffers(DEFAULT_OFFERS.map((offer, idx) => ({ ...offer, id: `fallback_${idx}` })));
     }
   }
 
   function renderOffers(offers) {
     const carousel = document.getElementById("offers-carousel");
     carousel.innerHTML = "";
+    if (!offers.length) {
+      carousel.innerHTML = '<div class="loader">No plans available. Please contact support.</div>';
+      return;
+    }
+    
     offers.forEach((offer, index) => {
-      const isPopular = index === 1; // 180 days as most popular
+      // Determine most popular: typically the 180 days plan OR the one with price around 249 and duration includes "180"
+      const isPopular = (offer.duration && (offer.duration.includes("180") || offer.duration === "180 days")) || 
+                        (offer.price === 249 && offer.duration.includes("180")) || 
+                        (index === 1 && offers.length >= 3);
+      const durationLabel = offer.duration || `${offer.period}`;
+      const priceVal = offer.price || 0;
+      const periodLabel = offer.period || offer.duration || "days";
+      
       carousel.innerHTML += `
         <div class="offer-card ${isPopular ? 'popular' : ''}">
-          <div class="offer-duration">${offer.duration}</div>
-          <div class="offer-price">₱${offer.price} <span>/${offer.period}</span></div>
-          <button class="offer-btn" onclick="showHowToModal('${offer.duration}', ${offer.price})">
+          <div class="offer-duration">${durationLabel}</div>
+          <div class="offer-price">₱${priceVal} <span>/${periodLabel}</span></div>
+          <button class="offer-btn" data-duration="${durationLabel.replace(/['"]/g, '&quot;')}" data-price="${priceVal}" data-period="${periodLabel.replace(/['"]/g, '&quot;')}">
             Choose Plan
           </button>
         </div>
       `;
     });
+    
+    // Attach event listeners after rendering (safer than inline onclick with special chars)
+    document.querySelectorAll('.offer-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const duration = btn.getAttribute('data-duration');
+        const price = parseInt(btn.getAttribute('data-price'), 10);
+        const period = btn.getAttribute('data-period');
+        showHowToModal(duration, price, period);
+      });
+    });
   }
 
+  // Load QR code from database (settings/qrpayment)
   async function loadQRCode() {
     try {
       const snapshot = await get(ref(database, "settings/qrpayment"));
       if (snapshot.exists()) {
         qrBase64 = snapshot.val();
+      } else {
+        // Placeholder fallback QR message (just informational)
+        qrBase64 = "";
       }
     } catch (e) { console.error("Failed to load QR", e); }
   }
 
-  window.showHowToModal = function(duration, price) {
+  // Show how-to modal with QR
+  window.showHowToModal = function(duration, price, period) {
     selectedDuration = duration;
     selectedPrice = price;
-    document.getElementById("modal-howto").style.display = "flex";
-
+    selectedPeriod = period || duration;
+    const modal = document.getElementById("modal-howto");
+    modal.style.display = "flex";
+    
     const img = document.getElementById("qr-image");
-    if (qrBase64) {
+    if (qrBase64 && qrBase64.trim() !== "") {
       img.src = qrBase64.startsWith("data:") ? qrBase64 : "data:image/png;base64," + qrBase64;
+    } else {
+      img.src = "https://placehold.co/300x300/f8f4fa/4E356F?text=QR+Code+Not+Set";
+      img.alt = "QR placeholder";
     }
   };
 
@@ -415,21 +505,17 @@
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-
         let width = img.width;
         let height = img.height;
         const MAX_WIDTH = 400;
-
         if (width > MAX_WIDTH) {
           height = height * (MAX_WIDTH / width);
           width = MAX_WIDTH;
         }
-
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
-
-        proofBase64 = canvas.toDataURL('image/webp', 0.6);
+        proofBase64 = canvas.toDataURL('image/webp', 0.7);
       };
       img.src = event.target.result;
     };
@@ -438,19 +524,23 @@
 
   window.submitProof = async function() {
     if (!proofBase64) {
-      alert("Please upload a proof of payment image.");
+      alert("📸 Please upload a proof of payment image (screenshot or receipt).");
+      return;
+    }
+    if (!currentUid) {
+      alert("User not authenticated. Please login again.");
       return;
     }
 
     const paymentRef = push(ref(database, `users/${currentUid}/payment`));
-
     const paymentData = {
       duration: selectedDuration,
       price: selectedPrice,
       amount: selectedPrice,
       proofImage: proofBase64,
       timestamp: Date.now(),
-      status: "pending"
+      status: "pending",
+      period: selectedPeriod
     };
 
     try {
@@ -469,6 +559,32 @@
   window.closeReviewModal = function() {
     document.getElementById("modal-review").style.display = "none";
   };
+
+  // Premium status initialization (ensuring premium flag exists)
+  function initializePremiumStatus() {
+    if (!currentUid) return;
+    const premiumRef = ref(database, `users/${currentUid}/premium`);
+    onValue(premiumRef, (snapshot) => {
+      if (snapshot.val() === null || snapshot.val() === undefined) {
+        set(premiumRef, 0).catch(e => console.warn("premium init:", e));
+      }
+    }, { onlyOnce: true });
+  }
+
+  // ------------------- Auth + Main Flow -------------------
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUid = user.uid;
+      initializePremiumStatus();
+      await loadQRCode();       // load QR from settings
+      await loadSubscriptionOffers(); // this will auto-seed default offers to RTDB if needed
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+  
+  // Additional: Expose utility for debugging (optional)
+  window.__debugSeedOffers = seedDefaultOffersIfNeeded;
 </script>
 </body>
 </html>
