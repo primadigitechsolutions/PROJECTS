@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Administrator Panel</title>
+  <title>Administrator Panel | Premium Plans Editor</title>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -72,18 +72,19 @@
     .dropdown-content {
       display: none; position: absolute; right: 24px; top: 70px;
       background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      border-radius: 16px; width: 200px; z-index: 1000;
+      border-radius: 16px; width: 220px; z-index: 1000;
       border: 1px solid #f0e6f5; overflow: hidden;
     }
     .dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
     .dropdown-item { 
       padding: 14px 18px; font-size: 14.5px; cursor: pointer; 
       color: #2c1e3f; font-weight: 600; text-align: left;
+      transition: background 0.15s;
     }
-    .dropdown-item:active { background: #f8f4fa; }
+    .dropdown-item:hover { background: #f5effa; }
     .dropdown-item:last-child { color: #e07a5f; border-top: 1px solid #f0e6f5; }
 
-    /* Modern Modal */
+    /* Modal Styles */
     .modal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.75); z-index: 2000;
@@ -95,6 +96,8 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       position: relative;
       text-align: center;
+      max-height: 85vh;
+      overflow-y: auto;
     }
     .modal h3 {
       font-size: 22px; font-weight: 700; color: #5E3A7E; margin-bottom: 20px;
@@ -112,9 +115,10 @@
     .form-group label {
       display: block; font-size: 13.5px; margin-bottom: 8px; color: #666; font-weight: 600;
     }
-    select, input[type="date"] {
+    select, input, textarea {
       width: 100%; padding: 14px 16px; border: 2px solid #f0e6f5;
       border-radius: 14px; font-size: 15px; background: white;
+      font-family: inherit;
     }
     .modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
     .modal-btn {
@@ -123,12 +127,38 @@
     }
     .btn-cancel { background: #eee; color: #333; }
     .btn-confirm { background: linear-gradient(90deg, #5E3A7E, #6B4A8A); color: white; }
+    .btn-danger { background: #e07a5f; color: white; }
 
     .proof-preview {
       width: 100%; max-height: 280px; border: 2px solid #f0e6f5;
       border-radius: 16px; object-fit: contain; background: #f8f4fa; margin: 15px 0;
     }
-
+    .qr-preview {
+      width: 100%; border-radius: 16px; background: #f8f4fa; padding: 8px;
+      border: 1px solid #eee;
+    }
+    .offer-item {
+      background: #f8f4fa; border-radius: 20px; padding: 16px;
+      margin-bottom: 12px; display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .offer-info { flex: 2; text-align: left; }
+    .offer-info strong { font-size: 16px; color: #4E356F; }
+    .offer-actions { display: flex; gap: 10px; }
+    .small-btn {
+      padding: 8px 14px; border-radius: 30px; font-size: 12px;
+      font-weight: 600; border: none; cursor: pointer;
+    }
+    .edit-offer { background: #5E3A7E; color: white; }
+    .delete-offer { background: #ffe0db; color: #e07a5f; }
+    .add-offer-btn {
+      background: linear-gradient(90deg, #EF9875, #e07a5f);
+      color: white; width: 100%; margin-top: 12px;
+      padding: 14px; border-radius: 20px; border: none;
+      font-weight: 700; font-size: 15px; cursor: pointer;
+    }
+    .offer-note { font-size: 12px; color: #999; margin-top: 8px; text-align: center; }
+    hr { margin: 20px 0; border-color: #f0e6f5; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -138,7 +168,7 @@
       <div><div class="greeting">Admin Panel <span class="role">👑</span></div></div>
       <div class="profile-circle" id="profileBtn">A</div>
       <div class="dropdown-content" id="dropdownMenu">
-        <div class="dropdown-item" id="settingsBtn">⚙️ Settings</div>
+        <div class="dropdown-item" id="settingsBtn">⚙️ Settings (QR & Plans)</div>
         <div class="dropdown-item" id="logoutBtn">🚪 Sign Out</div>
       </div>
     </div>
@@ -153,7 +183,6 @@
     <div class="modal-content">
       <h3>Manage Premium</h3>
       <p>for <strong id="modalUserName"></strong></p>
-      
       <div class="form-group">
         <label>Premium Type</label>
         <select id="premiumType">
@@ -166,7 +195,6 @@
         <label>Expires On</label>
         <input type="date" id="expiryDate">
       </div>
-
       <div class="modal-buttons">
         <button class="modal-btn btn-cancel" onclick="closePremiumModal()">Cancel</button>
         <button class="modal-btn btn-confirm" onclick="savePremium()">Save Changes</button>
@@ -183,7 +211,6 @@
         <p><strong>Price:</strong> ₱<span id="review-price"></span></p>
       </div>
       <img id="proofImage" class="proof-preview" src="" alt="Proof of Payment">
-      
       <div class="modal-buttons">
         <button class="modal-btn btn-cancel" onclick="declinePayment()">Decline</button>
         <button class="modal-btn btn-confirm" onclick="grantPremium()">Grant Premium</button>
@@ -192,20 +219,65 @@
     </div>
   </div>
 
-  <!-- QR Upload Modal with X button -->
+  <!-- Settings Modal: QR + Subscription Plans Editor -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeSettingsModal()">×</span>
-      <h3>Payment QR Code</h3>
-      <div id="qrPreviewContainer" style="margin:20px 0;">
-        <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none; width:100%; border-radius:16px;">
-        <div id="noQrMessage" style="padding:40px 0; color:#888; font-style:italic;">No QR code uploaded yet</div>
+      <h3>⚙️ Settings</h3>
+      
+      <!-- QR Code Section -->
+      <div style="background:#faf8fc; border-radius:20px; padding:16px; margin-bottom:24px;">
+        <h4 style="font-size:18px; margin-bottom:12px; color:#4E356F;">📱 Payment QR Code</h4>
+        <div id="qrPreviewContainer" style="margin:12px 0;">
+          <img id="qrPreview" class="qr-preview" src="" alt="Payment QR Code" style="display:none;">
+          <div id="noQrMessage" style="padding:20px 0; color:#888; font-style:italic;">No QR code uploaded</div>
+        </div>
+        <input type="file" id="qrUpload" accept="image/*" style="display:none;">
+        <button onclick="document.getElementById('qrUpload').click()" 
+                style="background:#EF9875; color:white; padding:12px; border:none; border-radius:14px; font-weight:700; width:100%;">
+          📤 Upload New QR
+        </button>
       </div>
-      <input type="file" id="qrUpload" accept="image/*" style="display:none;">
-      <button onclick="document.getElementById('qrUpload').click()" 
-              style="background:#EF9875; color:white; padding:15px; border:none; border-radius:14px; font-weight:700; width:100%;">
-        📤 Upload New QR
-      </button>
+
+      <hr>
+      
+      <!-- Subscription Plans Editor Section -->
+      <div style="margin-top:8px;">
+        <h4 style="font-size:18px; margin-bottom:16px; color:#4E356F;">📦 Subscription Plans</h4>
+        <div id="offersListContainer" style="margin-bottom:20px;">
+          <div style="text-align:center; padding:20px; color:#aaa;">Loading plans...</div>
+        </div>
+        <button class="add-offer-btn" onclick="openOfferEditor(null)">+ Add New Plan</button>
+        <div class="offer-note">Plans appear in order. Most popular (middle) gets highlighted.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Editor Modal (Create/Edit) -->
+  <div id="offerModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeOfferModal()">×</span>
+      <h3 id="offerModalTitle">Edit Plan</h3>
+      <div class="form-group">
+        <label>Plan Name / Duration</label>
+        <input type="text" id="offerDuration" placeholder="e.g., 30 days, 3 months, 1 year" value="30 days">
+      </div>
+      <div class="form-group">
+        <label>Price (PHP)</label>
+        <input type="number" id="offerPrice" placeholder="49" value="49" min="1">
+      </div>
+      <div class="form-group">
+        <label>Period Label (shown after slash)</label>
+        <input type="text" id="offerPeriod" placeholder="e.g., 30 days, month" value="30 days">
+      </div>
+      <div class="form-group">
+        <label>Display Order (lower = appears first)</label>
+        <input type="number" id="offerOrder" placeholder="1,2,3..." value="1" min="1">
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-btn btn-cancel" onclick="closeOfferModal()">Cancel</button>
+        <button class="modal-btn btn-confirm" onclick="saveOffer()">Save Plan</button>
+      </div>
     </div>
   </div>
 
@@ -220,7 +292,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, onValue, update, set, remove, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, onValue, update, set, remove, get, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-E_V2GdszTfWmDZ3bfvRWl_zvXy4OzR8",
@@ -238,7 +310,9 @@
     let currentUserId = null;
     let allUsers = {};
     let currentReviewPayment = null;
+    let editingOfferKey = null; // key in subscriptionOffers node
 
+    // ------------------- LOAD USERS -------------------
     function loadAllUsers() {
       const usersRef = ref(database, 'users');
       onValue(usersRef, (snapshot) => {
@@ -250,11 +324,9 @@
     function renderUsers(users) {
       const grid = document.getElementById('userGrid');
       grid.innerHTML = '';
-
       Object.entries(users).forEach(([uid, userData]) => {
         const name = userData.name || "No Name";
         const email = userData.email || "No Email";
-
         let premiumHTML = `<span class="premium-status no-premium">No Premium</span>`;
         if (userData.premium === -1) {
           premiumHTML = `<span class="premium-status lifetime">Lifetime Premium</span>`;
@@ -262,93 +334,190 @@
           const date = new Date(userData.premium).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           premiumHTML = `<span class="premium-status active-premium">Until ${date}</span>`;
         }
-
         let reviewBtn = '';
         if (userData.payment && Object.keys(userData.payment).length > 0) {
           reviewBtn = `<button class="btn btn-review" onclick="reviewPayment('${uid}')">Review Payment</button>`;
         }
-
         const card = document.createElement('div');
         card.className = 'user-card';
         card.innerHTML = `
-          <div class="user-name">${name}</div>
-          <div class="user-email">${email}</div>
+          <div class="user-name">${escapeHtml(name)}</div>
+          <div class="user-email">${escapeHtml(email)}</div>
           ${premiumHTML}
-          <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${name.replace(/'/g, "\\'")}')">Manage Premium</button>
+          <button class="btn btn-premium" onclick="openPremiumModal('${uid}', '${escapeHtml(name).replace(/'/g, "\\'")}')">Manage Premium</button>
           ${reviewBtn}
         `;
         grid.appendChild(card);
       });
     }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
-    // ==================== REVIEW PAYMENT ====================
+    // ------------------- OFFERS / PLANS MANAGER (Multiple offers) -------------------
+    let currentOffers = {}; // store raw snapshot value
+
+    async function loadAndRenderOffers() {
+      const offersRef = ref(database, 'subscriptionOffers');
+      onValue(offersRef, (snapshot) => {
+        if (snapshot.exists()) {
+          currentOffers = snapshot.val();
+        } else {
+          currentOffers = {};
+        }
+        renderOffersList(currentOffers);
+      }, { onlyOnce: false });
+    }
+
+    function renderOffersList(offersObj) {
+      const container = document.getElementById('offersListContainer');
+      if (!container) return;
+      const offersArray = Object.entries(offersObj).map(([key, val]) => ({ key, ...val }));
+      offersArray.sort((a,b) => (a.displayOrder || 999) - (b.displayOrder || 999));
+      
+      if (offersArray.length === 0) {
+        container.innerHTML = '<div style="background:#f8f4fa; border-radius:20px; padding:20px; text-align:center; color:#999;">No subscription plans yet. Click + to create.</div>';
+        return;
+      }
+      
+      let html = '';
+      offersArray.forEach(offer => {
+        html += `
+          <div class="offer-item" data-key="${offer.key}">
+            <div class="offer-info">
+              <strong>${escapeHtml(offer.duration || 'Untitled')}</strong><br>
+              <span style="font-size:13px; color:#4E356F;">₱${offer.price || 0} / ${offer.period || offer.duration || 'plan'}</span>
+              <span style="font-size:11px; background:#f0e6f5; padding:2px 8px; border-radius:50px; margin-left:8px;">Order: ${offer.displayOrder || 'auto'}</span>
+            </div>
+            <div class="offer-actions">
+              <button class="small-btn edit-offer" onclick="openOfferEditor('${offer.key}')">✏️ Edit</button>
+              <button class="small-btn delete-offer" onclick="deleteOffer('${offer.key}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    window.openOfferEditor = function(offerKey = null) {
+      editingOfferKey = offerKey;
+      const modal = document.getElementById('offerModal');
+      const title = document.getElementById('offerModalTitle');
+      if (offerKey && currentOffers[offerKey]) {
+        const off = currentOffers[offerKey];
+        title.innerText = 'Edit Plan';
+        document.getElementById('offerDuration').value = off.duration || '';
+        document.getElementById('offerPrice').value = off.price || 49;
+        document.getElementById('offerPeriod').value = off.period || '';
+        document.getElementById('offerOrder').value = off.displayOrder || 1;
+      } else {
+        title.innerText = 'Create New Plan';
+        document.getElementById('offerDuration').value = '';
+        document.getElementById('offerPrice').value = 49;
+        document.getElementById('offerPeriod').value = '';
+        document.getElementById('offerOrder').value = Object.keys(currentOffers).length + 1;
+      }
+      modal.style.display = 'flex';
+    };
+
+    window.saveOffer = async function() {
+      const duration = document.getElementById('offerDuration').value.trim();
+      const price = parseInt(document.getElementById('offerPrice').value, 10);
+      const period = document.getElementById('offerPeriod').value.trim();
+      const displayOrder = parseInt(document.getElementById('offerOrder').value, 10);
+      
+      if (!duration) { showMessage("Plan duration is required.", "Error"); return; }
+      if (isNaN(price) || price <= 0) { showMessage("Please enter a valid price.", "Error"); return; }
+      
+      const offerData = {
+        duration: duration,
+        price: price,
+        period: period || duration,
+        displayOrder: displayOrder || 999,
+        updatedAt: Date.now()
+      };
+      
+      try {
+        const offersRef = ref(database, 'subscriptionOffers');
+        if (editingOfferKey && currentOffers[editingOfferKey]) {
+          await update(ref(database, `subscriptionOffers/${editingOfferKey}`), offerData);
+          showMessage("Plan updated successfully!", "Success");
+        } else {
+          const newRef = push(offersRef);
+          await set(newRef, offerData);
+          showMessage("New plan added!", "Success");
+        }
+        closeOfferModal();
+        // refresh list automatically via onValue
+      } catch (err) {
+        showMessage("Error saving plan: " + err.message, "Error");
+      }
+    };
+
+    window.deleteOffer = async function(offerKey) {
+      if (!confirm("Delete this subscription plan permanently?")) return;
+      try {
+        await remove(ref(database, `subscriptionOffers/${offerKey}`));
+        showMessage("Plan deleted.", "Info");
+      } catch (err) {
+        showMessage("Delete failed: " + err.message, "Error");
+      }
+    };
+
+    window.closeOfferModal = function() {
+      document.getElementById('offerModal').style.display = 'none';
+      editingOfferKey = null;
+    };
+
+    // ------------------- REVIEW PAYMENT -------------------
     window.reviewPayment = async function(uid) {
       currentUserId = uid;
       const paymentRef = ref(database, `users/${uid}/payment`);
-
       try {
         const snapshot = await get(paymentRef);
         if (!snapshot.exists()) return showMessage("No pending payment found.", "Info");
-
         const payments = snapshot.val();
         const sortedKeys = Object.keys(payments).sort((a,b) => (payments[b].timestamp||0) - (payments[a].timestamp||0));
         const latestPayment = payments[sortedKeys[0]];
-
         currentReviewPayment = { data: latestPayment };
-
         document.getElementById('review-duration').textContent = latestPayment.duration || 'N/A';
         document.getElementById('review-price').textContent = latestPayment.price || '0';
-
         const imgEl = document.getElementById('proofImage');
         if (latestPayment.proofImage) {
-          imgEl.src = latestPayment.proofImage.startsWith('data:') ? latestPayment.proofImage : 'data:image/webp;base64,' + latestPayment.proofImage;
+          imgEl.src = latestPayment.proofImage;
           imgEl.style.display = 'block';
-        } else {
-          imgEl.style.display = 'none';
-        }
-
+        } else { imgEl.style.display = 'none'; }
         document.getElementById('reviewModal').style.display = 'flex';
-      } catch (err) {
-        showMessage("Error loading payment.", "Error");
-      }
+      } catch (err) { showMessage("Error loading payment.", "Error"); }
     };
 
     window.grantPremium = async function() {
       if (!currentReviewPayment || !currentUserId) return;
       const durationStr = currentReviewPayment.data.duration || "30 days";
-      const days = parseInt(durationStr) || 30;
+      let days = parseInt(durationStr) || 30;
+      if (durationStr.toLowerCase().includes('month')) days = days * 30;
+      else if (durationStr.toLowerCase().includes('year')) days = days * 365;
       const expiry = Date.now() + (days * 86400000);
-
       try {
         await update(ref(database, `users/${currentUserId}`), { premium: expiry });
         await remove(ref(database, `users/${currentUserId}/payment`));
         closeReviewModal();
         showMessage(`Premium granted for ${days} days!`, "Success");
         loadAllUsers();
-      } catch (err) {
-        showMessage("Error granting premium.", "Error");
-      }
+      } catch (err) { showMessage("Error granting premium.", "Error"); }
     };
 
     window.declinePayment = async function() {
       if (!currentUserId) return;
-      if (!await showConfirm("Decline this payment and remove all records?")) return;
-
+      if (!confirm("Decline this payment and remove all records?")) return;
       try {
         await remove(ref(database, `users/${currentUserId}/payment`));
         closeReviewModal();
         showMessage("Payment declined.", "Info");
         loadAllUsers();
-      } catch (err) {
-        showMessage("Error declining payment.", "Error");
-      }
+      } catch (err) { showMessage("Error declining payment.", "Error"); }
     };
+    window.closeReviewModal = () => document.getElementById('reviewModal').style.display = 'none';
 
-    window.closeReviewModal = function() {
-      document.getElementById('reviewModal').style.display = 'none';
-    };
-
-    // ==================== MANAGE PREMIUM ====================
+    // ------------------- PREMIUM MANAGEMENT -------------------
     window.openPremiumModal = function(uid, name) {
       currentUserId = uid;
       document.getElementById('modalUserName').textContent = name;
@@ -356,13 +525,10 @@
       document.getElementById('dateGroup').style.display = 'none';
       document.getElementById('premiumType').value = 'none';
     };
-
     window.closePremiumModal = () => document.getElementById('premiumModal').style.display = 'none';
-
-    document.getElementById('premiumType').addEventListener('change', function() {
+    document.getElementById('premiumType')?.addEventListener('change', function() {
       document.getElementById('dateGroup').style.display = this.value === 'date' ? 'block' : 'none';
     });
-
     window.savePremium = function() {
       if (!currentUserId) return;
       const type = document.getElementById('premiumType').value;
@@ -371,85 +537,71 @@
       else if (type === 'date') {
         const d = document.getElementById('expiryDate').value;
         if (d) value = new Date(d).getTime();
+        else { showMessage("Select a date", "Error"); return; }
       }
       update(ref(database, `users/${currentUserId}`), { premium: value })
-        .then(() => { 
-          closePremiumModal(); 
-          loadAllUsers(); 
-          showMessage("Premium settings updated.", "Success");
-        })
+        .then(() => { closePremiumModal(); loadAllUsers(); showMessage("Premium updated.", "Success"); })
         .catch(err => showMessage("Update failed.", "Error"));
     };
 
-    // ==================== QR UPLOAD WITH AUTO CROP ====================
+    // ------------------- QR UPLOAD (auto crop via jsQR) -------------------
     function loadCurrentQR() {
-      onValue(ref(database, 'settings/qrpayment'), (snapshot) => {
+      const qrRef = ref(database, 'settings/qrpayment');
+      onValue(qrRef, (snapshot) => {
         const data = snapshot.val();
         const img = document.getElementById('qrPreview');
         const msg = document.getElementById('noQrMessage');
-        if (data) {
+        if (data && data.startsWith('data:')) {
           img.src = data;
           img.style.display = 'block';
-          msg.style.display = 'none';
+          if(msg) msg.style.display = 'none';
+        } else if (data) {
+          img.src = 'data:image/png;base64,' + data;
+          img.style.display = 'block';
+          if(msg) msg.style.display = 'none';
         } else {
           img.style.display = 'none';
-          msg.style.display = 'block';
+          if(msg) msg.style.display = 'block';
         }
-      }, { onlyOnce: true });
+      }, { onlyOnce: false });
     }
 
-    document.getElementById('qrUpload').addEventListener('change', (e) => {
+    document.getElementById('qrUpload')?.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          const sourceCanvas = document.createElement('canvas');
-          const sCtx = sourceCanvas.getContext('2d');
-          sourceCanvas.width = img.width;
-          sourceCanvas.height = img.height;
-          sCtx.drawImage(img, 0, 0);
-
-          const imageData = sCtx.getImageData(0, 0, img.width, img.height);
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, img.width, img.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
-
           if (code) {
             const loc = code.location;
             const x = Math.min(loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomLeftCorner.x, loc.bottomRightCorner.x);
             const y = Math.min(loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomLeftCorner.y, loc.bottomRightCorner.y);
-            const qrWidth = Math.max(loc.topRightCorner.x, loc.bottomRightCorner.x) - Math.min(loc.topLeftCorner.x, loc.bottomLeftCorner.x);
-            const qrHeight = Math.max(loc.bottomLeftCorner.y, loc.bottomRightCorner.y) - Math.min(loc.topLeftCorner.y, loc.topRightCorner.y);
-
-            const padding = 15;
+            const qw = Math.max(loc.topRightCorner.x, loc.bottomRightCorner.x) - Math.min(loc.topLeftCorner.x, loc.bottomLeftCorner.x);
+            const qh = Math.max(loc.bottomLeftCorner.y, loc.bottomRightCorner.y) - Math.min(loc.topLeftCorner.y, loc.topRightCorner.y);
+            const pad = 15;
+            const finalCanvas = document.createElement('canvas');
+            const fCtx = finalCanvas.getContext('2d');
+            let finalW = qw + pad*2;
+            let finalH = qh + pad*2;
             const MAX_SIZE = 400;
-            let finalW = qrWidth + padding * 2;
-            let finalH = qrHeight + padding * 2;
-
-            if (finalW > MAX_SIZE) {
-              const ratio = MAX_SIZE / finalW;
-              finalW = MAX_SIZE;
-              finalH = finalH * ratio;
-            }
-
-            const destCanvas = document.createElement('canvas');
-            const dCtx = destCanvas.getContext('2d');
-            destCanvas.width = finalW;
-            destCanvas.height = finalH;
-
-            dCtx.drawImage(img, x - padding, y - padding, qrWidth + padding * 2, qrHeight + padding * 2, 0, 0, finalW, finalH);
-
-            const compressedBase64 = destCanvas.toDataURL('image/webp', 0.6);
-
-            set(ref(database, 'settings/qrpayment'), compressedBase64)
-              .then(() => {
-                loadCurrentQR();
-                showMessage("QR Code uploaded and compressed successfully!", "Success");
-              })
-              .catch(err => showMessage("Upload failed.", "Error"));
+            if (finalW > MAX_SIZE) { const ratio = MAX_SIZE/finalW; finalW = MAX_SIZE; finalH = finalH * ratio; }
+            finalCanvas.width = finalW;
+            finalCanvas.height = finalH;
+            fCtx.drawImage(img, x-pad, y-pad, qw+pad*2, qh+pad*2, 0, 0, finalW, finalH);
+            const compressed = finalCanvas.toDataURL('image/webp', 0.7);
+            set(ref(database, 'settings/qrpayment'), compressed).then(() => {
+              showMessage("QR updated with auto-crop!", "Success");
+            }).catch(err => showMessage("Upload failed", "Error"));
           } else {
-            showMessage("No QR code detected. Please try a clearer photo.", "Error");
+            showMessage("No QR code detected. Try a clearer image.", "Error");
           }
         };
         img.src = event.target.result;
@@ -457,68 +609,39 @@
       reader.readAsDataURL(file);
     });
 
-    window.closeSettingsModal = function() {
-      document.getElementById('settingsModal').style.display = 'none';
-    };
-
-    // ==================== CUSTOM MODAL FUNCTIONS ====================
+    // ------------------- UI HELPERS -------------------
+    window.closeSettingsModal = () => document.getElementById('settingsModal').style.display = 'none';
     function showMessage(text, title = "Message") {
       document.getElementById('messageTitle').textContent = title;
       document.getElementById('messageText').innerHTML = text;
       document.getElementById('messageModal').style.display = 'flex';
     }
-
-    window.closeMessageModal = function() {
-      document.getElementById('messageModal').style.display = 'none';
-    };
-
-    async function showConfirm(message) {
-      return new Promise(resolve => {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-          <div class="modal-content">
-            <h3>Confirm</h3>
-            <p>${message}</p>
-            <div class="modal-buttons">
-              <button class="modal-btn btn-cancel" onclick="this.closest('.modal').remove(); resolve(false);">Cancel</button>
-              <button class="modal-btn btn-confirm" onclick="this.closest('.modal').remove(); resolve(true);">Yes</button>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        modal.style.display = 'flex';
-      });
-    }
-
-    // UI Controls
-    document.getElementById('profileBtn').onclick = e => {
+    window.closeMessageModal = () => document.getElementById('messageModal').style.display = 'none';
+    
+    // Profile dropdown & logout
+    document.getElementById('profileBtn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('show');
-    };
-    document.getElementById('settingsBtn').onclick = () => {
+    });
+    document.getElementById('settingsBtn')?.addEventListener('click', () => {
       document.getElementById('dropdownMenu').classList.remove('show');
       document.getElementById('settingsModal').style.display = 'flex';
-    };
-    document.getElementById('logoutBtn').onclick = () => window.location.href = "index.html";
-
-    document.addEventListener('click', () => document.getElementById('dropdownMenu').classList.remove('show'));
-
-    document.getElementById('searchInput').addEventListener('input', e => {
+    });
+    document.getElementById('logoutBtn')?.addEventListener('click', () => window.location.href = "index.html");
+    document.addEventListener('click', () => document.getElementById('dropdownMenu')?.classList.remove('show'));
+    document.getElementById('searchInput')?.addEventListener('input', e => {
       const term = e.target.value.toLowerCase().trim();
       const filtered = Object.fromEntries(Object.entries(allUsers).filter(([_, u]) =>
         (u.name || "").toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)
       ));
       renderUsers(filtered);
     });
+    document.querySelectorAll('.modal').forEach(m => { m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; }); });
 
-    document.querySelectorAll('.modal').forEach(m => {
-      m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; });
-    });
-
-    // Initialize
+    // INIT
     loadAllUsers();
     loadCurrentQR();
+    loadAndRenderOffers();  // loads subscription offers editor
   </script>
 </body>
 </html>
