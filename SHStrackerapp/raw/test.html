@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Text Extraction</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; line-height: 1.6; }
+        #result { width: 100%; height: 200px; margin-top: 20px; }
+        .controls { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <h2>OCR Image to Text</h2>
+    <div class="controls">
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="performOCR()">Extract Text</button>
+    </div>
+
+    <textarea id="result" placeholder="Extracted text will appear here..." readonly></textarea>
+
+    <script>
+        async function performOCR() {
+            const fileInput = document.getElementById('imageInput');
+            const resultArea = document.getElementById('result');
+            const apiKey = 'K89725899388957'; // Reminder: Keep this private!
+
+            if (fileInput.files.length === 0) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            resultArea.value = "Processing... please wait.";
+
+            // Prepare the form data for the API
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("apikey", apiKey);
+            formData.append("language", "eng"); // You can change the language code here
+
+            try {
+                const response = await fetch("https://api.ocr.space/parse/image", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.OCRExitCode === 1) {
+                    // Successfully parsed
+                    resultArea.value = data.ParsedResults[0].ParsedText;
+                } else {
+                    // API returned an error
+                    resultArea.value = "Error: " + data.ErrorMessage;
+                }
+            } catch (error) {
+                resultArea.value = "Connection error: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
