@@ -1,509 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Arduino Builder · Full Source</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arduino Builder · Full Source</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --panel: #ffffff;
+      --accent: #3182ce;
+      --accent-soft: #ebf8ff;
+      --text-main: #2d3748;
+      --text-light: #718096;
+      --border-color: #e2e8f0;
+    }
 
-<style>
-:root{
---bg:#f0f4f8;
---panel:#ffffff;
---accent:#3182ce;
---accent-soft:#ebf8ff;
---text-main:#2d3748;
---text-light:#718096;
---border-color:#e2e8f0;
-}
+    body { 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 40px 20px;
+    }
 
-body{
-font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-background:var(--bg);
-color:var(--text-main);
-display:flex;
-justify-content:center;
-margin:0;
-padding:40px 20px;
-}
+    .container {
+      display: flex;
+      gap: 24px;
+      width: 100%;
+      max-width: 1000px;
+    }
 
-.container{
-display:flex;
-gap:24px;
-width:100%;
-max-width:1000px;
-}
+    /* Side Panels */
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+      flex: 1;
+      min-height: 600px;
+    }
 
-.panel{
-background:var(--panel);
-border:1px solid var(--border-color);
-border-radius:16px;
-padding:24px;
-box-shadow:0 10px 25px rgba(0,0,0,.03);
-flex:1;
-min-height:600px;
-}
+    h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent);
+      margin: 0 0 20px 0;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
 
-h3{
-font-size:.75rem;
-text-transform:uppercase;
-letter-spacing:1.2px;
-color:var(--accent);
-margin:0 0 20px;
-border-bottom:2px solid var(--accent-soft);
-padding-bottom:8px;
-}
+    /* Draggable Library Blocks */
+    .block {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: grab;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .block:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+    .block:active { cursor: grabbing; }
 
-.block{
-background:white;
-border:1px solid var(--border-color);
-border-radius:8px;
-padding:14px;
-margin-bottom:12px;
-cursor:grab;
-font-weight:500;
-transition:.2s;
-user-select:none;
-}
+    .num-block {
+      border: 2px dashed var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-align: center;
+      font-weight: 700;
+    }
 
-.block:hover{
-border-color:var(--accent);
-background:var(--accent-soft);
-transform:translateY(-1px);
-}
+    /* Sequence Items */
+    #sequence {
+      min-height: 500px;
+      position: relative;
+    }
 
-.block:active{
-cursor:grabbing;
-}
+    .step {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-left: 6px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+      animation: fadeIn 0.3s ease;
+    }
+    .step.dragging {
+      opacity: 0.3;
+      border: 2px dashed var(--accent);
+    }
 
-.num-block{
-border:2px dashed var(--accent);
-background:var(--accent-soft);
-color:var(--accent);
-text-align:center;
-font-weight:700;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-#sequence{
-min-height:500px;
-position:relative;
-}
+    /* Values & Stepper */
+    .slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7fafc;
+      border: 2px dashed #cbd5e0;
+      border-radius: 6px;
+      min-width: 90px;
+      height: 32px;
+      margin-left: 12px;
+      font-size: 0.7rem;
+      color: var(--text-light);
+    }
+    .slot.drag-over {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
-.step{
-background:white;
-border:1px solid var(--border-color);
-border-left:6px solid var(--accent);
-border-radius:8px;
-padding:12px 16px;
-margin-bottom:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-cursor:grab;
-animation:fadeIn .3s ease;
-}
+    .stepper {
+      display: inline-flex;
+      background: var(--accent);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-left: 12px;
+    }
+    .step-btn {
+      background: none;
+      border: none;
+      color: white;
+      padding: 4px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .step-btn:hover { background: rgba(255,255,255,0.2); }
+    .step-val {
+      background: rgba(0,0,0,0.05);
+      color: white;
+      padding: 0 10px;
+      min-width: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
 
-.step.dragging{
-opacity:.3;
-border:2px dashed var(--accent);
-}
+    /* Actions */
+    .del-btn {
+      background: none;
+      border: none;
+      color: #cbd5e0;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .del-btn:hover { color: #fc8181; }
 
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
+    .clear-btn {
+      width: 100%;
+      background: #edf2f7;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      color: var(--text-light);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .clear-btn:hover { background: #fee2e2; color: #ef4444; }
 
-.slot{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-background:#f7fafc;
-border:2px dashed #cbd5e0;
-border-radius:6px;
-min-width:90px;
-height:32px;
-margin-left:12px;
-font-size:.7rem;
-color:var(--text-light);
-}
-
-.slot.drag-over{
-background:var(--accent-soft);
-border-color:var(--accent);
-color:var(--accent);
-}
-
-/* Inactive stepper */
-.stepper{
-display:inline-flex;
-background:#f7fafc;
-border:2px solid #cbd5e0;
-border-radius:6px;
-overflow:hidden;
-margin-left:12px;
-transition:.2s;
-}
-
-/* Active clicked stepper */
-.stepper.active{
-background:var(--accent);
-border-color:var(--accent);
-}
-
-.step-btn{
-background:none;
-border:none;
-color:#4a5568;
-padding:4px 12px;
-cursor:pointer;
-font-weight:bold;
-font-size:1rem;
-transition:.2s;
-}
-
-.stepper.active .step-btn{
-color:white;
-}
-
-.step-btn:hover{
-background:rgba(255,255,255,.15);
-}
-
-.step-val{
-background:rgba(0,0,0,.03);
-color:#4a5568;
-padding:0 10px;
-min-width:30px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-family:monospace;
-font-size:.9rem;
-}
-
-.stepper.active .step-val{
-background:rgba(0,0,0,.08);
-color:white;
-}
-
-.del-btn{
-background:none;
-border:none;
-color:#cbd5e0;
-font-size:1.4rem;
-cursor:pointer;
-line-height:1;
-}
-
-.del-btn:hover{
-color:#fc8181;
-}
-
-.clear-btn{
-width:100%;
-background:#edf2f7;
-border:none;
-padding:12px;
-border-radius:8px;
-color:var(--text-light);
-font-weight:600;
-cursor:pointer;
-margin-top:20px;
-}
-
-.clear-btn:hover{
-background:#fee2e2;
-color:#ef4444;
-}
-</style>
+  </style>
 </head>
 <body>
 
 <div class="container">
+  <div class="panel">
+    <h3>Block Library</h3>
+    <div class="block" draggable="true" ondragstart="dragStart(event, 'func', 'Get Sensor Value')">Get Sensor Value</div>
+    <div class="block" draggable="true" ondragstart="dragStart(event, 'func', 'Rest for')">Rest for</div>
+    
+    <div style="height: 20px;"></div>
+    <h3>Data Types</h3>
+    <div class="block num-block" draggable="true" ondragstart="dragStart(event, 'num', null)">NUMBER</div>
 
-<div class="panel">
-<h3>Block Library</h3>
+    <button class="clear-btn" onclick="clearAll()">Clear All</button>
+  </div>
 
-<div class="block"
-draggable="true"
-ondragstart="dragStart(event,'func','Get Sensor Value')">
-Get Sensor Value
-</div>
-
-<div class="block"
-draggable="true"
-ondragstart="dragStart(event,'func','Rest for')">
-Rest for
-</div>
-
-<div style="height:20px;"></div>
-
-<h3>Data Types</h3>
-
-<div class="block num-block"
-draggable="true"
-ondragstart="dragStart(event,'num',null)">
-NUMBER
-</div>
-
-<button class="clear-btn" onclick="clearAll()">
-Clear All
-</button>
-
-</div>
-
-<div class="panel">
-<h3>Active Sequence</h3>
-
-<div id="sequence"
-ondragover="onDragOverSeq(event)"
-ondrop="onDropSeq(event)">
-</div>
-
-</div>
-
+  <div class="panel">
+    <h3>Active Sequence</h3>
+    <div id="sequence" ondragover="onDragOverSeq(event)" ondrop="onDropSeq(event)">
+      </div>
+  </div>
 </div>
 
 <script>
-let steps=[];
-let activeStepper=null;
+  let steps = [];
 
-function dragStart(ev,type,label,index=null){
-ev.dataTransfer.setData("type",type);
-ev.dataTransfer.setData("label",label);
-if(index!==null){
-ev.dataTransfer.setData("oldIndex",index);
-}
-}
+  function dragStart(ev, type, label, index = null) {
+    ev.dataTransfer.setData("type", type);
+    ev.dataTransfer.setData("label", label);
+    if (index !== null) ev.dataTransfer.setData("oldIndex", index);
+  }
 
-function onDragOverSeq(ev){
-ev.preventDefault();
-}
+  function onDragOverSeq(ev) {
+    ev.preventDefault();
+  }
 
-function getDragAfterElement(container,y){
-const draggableElements=[
-...container.querySelectorAll('.step:not(.dragging)')
-];
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.step:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
 
-return draggableElements.reduce((closest,child)=>{
-const box=child.getBoundingClientRect();
-const offset=y-box.top-box.height/2;
+  function onDropSeq(ev) {
+    ev.preventDefault();
+    const type = ev.dataTransfer.getData("type");
+    const label = ev.dataTransfer.getData("label");
+    const oldIndexStr = ev.dataTransfer.getData("oldIndex");
 
-if(offset<0 && offset>closest.offset){
-return{
-offset:offset,
-element:child
-};
-}else{
-return closest;
-}
+    if (type !== 'func') return;
 
-},{
-offset:Number.NEGATIVE_INFINITY
-}).element;
-}
+    const container = document.getElementById('sequence');
+    const afterElement = getDragAfterElement(container, ev.clientY);
+    const newIndex = afterElement == null ? steps.length : [...container.children].indexOf(afterElement);
 
-function onDropSeq(ev){
-ev.preventDefault();
+    if (oldIndexStr !== "") {
+      const oldIndex = parseInt(oldIndexStr);
+      const [movedItem] = steps.splice(oldIndex, 1);
+      const adjustedIndex = (oldIndex < newIndex) ? newIndex - 1 : newIndex;
+      steps.splice(adjustedIndex, 0, movedItem);
+    } else {
+      steps.splice(newIndex, 0, { label: label, value: null });
+    }
+    render();
+  }
 
-const type=ev.dataTransfer.getData("type");
-const label=ev.dataTransfer.getData("label");
-const oldIndexStr=ev.dataTransfer.getData("oldIndex");
+  function dropOnSlot(ev, index) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const type = ev.dataTransfer.getData("type");
+    if (type === 'num') {
+      steps[index].value = 0;
+      render();
+    }
+  }
 
-if(type!=='func') return;
+  function adjustValue(index, amount) {
+    steps[index].value = Math.max(0, steps[index].value + amount);
+    render();
+  }
 
-const container=document.getElementById('sequence');
+  function removeStep(index) {
+    steps.splice(index, 1);
+    render();
+  }
 
-const afterElement=
-getDragAfterElement(container,ev.clientY);
+  function clearAll() {
+    if(confirm("Start a new sequence?")) {
+      steps = [];
+      render();
+    }
+  }
 
-const newIndex=
-afterElement==null
-?steps.length
-:[...container.children].indexOf(afterElement);
+  function render() {
+    const seqDiv = document.getElementById('sequence');
+    seqDiv.innerHTML = '';
 
-if(oldIndexStr!==""){
-const oldIndex=parseInt(oldIndexStr);
-const movedItem=steps.splice(oldIndex,1)[0];
-const adjustedIndex=
-(oldIndex<newIndex)
-?newIndex-1
-:newIndex;
+    if (steps.length === 0) {
+      seqDiv.innerHTML = `<div style="text-align: center; color: #a0aec0; margin-top: 100px; border: 2px dashed #e2e8f0; padding: 40px; border-radius: 12px;">Drag functions here to start</div>`;
+    }
 
-steps.splice(adjustedIndex,0,movedItem);
+    steps.forEach((step, i) => {
+      const stepEl = document.createElement('div');
+      stepEl.className = 'step';
+      stepEl.draggable = true;
+      stepEl.ondragstart = (e) => {
+        stepEl.classList.add('dragging');
+        dragStart(e, 'func', step.label, i);
+      };
+      stepEl.ondragend = () => stepEl.classList.remove('dragging');
 
-}else{
-steps.splice(newIndex,0,{
-label:label,
-value:null
-});
-}
+      let valDisplay;
+      if (step.value === null) {
+        valDisplay = `<div class="slot" 
+          ondragover="event.preventDefault(); this.classList.add('drag-over')" 
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="dropOnSlot(event, ${i})">drop number</div>`;
+      } else {
+        valDisplay = `<div class="stepper">
+          <button class="step-btn" onclick="adjustValue(${i}, -1)">-</button>
+          <div class="step-val">${step.value}</div>
+          <button class="step-btn" onclick="adjustValue(${i}, 1)">+</button>
+        </div>`;
+      }
 
-render();
-}
+      stepEl.innerHTML = `
+        <div style="display: flex; align-items: center;">
+          <span>${step.label}</span>
+          ${valDisplay}
+        </div>
+        <button class="del-btn" onclick="removeStep(${i})">&times;</button>
+      `;
+      seqDiv.appendChild(stepEl);
+    });
+  }
 
-function dropOnSlot(ev,index){
-ev.stopPropagation();
-ev.preventDefault();
-
-const type=ev.dataTransfer.getData("type");
-
-if(type==="num"){
-steps[index].value=0;
-render();
-}
-}
-
-function activateStepper(index,ev){
-ev.stopPropagation();
-activeStepper=index;
-render();
-}
-
-function adjustValue(index,amount){
-steps[index].value=
-Math.max(
-0,
-steps[index].value+amount
-);
-render();
-}
-
-function removeStep(index){
-steps.splice(index,1);
-
-if(activeStepper===index){
-activeStepper=null;
-}
-
-render();
-}
-
-function clearAll(){
-if(confirm("Start a new sequence?")){
-steps=[];
-activeStepper=null;
-render();
-}
-}
-
-document.addEventListener("click",function(){
-activeStepper=null;
-render();
-});
-
-function render(){
-
-const seqDiv=
-document.getElementById('sequence');
-
-seqDiv.innerHTML='';
-
-if(steps.length===0){
-seqDiv.innerHTML=
-`
-<div style="
-text-align:center;
-color:#a0aec0;
-margin-top:100px;
-border:2px dashed #e2e8f0;
-padding:40px;
-border-radius:12px;">
-Drag functions here to start
-</div>
-`;
-}
-
-steps.forEach((step,i)=>{
-
-const stepEl=
-document.createElement('div');
-
-stepEl.className='step';
-stepEl.draggable=true;
-
-stepEl.ondragstart=(e)=>{
-stepEl.classList.add('dragging');
-dragStart(
-e,
-'func',
-step.label,
-i
-);
-};
-
-stepEl.ondragend=()=>{
-stepEl.classList.remove('dragging');
-};
-
-let valDisplay;
-
-if(step.value===null){
-
-valDisplay=
-`
-<div class="slot"
-ondragover="
-event.preventDefault();
-this.classList.add('drag-over')
-"
-ondragleave="
-this.classList.remove('drag-over')
-"
-ondrop="
-dropOnSlot(event,${i})
-">
-drop number
-</div>
-`;
-
-}else{
-
-valDisplay=
-`
-<div class="stepper ${activeStepper===i?'active':''}"
-onclick="activateStepper(${i},event)">
-
-<button
-class="step-btn"
-onclick="adjustValue(${i},-1)">
--
-</button>
-
-<div class="step-val">
-${step.value}
-</div>
-
-<button
-class="step-btn"
-onclick="adjustValue(${i},1)">
-+
-</button>
-
-</div>
-`;
-}
-
-stepEl.innerHTML=
-`
-<div style="display:flex;align-items:center;">
-<span>${step.label}</span>
-${valDisplay}
-</div>
-
-<button
-class="del-btn"
-onclick="removeStep(${i})">
-&times;
-</button>
-`;
-
-seqDiv.appendChild(stepEl);
-
-});
-
-}
-
-render();
+  render();
 </script>
 
 </body>
