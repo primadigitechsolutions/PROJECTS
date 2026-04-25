@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Arduino Builder Touch Fixed</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+<title>Arduino Builder</title>
 
 <style>
 :root{
@@ -11,8 +12,6 @@
 --panel:#fff;
 --accent:#3182ce;
 --accent-soft:#ebf8ff;
---text-main:#2d3748;
---text-light:#718096;
 --border:#e2e8f0;
 }
 
@@ -23,7 +22,6 @@ margin:0;
 padding:40px 20px;
 display:flex;
 justify-content:center;
-color:var(--text-main);
 touch-action:manipulation;
 }
 
@@ -35,7 +33,7 @@ max-width:1000px;
 }
 
 .panel{
-background:#fff;
+background:white;
 border:1px solid var(--border);
 border-radius:16px;
 padding:24px;
@@ -46,12 +44,12 @@ min-height:600px;
 
 h3{
 font-size:.75rem;
-letter-spacing:1px;
 text-transform:uppercase;
+letter-spacing:1px;
 color:var(--accent);
+margin:0 0 20px;
 border-bottom:2px solid var(--accent-soft);
 padding-bottom:8px;
-margin:0 0 20px;
 }
 
 .block{
@@ -61,8 +59,8 @@ border-radius:8px;
 padding:14px;
 margin-bottom:12px;
 cursor:grab;
-user-select:none;
 font-weight:500;
+user-select:none;
 transition:.2s;
 }
 
@@ -71,16 +69,12 @@ background:var(--accent-soft);
 border-color:var(--accent);
 }
 
-.block:active{
-transform:scale(.98);
-}
-
 .num-block{
 border:2px dashed var(--accent);
 background:var(--accent-soft);
+color:var(--accent);
 text-align:center;
 font-weight:700;
-color:var(--accent);
 }
 
 #sequence{
@@ -97,16 +91,6 @@ margin-bottom:10px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-animation:fade .25s;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(8px);}
-to{opacity:1;transform:none;}
-}
-
-.step.dragging{
-opacity:.3;
 }
 
 .slot{
@@ -116,78 +100,60 @@ justify-content:center;
 background:#f7fafc;
 border:2px dashed #cbd5e0;
 border-radius:6px;
-height:32px;
-min-width:90px;
+min-width:95px;
+height:34px;
 margin-left:12px;
 font-size:.7rem;
+cursor:pointer;
+transition:.2s;
 }
 
-.slot.drag-over{
-background:var(--accent-soft);
-border-color:var(--accent);
-}
-
-.stepper{
-display:inline-flex;
-background:#f7fafc;
-border:2px solid #cbd5e0;
-border-radius:6px;
-overflow:hidden;
-margin-left:12px;
-}
-
-.stepper.active{
+.slot.active{
 background:var(--accent);
 border-color:var(--accent);
-}
-
-.step-btn{
-background:none;
-border:none;
-padding:4px 12px;
-font-size:18px;
-cursor:pointer;
-color:#4a5568;
-}
-
-.stepper.active .step-btn{
 color:white;
+font-weight:700;
 }
 
-.step-val{
-display:flex;
+/* value pill */
+.value-pill{
+display:inline-flex;
 align-items:center;
 justify-content:center;
-min-width:32px;
-padding:0 10px;
-font-family:monospace;
+margin-left:12px;
+padding:7px 16px;
+background:#f7fafc;
+border:2px solid #cbd5e0;
+border-radius:8px;
+cursor:pointer;
+font-weight:700;
+min-width:55px;
+transition:.2s;
 }
 
-.stepper.active .step-val{
+.value-pill.active{
+background:var(--accent);
+border-color:var(--accent);
 color:white;
 }
 
 .del-btn{
-border:none;
 background:none;
+border:none;
 font-size:24px;
 cursor:pointer;
 color:#cbd5e0;
 }
 
-.del-btn:hover{
-color:#ef4444;
-}
-
 .clear-btn{
 width:100%;
 margin-top:20px;
-border:none;
 padding:12px;
+border:none;
 border-radius:8px;
-cursor:pointer;
-font-weight:600;
 background:#edf2f7;
+font-weight:600;
+cursor:pointer;
 }
 
 .touchGhost{
@@ -200,6 +166,56 @@ padding:12px 16px;
 border-radius:8px;
 box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
+
+/* bottom editor */
+#editorOverlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.15);
+z-index:2000;
+}
+
+#editorSheet{
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+background:white;
+padding:28px;
+border-radius:22px 22px 0 0;
+box-shadow:0 -8px 30px rgba(0,0,0,.15);
+text-align:center;
+}
+
+.editorLabel{
+font-size:13px;
+opacity:.6;
+margin-bottom:12px;
+}
+
+.editorValue{
+font-size:44px;
+font-weight:700;
+margin-bottom:20px;
+}
+
+.editorBtns{
+display:flex;
+justify-content:center;
+gap:18px;
+}
+
+.editBtn{
+width:72px;
+height:72px;
+border:none;
+border-radius:18px;
+background:var(--accent);
+color:white;
+font-size:36px;
+cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -207,6 +223,7 @@ box-shadow:0 8px 20px rgba(0,0,0,.2);
 <div class="container">
 
 <div class="panel">
+
 <h3>Block Library</h3>
 
 <div class="block"
@@ -237,31 +254,63 @@ ontouchstart="touchBlockStart(event,'num',null)">
 NUMBER
 </div>
 
-<button
-class="clear-btn"
+<button class="clear-btn"
 onclick="clearAll()">
 Clear All
 </button>
 
 </div>
 
+
 <div class="panel">
 <h3>Active Sequence</h3>
-
 <div id="sequence"
 ondragover="onDragOverSeq(event)"
 ondrop="onDropSeq(event)">
 </div>
-
 </div>
 
 </div>
+
+
+<!-- Bottom Number Editor -->
+<div id="editorOverlay"
+onclick="closeEditor()">
+
+<div id="editorSheet"
+onclick="event.stopPropagation()">
+
+<div class="editorLabel">
+Adjust Value
+</div>
+
+<div id="editorValue"
+class="editorValue">
+0
+</div>
+
+<div class="editorBtns">
+<button class="editBtn"
+onclick="adjustEditor(-1)">
+−
+</button>
+
+<button class="editBtn"
+onclick="adjustEditor(1)">
++
+</button>
+</div>
+
+</div>
+</div>
+
 
 <script>
 let steps=[];
-let activeStepper=null;
+let selectedSlot=null;
+let editingIndex=null;
 
-/* quick add */
+/* add function */
 function quickAdd(label){
 steps.push({
 label,
@@ -270,19 +319,73 @@ value:null
 render();
 }
 
-/* tap NUMBER fills selected block */
-function tapNumberFill(){
-if(
-activeStepper!==null &&
-steps[activeStepper].value===null
-){
-steps[activeStepper].value=0;
+/* select empty slot */
+function selectSlot(i,e){
+e.stopPropagation();
+selectedSlot=i;
 render();
 }
+
+/* tap number fills selected slot */
+function tapNumberFill(){
+
+if(
+selectedSlot!==null &&
+steps[selectedSlot].value===null
+){
+steps[selectedSlot].value=0;
+selectedSlot=null;
+render();
 }
 
-/* desktop drag */
+}
 
+/* open bottom editor */
+function openEditor(i,e){
+e.stopPropagation();
+
+editingIndex=i;
+
+document.getElementById(
+"editorValue"
+).innerText=
+steps[i].value;
+
+document.getElementById(
+"editorOverlay"
+).style.display="block";
+
+render();
+}
+
+function adjustEditor(amount){
+
+steps[editingIndex].value=
+Math.max(
+0,
+steps[editingIndex].value+
+amount
+);
+
+document.getElementById(
+"editorValue"
+).innerText=
+steps[editingIndex].value;
+
+render();
+}
+
+function closeEditor(){
+editingIndex=null;
+
+document.getElementById(
+"editorOverlay"
+).style.display="none";
+
+render();
+}
+
+/* drag desktop */
 function dragStart(e,type,label,index=null){
 e.dataTransfer.setData("type",type);
 e.dataTransfer.setData("label",label);
@@ -307,7 +410,7 @@ const els=[
 ];
 
 return els.reduce(
-(closest,child)=>{
+(c,child)=>{
 
 const box=
 child.getBoundingClientRect();
@@ -317,7 +420,7 @@ y-box.top-box.height/2;
 
 if(
 offset<0 &&
-offset>closest.offset
+offset>c.offset
 ){
 return{
 offset,
@@ -325,7 +428,7 @@ element:child
 }
 }
 
-return closest;
+return c;
 
 },{
 offset:-Infinity
@@ -372,14 +475,9 @@ if(oldIndex!==""){
 oldIndex=parseInt(oldIndex);
 
 let moved=
-steps.splice(
-oldIndex,
-1
-)[0];
+steps.splice(oldIndex,1)[0];
 
-if(
-oldIndex<newIndex
-){
+if(oldIndex<newIndex){
 newIndex--;
 }
 
@@ -405,8 +503,7 @@ value:null
 render();
 }
 
-/* touch drag for BOTH blocks */
-
+/* touch drag */
 let ghost=null;
 let touchType=null;
 let touchLabel=null;
@@ -421,9 +518,7 @@ touchType=type;
 touchLabel=label;
 
 ghost=
-document.createElement(
-"div"
-);
+document.createElement("div");
 
 ghost.className=
 "touchGhost";
@@ -463,6 +558,7 @@ e.touches[0]
 function moveGhost(t){
 ghost.style.left=
 (t.clientX+10)+"px";
+
 ghost.style.top=
 (t.clientY+10)+"px";
 }
@@ -488,7 +584,6 @@ t.clientX,
 t.clientY
 );
 
-/* function drop */
 if(
 touchType==="func"
 ){
@@ -509,7 +604,6 @@ render();
 
 }
 
-/* number drop into slot */
 if(
 touchType==="num"
 ){
@@ -526,7 +620,6 @@ slot.dataset.index
 
 steps[i].value=0;
 render();
-
 }
 
 }
@@ -535,9 +628,10 @@ if(ghost){
 ghost.remove();
 ghost=null;
 }
+
 }
 
-/* slot drop */
+/* number drag drop */
 function dropOnSlot(e,i){
 
 e.preventDefault();
@@ -549,32 +643,11 @@ e.dataTransfer.getData(
 )==="num"
 ){
 steps[i].value=0;
-render();
-}
-}
-
-function adjustValue(i,a){
-steps[i].value=
-Math.max(
-0,
-steps[i].value+a
-);
+selectedSlot=null;
 render();
 }
 
-function activateStepper(i,e){
-e.stopPropagation();
-activeStepper=i;
-render();
 }
-
-document.addEventListener(
-"click",
-()=>{
-activeStepper=null;
-render();
-}
-);
 
 function removeStep(i){
 steps.splice(i,1);
@@ -590,6 +663,15 @@ render();
 }
 }
 
+/* deselect */
+document.addEventListener(
+"click",
+()=>{
+selectedSlot=null;
+render();
+}
+);
+
 function render(){
 
 const seq=
@@ -600,18 +682,20 @@ document.getElementById(
 seq.innerHTML="";
 
 if(!steps.length){
+
 seq.innerHTML=
 `
 <div style="
 text-align:center;
 margin-top:100px;
-border:2px dashed #e2e8f0;
 padding:40px;
+border:2px dashed #e2e8f0;
 border-radius:12px;
 color:#a0aec0;">
 Drag or tap functions here
 </div>
 `;
+
 }
 
 steps.forEach((step,i)=>{
@@ -623,37 +707,20 @@ document.createElement(
 
 row.className="step";
 
-row.draggable=true;
-
-row.ondragstart=(e)=>{
-row.classList.add(
-"dragging"
-);
-dragStart(
-e,
-"func",
-step.label,
-i
-);
-};
-
-row.ondragend=()=>{
-row.classList.remove(
-"dragging"
-);
-};
-
-let valDisplay;
+let valueDisplay="";
 
 if(
 step.value===null
 ){
 
-valDisplay=
+valueDisplay=
 `
 <div
-class="slot"
+class="slot ${selectedSlot===i?'active':''}"
 data-index="${i}"
+onclick="
+selectSlot(${i},event)
+"
 ondragover="
 event.preventDefault()
 "
@@ -666,33 +733,15 @@ drop number
 
 }else{
 
-valDisplay=
+valueDisplay=
 `
-<div class="stepper ${activeStepper===i?'active':''}"
+<div
+class="value-pill
+${editingIndex===i?'active':''}"
 onclick="
-activateStepper(${i},event)
+openEditor(${i},event)
 ">
-
-<button
-class="step-btn"
-onclick="
-adjustValue(${i},-1)
-">
--
-</button>
-
-<div class="step-val">
 ${step.value}
-</div>
-
-<button
-class="step-btn"
-onclick="
-adjustValue(${i},1)
-">
-+
-</button>
-
 </div>
 `;
 
@@ -706,7 +755,8 @@ align-items:center;">
 <span>
 ${step.label}
 </span>
-${valDisplay}
+
+${valueDisplay}
 </div>
 
 <button
@@ -718,7 +768,9 @@ removeStep(${i})
 </button>
 `;
 
-seq.appendChild(row);
+seq.appendChild(
+row
+);
 
 });
 
