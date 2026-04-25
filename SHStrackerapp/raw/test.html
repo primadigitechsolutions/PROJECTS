@@ -19,62 +19,35 @@ body{
 font-family:Segoe UI,system-ui;
 background:var(--bg);
 margin:0;
-padding:40px 20px;
+padding:30px 18px 120px;
 display:flex;
 justify-content:center;
 touch-action:manipulation;
+overflow-x:hidden;
 }
 
 .container{
-display:flex;
-gap:24px;
 width:100%;
-max-width:1000px;
+max-width:900px;
 }
 
 .panel{
-background:white;
+background:#fff;
 border:1px solid var(--border);
 border-radius:16px;
 padding:24px;
 box-shadow:0 10px 25px rgba(0,0,0,.03);
-flex:1;
-min-height:600px;
+min-height:650px;
 }
 
 h3{
 font-size:.75rem;
-text-transform:uppercase;
 letter-spacing:1px;
+text-transform:uppercase;
 color:var(--accent);
 margin:0 0 20px;
 border-bottom:2px solid var(--accent-soft);
 padding-bottom:8px;
-}
-
-.block{
-background:white;
-border:1px solid var(--border);
-border-radius:8px;
-padding:14px;
-margin-bottom:12px;
-cursor:grab;
-font-weight:500;
-user-select:none;
-transition:.2s;
-}
-
-.block:hover{
-background:var(--accent-soft);
-border-color:var(--accent);
-}
-
-.num-block{
-border:2px dashed var(--accent);
-background:var(--accent-soft);
-color:var(--accent);
-text-align:center;
-font-weight:700;
 }
 
 #sequence{
@@ -82,7 +55,7 @@ min-height:500px;
 }
 
 .step{
-background:white;
+background:#fff;
 border:1px solid var(--border);
 border-left:6px solid var(--accent);
 border-radius:8px;
@@ -111,11 +84,10 @@ transition:.2s;
 .slot.active{
 background:var(--accent);
 border-color:var(--accent);
-color:white;
+color:#fff;
 font-weight:700;
 }
 
-/* value pill */
 .value-pill{
 display:inline-flex;
 align-items:center;
@@ -128,7 +100,6 @@ border-radius:8px;
 cursor:pointer;
 font-weight:700;
 min-width:55px;
-transition:.2s;
 }
 
 .value-pill.active{
@@ -145,9 +116,77 @@ cursor:pointer;
 color:#cbd5e0;
 }
 
+/* movable fab */
+#fab{
+position:fixed;
+right:24px;
+bottom:24px;
+background:var(--accent);
+color:#fff;
+border:none;
+border-radius:60px;
+padding:18px 24px;
+font-size:18px;
+font-weight:700;
+box-shadow:0 12px 30px rgba(0,0,0,.25);
+cursor:grab;
+z-index:5000;
+user-select:none;
+touch-action:none;
+}
+
+#fab.dragging{
+cursor:grabbing;
+transform:scale(1.04);
+}
+
+/* library */
+#libraryOverlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.18);
+z-index:2500;
+}
+
+#librarySheet{
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+background:white;
+padding:28px;
+border-radius:24px 24px 0 0;
+max-height:75vh;
+overflow:auto;
+box-shadow:0 -8px 30px rgba(0,0,0,.15);
+}
+
+.block{
+background:white;
+border:1px solid var(--border);
+border-radius:10px;
+padding:16px;
+margin-bottom:14px;
+font-weight:600;
+cursor:pointer;
+}
+
+.block:hover{
+background:var(--accent-soft);
+}
+
+.num-block{
+border:2px dashed var(--accent);
+background:var(--accent-soft);
+text-align:center;
+color:var(--accent);
+font-weight:700;
+}
+
 .clear-btn{
 width:100%;
-margin-top:20px;
+margin-top:18px;
 padding:12px;
 border:none;
 border-radius:8px;
@@ -156,24 +195,13 @@ font-weight:600;
 cursor:pointer;
 }
 
-.touchGhost{
-position:fixed;
-z-index:9999;
-pointer-events:none;
-background:white;
-border:2px solid var(--accent);
-padding:12px 16px;
-border-radius:8px;
-box-shadow:0 8px 20px rgba(0,0,0,.2);
-}
-
-/* bottom editor */
+/* editor */
 #editorOverlay{
 display:none;
 position:fixed;
 inset:0;
 background:rgba(0,0,0,.15);
-z-index:2000;
+z-index:4000;
 }
 
 #editorSheet{
@@ -184,20 +212,13 @@ bottom:0;
 background:white;
 padding:28px;
 border-radius:22px 22px 0 0;
-box-shadow:0 -8px 30px rgba(0,0,0,.15);
 text-align:center;
 }
 
-.editorLabel{
-font-size:13px;
-opacity:.6;
-margin-bottom:12px;
-}
-
 .editorValue{
-font-size:44px;
+font-size:48px;
 font-weight:700;
-margin-bottom:20px;
+margin-bottom:18px;
 }
 
 .editorBtns{
@@ -213,7 +234,7 @@ border:none;
 border-radius:18px;
 background:var(--accent);
 color:white;
-font-size:36px;
+font-size:38px;
 cursor:pointer;
 }
 </style>
@@ -221,36 +242,44 @@ cursor:pointer;
 <body>
 
 <div class="container">
-
 <div class="panel">
+
+<h3>Active Sequence</h3>
+
+<div id="sequence"></div>
+
+</div>
+</div>
+
+
+<button id="fab">
+＋ Blocks
+</button>
+
+
+<div id="libraryOverlay"
+onclick="closeLibrary()">
+<div id="librarySheet"
+onclick="event.stopPropagation()">
 
 <h3>Block Library</h3>
 
 <div class="block"
-draggable="true"
-onclick="quickAdd('Get Sensor Value')"
-ondragstart="dragStart(event,'func','Get Sensor Value')"
-ontouchstart="touchBlockStart(event,'func','Get Sensor Value')">
+onclick="quickAdd('Get Sensor Value')">
 Get Sensor Value
 </div>
 
 <div class="block"
-draggable="true"
-onclick="quickAdd('Rest for')"
-ondragstart="dragStart(event,'func','Rest for')"
-ontouchstart="touchBlockStart(event,'func','Rest for')">
+onclick="quickAdd('Rest for')">
 Rest for
 </div>
 
-<div style="height:20px"></div>
-
-<h3>Data Types</h3>
+<h3 style="margin-top:30px">
+Data Types
+</h3>
 
 <div class="block num-block"
-draggable="true"
-onclick="tapNumberFill()"
-ondragstart="dragStart(event,'num',null)"
-ontouchstart="touchBlockStart(event,'num',null)">
+onclick="tapNumberFill()">
 NUMBER
 </div>
 
@@ -260,27 +289,18 @@ Clear All
 </button>
 
 </div>
-
-
-<div class="panel">
-<h3>Active Sequence</h3>
-<div id="sequence"
-ondragover="onDragOverSeq(event)"
-ondrop="onDropSeq(event)">
-</div>
-</div>
-
 </div>
 
 
-<!-- Bottom Number Editor -->
+
 <div id="editorOverlay"
 onclick="closeEditor()">
-
 <div id="editorSheet"
 onclick="event.stopPropagation()">
 
-<div class="editorLabel">
+<div style="
+opacity:.6;
+margin-bottom:12px;">
 Adjust Value
 </div>
 
@@ -310,38 +330,215 @@ let steps=[];
 let selectedSlot=null;
 let editingIndex=null;
 
-/* add function */
+/* library */
+
+function openLibrary(){
+document.getElementById(
+"libraryOverlay"
+).style.display="block";
+}
+
+function closeLibrary(){
+document.getElementById(
+"libraryOverlay"
+).style.display="none";
+}
+
+function toggleLibrary(){
+
+let overlay=
+document.getElementById(
+"libraryOverlay"
+);
+
+if(
+overlay.style.display==="block"
+){
+closeLibrary();
+}else{
+openLibrary();
+}
+}
+
+/* movable fab */
+const fab=
+document.getElementById("fab");
+
+let draggingFab=false;
+let movedFab=false;
+let offsetX=0;
+let offsetY=0;
+
+function startFab(x,y){
+
+const r=
+fab.getBoundingClientRect();
+
+draggingFab=true;
+movedFab=false;
+
+offsetX=x-r.left;
+offsetY=y-r.top;
+
+fab.classList.add(
+"dragging"
+);
+}
+
+function moveFab(x,y){
+
+if(!draggingFab)return;
+
+movedFab=true;
+
+let left=
+x-offsetX;
+
+let top=
+y-offsetY;
+
+const maxX=
+window.innerWidth-
+fab.offsetWidth;
+
+const maxY=
+window.innerHeight-
+fab.offsetHeight;
+
+left=Math.max(
+0,
+Math.min(left,maxX)
+);
+
+top=Math.max(
+0,
+Math.min(top,maxY)
+);
+
+fab.style.left=
+left+"px";
+
+fab.style.top=
+top+"px";
+
+fab.style.right="auto";
+fab.style.bottom="auto";
+}
+
+function endFab(){
+
+if(!draggingFab)return;
+
+draggingFab=false;
+
+fab.classList.remove(
+"dragging"
+);
+
+setTimeout(()=>{
+if(!movedFab){
+toggleLibrary();
+}
+},10);
+}
+
+fab.addEventListener(
+"mousedown",
+e=>startFab(
+e.clientX,
+e.clientY
+)
+);
+
+document.addEventListener(
+"mousemove",
+e=>moveFab(
+e.clientX,
+e.clientY
+)
+);
+
+document.addEventListener(
+"mouseup",
+endFab
+);
+
+fab.addEventListener(
+"touchstart",
+e=>{
+let t=e.touches[0];
+startFab(
+t.clientX,
+t.clientY
+);
+},
+{passive:true}
+);
+
+document.addEventListener(
+"touchmove",
+e=>{
+let t=e.touches[0];
+moveFab(
+t.clientX,
+t.clientY
+);
+},
+{passive:false}
+);
+
+document.addEventListener(
+"touchend",
+endFab
+);
+
+
+/* functions */
+
 function quickAdd(label){
 steps.push({
 label,
 value:null
 });
+
+closeLibrary();
 render();
 }
 
-/* select empty slot */
+/* HERE UPDATED:
+clicking drop number auto opens block library */
 function selectSlot(i,e){
 e.stopPropagation();
+
 selectedSlot=i;
+
+openLibrary(); /* auto pop library */
+
 render();
 }
 
-/* tap number fills selected slot */
 function tapNumberFill(){
 
 if(
 selectedSlot!==null &&
 steps[selectedSlot].value===null
 ){
+
 steps[selectedSlot].value=0;
+
 selectedSlot=null;
+
+closeLibrary();
+
 render();
 }
-
 }
 
-/* open bottom editor */
+
+/* editor */
+
 function openEditor(i,e){
+
 e.stopPropagation();
 
 editingIndex=i;
@@ -358,13 +555,12 @@ document.getElementById(
 render();
 }
 
-function adjustEditor(amount){
+function adjustEditor(a){
 
 steps[editingIndex].value=
 Math.max(
 0,
-steps[editingIndex].value+
-amount
+steps[editingIndex].value+a
 );
 
 document.getElementById(
@@ -376,6 +572,7 @@ render();
 }
 
 function closeEditor(){
+
 editingIndex=null;
 
 document.getElementById(
@@ -385,276 +582,13 @@ document.getElementById(
 render();
 }
 
-/* drag desktop */
-function dragStart(e,type,label,index=null){
-e.dataTransfer.setData("type",type);
-e.dataTransfer.setData("label",label);
-if(index!==null){
-e.dataTransfer.setData(
-"oldIndex",
-index
-);
-}
-}
-
-function onDragOverSeq(e){
-e.preventDefault();
-}
-
-function getDragAfterElement(container,y){
-
-const els=[
-...container.querySelectorAll(
-".step:not(.dragging)"
-)
-];
-
-return els.reduce(
-(c,child)=>{
-
-const box=
-child.getBoundingClientRect();
-
-const offset=
-y-box.top-box.height/2;
-
-if(
-offset<0 &&
-offset>c.offset
-){
-return{
-offset,
-element:child
-}
-}
-
-return c;
-
-},{
-offset:-Infinity
-}
-).element;
-}
-
-function onDropSeq(e){
-
-e.preventDefault();
-
-let type=
-e.dataTransfer.getData("type");
-
-if(type!=="func") return;
-
-let label=
-e.dataTransfer.getData("label");
-
-let oldIndex=
-e.dataTransfer.getData(
-"oldIndex"
-);
-
-const container=
-document.getElementById(
-"sequence"
-);
-
-const after=
-getDragAfterElement(
-container,
-e.clientY
-);
-
-let newIndex=
-after==null
-?steps.length
-:[...container.children]
-.indexOf(after);
-
-if(oldIndex!==""){
-
-oldIndex=parseInt(oldIndex);
-
-let moved=
-steps.splice(oldIndex,1)[0];
-
-if(oldIndex<newIndex){
-newIndex--;
-}
-
-steps.splice(
-newIndex,
-0,
-moved
-);
-
-}else{
-
-steps.splice(
-newIndex,
-0,
-{
-label,
-value:null
-}
-);
-
-}
-
-render();
-}
-
-/* touch drag */
-let ghost=null;
-let touchType=null;
-let touchLabel=null;
-
-function touchBlockStart(
-e,
-type,
-label
-){
-
-touchType=type;
-touchLabel=label;
-
-ghost=
-document.createElement("div");
-
-ghost.className=
-"touchGhost";
-
-ghost.innerText=
-type==="num"
-?"NUMBER"
-:label;
-
-document.body.appendChild(
-ghost
-);
-
-moveGhost(
-e.touches[0]
-);
-
-document.addEventListener(
-"touchmove",
-touchMove,
-{passive:false}
-);
-
-document.addEventListener(
-"touchend",
-touchEnd
-);
-}
-
-function touchMove(e){
-e.preventDefault();
-moveGhost(
-e.touches[0]
-);
-}
-
-function moveGhost(t){
-ghost.style.left=
-(t.clientX+10)+"px";
-
-ghost.style.top=
-(t.clientY+10)+"px";
-}
-
-function touchEnd(e){
-
-document.removeEventListener(
-"touchmove",
-touchMove
-);
-
-document.removeEventListener(
-"touchend",
-touchEnd
-);
-
-let t=
-e.changedTouches[0];
-
-let target=
-document.elementFromPoint(
-t.clientX,
-t.clientY
-);
-
-if(
-touchType==="func"
-){
-
-if(
-document
-.getElementById(
-"sequence"
-)
-.contains(target)
-){
-steps.push({
-label:touchLabel,
-value:null
-});
-render();
-}
-
-}
-
-if(
-touchType==="num"
-){
-
-let slot=
-target.closest(".slot");
-
-if(slot){
-
-let i=
-parseInt(
-slot.dataset.index
-);
-
-steps[i].value=0;
-render();
-}
-
-}
-
-if(ghost){
-ghost.remove();
-ghost=null;
-}
-
-}
-
-/* number drag drop */
-function dropOnSlot(e,i){
-
-e.preventDefault();
-e.stopPropagation();
-
-if(
-e.dataTransfer.getData(
-"type"
-)==="num"
-){
-steps[i].value=0;
-selectedSlot=null;
-render();
-}
-
-}
-
 function removeStep(i){
 steps.splice(i,1);
 render();
 }
 
 function clearAll(){
+
 if(confirm(
 "Start a new sequence?"
 )){
@@ -663,7 +597,6 @@ render();
 }
 }
 
-/* deselect */
 document.addEventListener(
 "click",
 ()=>{
@@ -671,6 +604,9 @@ selectedSlot=null;
 render();
 }
 );
+
+
+/* render */
 
 function render(){
 
@@ -687,12 +623,12 @@ seq.innerHTML=
 `
 <div style="
 text-align:center;
-margin-top:100px;
-padding:40px;
+margin-top:120px;
+padding:50px;
 border:2px dashed #e2e8f0;
 border-radius:12px;
 color:#a0aec0;">
-Drag or tap functions here
+Tap + Blocks to begin
 </div>
 `;
 
@@ -707,25 +643,17 @@ document.createElement(
 
 row.className="step";
 
-let valueDisplay="";
+let valDisplay="";
 
-if(
-step.value===null
-){
+if(step.value===null){
 
-valueDisplay=
+valDisplay=
 `
 <div
-class="slot ${selectedSlot===i?'active':''}"
-data-index="${i}"
+class="slot
+${selectedSlot===i?'active':''}"
 onclick="
 selectSlot(${i},event)
-"
-ondragover="
-event.preventDefault()
-"
-ondrop="
-dropOnSlot(event,${i})
 ">
 drop number
 </div>
@@ -733,7 +661,7 @@ drop number
 
 }else{
 
-valueDisplay=
+valDisplay=
 `
 <div
 class="value-pill
@@ -756,7 +684,7 @@ align-items:center;">
 ${step.label}
 </span>
 
-${valueDisplay}
+${valDisplay}
 </div>
 
 <button
@@ -768,9 +696,7 @@ removeStep(${i})
 </button>
 `;
 
-seq.appendChild(
-row
-);
+seq.appendChild(row);
 
 });
 
