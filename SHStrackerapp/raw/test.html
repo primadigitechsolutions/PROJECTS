@@ -2,137 +2,171 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Arduino Builder Touch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arduino Builder</title>
 
 <style>
 :root{
 --bg:#f0f4f8;
 --panel:#fff;
 --accent:#3182ce;
---soft:#ebf8ff;
+--accent-soft:#ebf8ff;
 --border:#e2e8f0;
 }
 
-*{
-box-sizing:border-box;
--webkit-tap-highlight-color:transparent;
-}
-
 body{
-margin:0;
 font-family:Segoe UI,system-ui;
 background:var(--bg);
-padding:20px 16px 120px;
-touch-action:manipulation;
-user-select:none;
+margin:0;
+padding:20px 15px 120px;
+display:flex;
+justify-content:center;
+overscroll-behavior-y: contain;
+-webkit-tap-highlight-color: transparent;
 }
 
 .container{
+width:100%;
 max-width:900px;
-margin:auto;
 }
 
 .panel{
 background:#fff;
 border:1px solid var(--border);
-border-radius:18px;
-padding:22px;
-min-height:650px;
-box-shadow:0 10px 30px rgba(0,0,0,.04);
+border-radius:16px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,.03);
+min-height:70vh;
 }
 
 h3{
-margin:0 0 20px;
-font-size:.8rem;
+font-size:.75rem;
 letter-spacing:1px;
 text-transform:uppercase;
 color:var(--accent);
-border-bottom:2px solid var(--soft);
+margin:0 0 20px;
+border-bottom:2px solid var(--accent-soft);
 padding-bottom:8px;
 }
 
+#sequence{
+min-height:500px;
+}
+
 .step{
-background:white;
+background:#fff;
 border:1px solid var(--border);
 border-left:6px solid var(--accent);
-border-radius:10px;
-padding:14px 16px;
+border-radius:12px;
+padding:16px;
+margin-bottom:12px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:12px;
+cursor: grab;
+transition: transform 0.2s, box-shadow 0.2s;
+user-select: none;
+position: relative;
+}
+
+.step.dragging-item {
+opacity: 0.5;
+transform: scale(0.98);
+background: var(--accent-soft);
+}
+
+.step.drag-over {
+border-top: 4px solid var(--accent);
 }
 
 .slot{
 display:inline-flex;
 align-items:center;
 justify-content:center;
-margin-left:12px;
-min-width:100px;
-height:36px;
-border-radius:8px;
-border:2px dashed #cbd5e0;
 background:#f7fafc;
-font-size:12px;
-font-weight:600;
+border:2px dashed #cbd5e0;
+border-radius:8px;
+min-width:110px;
+height:44px;
+margin-left:12px;
+font-size:.75rem;
+cursor:pointer;
+transition:.2s;
 }
 
 .slot.active{
 background:var(--accent);
 border-color:var(--accent);
-color:white;
+color:#fff;
+font-weight:700;
 }
 
 .value-pill{
+display:inline-flex;
+align-items:center;
+justify-content:center;
 margin-left:12px;
-padding:8px 16px;
-border-radius:9px;
-border:2px solid #cbd5e0;
+padding:10px 20px;
+background:var(--accent-soft);
+border:2px solid var(--accent);
+border-radius:10px;
+cursor:pointer;
 font-weight:700;
-min-width:58px;
-text-align:center;
+min-width:60px;
+color: var(--accent);
 }
 
 .value-pill.active{
 background:var(--accent);
 border-color:var(--accent);
-color:#fff;
+color:white;
 }
 
 .del-btn{
-font-size:24px;
-color:#cbd5e0;
-padding:6px 10px;
+background:#fee2e2;
+border:none;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+cursor:pointer;
+color:#ef4444;
 }
 
-/* FAB */
 #fab{
 position:fixed;
 right:24px;
 bottom:24px;
 background:var(--accent);
-color:white;
-padding:18px 24px;
-border-radius:60px;
+color:#fff;
+border:none;
+border-radius:50px;
+padding:20px 30px;
+font-size:18px;
 font-weight:700;
-box-shadow:0 12px 28px rgba(0,0,0,.25);
+box-shadow:0 12px 30px rgba(49,130,206,.4);
+cursor:grab;
 z-index:5000;
+user-select:none;
 touch-action:none;
 }
 
 #fab.dragging{
-transform:scale(1.05);
+cursor:grabbing;
+transform:scale(1.1);
+opacity: 0.9;
 }
 
-/* library */
 #libraryOverlay{
 display:none;
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.18);
-z-index:3000;
+background:rgba(0,0,0,.4);
+z-index:2500;
+backdrop-filter: blur(2px);
 }
 
 #librarySheet{
@@ -140,91 +174,104 @@ position:absolute;
 left:0;
 right:0;
 bottom:0;
-background:#fff;
-padding:28px;
+background:white;
+padding:28px 20px 40px;
 border-radius:24px 24px 0 0;
-max-height:75vh;
+max-height:80vh;
 overflow:auto;
+box-shadow:0 -8px 30px rgba(0,0,0,.15);
 }
 
 .block{
 background:white;
 border:1px solid var(--border);
-border-radius:12px;
-padding:18px;
-font-weight:600;
+border-radius:14px;
+padding:20px;
 margin-bottom:14px;
+font-weight:600;
+cursor:pointer;
+text-align: center;
+box-shadow: 0 2px 4px rgba(0,0,0,.02);
+}
+
+.block:active{
+background:var(--accent-soft);
+transform: scale(0.98);
 }
 
 .num-block{
 border:2px dashed var(--accent);
-background:var(--soft);
-text-align:center;
+background:var(--accent-soft);
 color:var(--accent);
 font-weight:700;
 }
 
 .clear-btn{
 width:100%;
-margin-top:18px;
-padding:14px;
+margin-top:24px;
+padding:16px;
 border:none;
-border-radius:10px;
-background:#edf2f7;
+border-radius:12px;
+background:#f7fafc;
+color: #e53e3e;
 font-weight:700;
+cursor:pointer;
 }
 
-/* editor */
 #editorOverlay{
 display:none;
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.15);
+background:rgba(0,0,0,.5);
 z-index:4000;
+backdrop-filter: blur(4px);
 }
 
 #editorSheet{
 position:absolute;
-left:0;
-right:0;
-bottom:0;
+left:50%;
+top:50%;
+transform: translate(-50%, -50%);
+width: 85%;
+max-width: 320px;
 background:white;
-padding:28px;
-border-radius:24px 24px 0 0;
+padding:30px;
+border-radius:28px;
 text-align:center;
+box-shadow: 0 20px 40px rgba(0,0,0,.2);
 }
 
 .editorValue{
-font-size:54px;
-font-weight:700;
-margin:18px 0;
+font-size:64px;
+font-weight:800;
+margin-bottom:24px;
+color: var(--accent);
 }
 
 .editorBtns{
 display:flex;
 justify-content:center;
-gap:20px;
+gap:24px;
 }
 
 .editBtn{
 width:80px;
 height:80px;
-border-radius:18px;
+border:none;
+border-radius:22px;
 background:var(--accent);
 color:white;
 font-size:40px;
-display:flex;
-align-items:center;
-justify-content:center;
+font-weight: bold;
+cursor:pointer;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
-.empty{
-text-align:center;
-margin-top:120px;
-padding:50px;
-border:2px dashed #e2e8f0;
-border-radius:12px;
-color:#a0aec0;
+.editBtn:active{
+transform: scale(0.9);
+opacity: 0.8;
 }
 </style>
 </head>
@@ -232,460 +279,229 @@ color:#a0aec0;
 
 <div class="container">
 <div class="panel">
-<h3>Active Sequence</h3>
-<div id="sequence"></div>
+    <h3>Active Sequence</h3>
+    <div id="sequence"></div>
 </div>
 </div>
 
+<button id="fab">＋ Blocks</button>
 
-<div id="fab">
-＋ Blocks
+<div id="libraryOverlay" onclick="closeLibrary()">
+    <div id="librarySheet" onclick="event.stopPropagation()">
+        <h3>Block Library</h3>
+        <div class="block" onclick="quickAdd('Get Sensor Value')">Get Sensor Value</div>
+        <div class="block" onclick="quickAdd('Rest for')">Rest for</div>
+        <h3 style="margin-top:30px">Data Types</h3>
+        <div class="block num-block" onclick="tapNumberFill()">NUMBER</div>
+        <button class="clear-btn" onclick="clearAll()">Clear All</button>
+    </div>
 </div>
 
-
-<div id="libraryOverlay">
-<div id="librarySheet">
-
-<h3>Block Library</h3>
-
-<div class="block"
-ontouchstart="quickAdd('Get Sensor Value')"
-onclick="quickAdd('Get Sensor Value')">
-Get Sensor Value
+<div id="editorOverlay" onclick="closeEditor()">
+    <div id="editorSheet" onclick="event.stopPropagation()">
+        <div style="opacity:.6; margin-bottom:12px; font-weight: 600;">Adjust Value</div>
+        <div id="editorValue" class="editorValue">0</div>
+        <div class="editorBtns">
+            <button class="editBtn" onclick="adjustEditor(-1)">−</button>
+            <button class="editBtn" onclick="adjustEditor(1)">+</button>
+        </div>
+        <button class="clear-btn" onclick="closeEditor()" style="margin-top: 30px; color: var(--accent)">Done</button>
+    </div>
 </div>
-
-<div class="block"
-ontouchstart="quickAdd('Rest for')"
-onclick="quickAdd('Rest for')">
-Rest for
-</div>
-
-<h3 style="margin-top:30px">
-Data Types
-</h3>
-
-<div class="block num-block"
-ontouchstart="tapNumberFill()"
-onclick="tapNumberFill()">
-NUMBER
-</div>
-
-<div class="clear-btn"
-ontouchstart="clearAll()"
-onclick="clearAll()">
-Clear All
-</div>
-
-</div>
-</div>
-
-
-
-<div id="editorOverlay">
-<div id="editorSheet">
-
-<div style="opacity:.6">
-Adjust Value
-</div>
-
-<div id="editorValue"
-class="editorValue">
-0
-</div>
-
-<div class="editorBtns">
-<div class="editBtn"
-ontouchstart="adjustEditor(-1)"
-onclick="adjustEditor(-1)">
-−
-</div>
-
-<div class="editBtn"
-ontouchstart="adjustEditor(1)"
-onclick="adjustEditor(1)">
-+
-</div>
-</div>
-
-</div>
-</div>
-
-
 
 <script>
 let steps=[];
 let selectedSlot=null;
 let editingIndex=null;
+let draggedItemIndex = null;
 
-
-/* library */
-
+/* Library and FAB Logic (Unchanged) */
 function openLibrary(){
-document.getElementById(
-"libraryOverlay"
-).style.display="block";
+    document.getElementById("libraryOverlay").style.display="block";
 }
-
 function closeLibrary(){
-document.getElementById(
-"libraryOverlay"
-).style.display="none";
+    document.getElementById("libraryOverlay").style.display="none";
 }
-
 function toggleLibrary(){
-
-let o=
-document.getElementById(
-"libraryOverlay"
-);
-
-if(
-o.style.display==="block"
-){
-closeLibrary();
-}else{
-openLibrary();
+    let overlay=document.getElementById("libraryOverlay");
+    overlay.style.display === "block" ? closeLibrary() : openLibrary();
 }
 
+const fab = document.getElementById("fab");
+let draggingFab=false;
+let movedFab=false;
+let offsetX=0;
+let offsetY=0;
+
+function startFab(x,y){
+    const r=fab.getBoundingClientRect();
+    draggingFab=true;
+    movedFab=false;
+    offsetX=x-r.left;
+    offsetY=y-r.top;
+    fab.classList.add("dragging");
 }
 
-
-/* tap outside closes */
-
-document.getElementById(
-"libraryOverlay"
-).addEventListener(
-"touchstart",
-function(e){
-if(e.target===this){
-closeLibrary();
-}
-}
-);
-
-document.getElementById(
-"editorOverlay"
-).addEventListener(
-"touchstart",
-function(e){
-if(e.target===this){
-closeEditor();
-}
-}
-);
-
-
-
-/* movable FAB touch */
-const fab=
-document.getElementById("fab");
-
-let drag=false;
-let moved=false;
-let ox=0;
-let oy=0;
-
-function startDrag(x,y){
-
-const r=
-fab.getBoundingClientRect();
-
-drag=true;
-moved=false;
-
-ox=x-r.left;
-oy=y-r.top;
-
-fab.classList.add(
-"dragging"
-);
+function moveFab(x,y){
+    if(!draggingFab)return;
+    movedFab=true;
+    let left=x-offsetX;
+    let top=y-offsetY;
+    const maxX=window.innerWidth-fab.offsetWidth;
+    const maxY=window.innerHeight-fab.offsetHeight;
+    left=Math.max(0,Math.min(left,maxX));
+    top=Math.max(0,Math.min(top,maxY));
+    fab.style.left=left+"px";
+    fab.style.top=top+"px";
+    fab.style.right="auto";
+    fab.style.bottom="auto";
 }
 
-function moveDrag(x,y){
-
-if(!drag) return;
-
-moved=true;
-
-let left=x-ox;
-let top=y-oy;
-
-left=Math.max(
-0,
-Math.min(
-left,
-window.innerWidth-fab.offsetWidth
-));
-
-top=Math.max(
-0,
-Math.min(
-top,
-window.innerHeight-fab.offsetHeight
-));
-
-fab.style.left=
-left+"px";
-
-fab.style.top=
-top+"px";
-
-fab.style.right="auto";
-fab.style.bottom="auto";
+function endFab(){
+    if(!draggingFab)return;
+    draggingFab=false;
+    fab.classList.remove("dragging");
+    setTimeout(()=>{ if(!movedFab) toggleLibrary(); },10);
 }
 
-function endDrag(){
+fab.addEventListener("mousedown", e=>startFab(e.clientX, e.clientY));
+document.addEventListener("mousemove", e=>moveFab(e.clientX, e.clientY));
+document.addEventListener("mouseup", endFab);
+fab.addEventListener("touchstart", e=>{ startFab(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
+document.addEventListener("touchmove", e=>{ if(draggingFab) moveFab(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+document.addEventListener("touchend", endFab);
 
-if(!drag) return;
-
-drag=false;
-
-fab.classList.remove(
-"dragging"
-);
-
-setTimeout(()=>{
-if(!moved){
-toggleLibrary();
-}
-},10);
-
-}
-
-fab.addEventListener(
-"touchstart",
-e=>{
-let t=e.touches[0];
-startDrag(
-t.clientX,
-t.clientY
-);
-},
-{passive:true}
-);
-
-document.addEventListener(
-"touchmove",
-e=>{
-let t=e.touches[0];
-moveDrag(
-t.clientX,
-t.clientY
-);
-},
-{passive:false}
-);
-
-document.addEventListener(
-"touchend",
-endDrag
-);
-
-
-
-/* sequence */
-
+/* Core Logic */
 function quickAdd(label){
-
-steps.push({
-label,
-value:null
-});
-
-closeLibrary();
-
-render();
+    steps.push({label, value:null});
+    closeLibrary();
+    render();
 }
 
-function selectSlot(i){
-
-selectedSlot=i;
-
-openLibrary();
-
-render();
+function selectSlot(i,e){
+    e.stopPropagation();
+    selectedSlot=i;
+    openLibrary();
+    render();
 }
 
 function tapNumberFill(){
-
-if(
-selectedSlot!==null &&
-steps[selectedSlot].value===null
-){
-steps[selectedSlot].value=0;
-
-selectedSlot=null;
-
-closeLibrary();
-
-render();
-}
+    if(selectedSlot!==null && steps[selectedSlot].value===null){
+        steps[selectedSlot].value=0;
+        selectedSlot=null;
+        closeLibrary();
+        render();
+    }
 }
 
+/* Rearrange Drag & Drop Logic */
+function handleDragStart(i) {
+    draggedItemIndex = i;
+}
 
-/* editor */
+function handleDragOver(e, i) {
+    e.preventDefault();
+    if (draggedItemIndex === i) return;
+    e.currentTarget.classList.add('drag-over');
+}
 
-function openEditor(i){
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
 
-editingIndex=i;
+function handleDrop(e, targetIndex) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
 
-document.getElementById(
-"editorValue"
-).innerText=
-steps[i].value;
+    const itemToMove = steps.splice(draggedItemIndex, 1)[0];
+    steps.splice(targetIndex, 0, itemToMove);
+    
+    draggedItemIndex = null;
+    render();
+}
 
-document.getElementById(
-"editorOverlay"
-).style.display="block";
-
-render();
+/* Editor Logic */
+function openEditor(i,e){
+    e.stopPropagation();
+    editingIndex=i;
+    document.getElementById("editorValue").innerText=steps[i].value;
+    document.getElementById("editorOverlay").style.display="block";
+    render();
 }
 
 function adjustEditor(a){
-
-steps[editingIndex].value=
-Math.max(
-0,
-steps[editingIndex].value+a
-);
-
-document.getElementById(
-"editorValue"
-).innerText=
-steps[editingIndex].value;
-
-render();
+    steps[editingIndex].value=Math.max(0, steps[editingIndex].value+a);
+    document.getElementById("editorValue").innerText=steps[editingIndex].value;
+    render();
 }
 
 function closeEditor(){
-
-editingIndex=null;
-
-document.getElementById(
-"editorOverlay"
-).style.display="none";
-
-render();
+    editingIndex=null;
+    document.getElementById("editorOverlay").style.display="none";
+    render();
 }
 
-
 function removeStep(i){
-steps.splice(i,1);
-render();
+    steps.splice(i,1);
+    render();
 }
 
 function clearAll(){
-
-if(confirm(
-"Start new sequence?"
-)){
-steps=[];
-render();
-}
+    if(confirm("Start a new sequence?")){
+        steps=[];
+        render();
+    }
 }
 
-
-/* render */
-
-function render(){
-
-let seq=
-document.getElementById(
-"sequence"
-);
-
-seq.innerHTML="";
-
-if(!steps.length){
-
-seq.innerHTML=
-`
-<div class='empty'>
-Tap + Blocks to begin
-</div>
-`;
-
-}
-
-steps.forEach((s,i)=>{
-
-let row=
-document.createElement("div");
-
-row.className="step";
-
-let val="";
-
-if(s.value===null){
-
-val=
-`
-<div
-class="slot ${selectedSlot===i?'active':''}"
-ontouchstart="
-selectSlot(${i})
-"
-onclick="
-selectSlot(${i})
-">
-drop number
-</div>
-`;
-
-}else{
-
-val=
-`
-<div
-class="value-pill
-${editingIndex===i?'active':''}"
-ontouchstart="
-openEditor(${i})
-"
-onclick="
-openEditor(${i})
-">
-${s.value}
-</div>
-`;
-
-}
-
-row.innerHTML=
-`
-<div style="
-display:flex;
-align-items:center;
-">
-<span>
-${s.label}
-</span>
-
-${val}
-</div>
-
-<div
-class="del-btn"
-ontouchstart="
-removeStep(${i})
-"
-onclick="
-removeStep(${i})
-">
-×
-</div>
-`;
-
-seq.appendChild(
-row
-);
-
+document.addEventListener("click", ()=>{
+    selectedSlot=null;
+    render();
 });
 
+/* Render View */
+function render(){
+    const seq=document.getElementById("sequence");
+    seq.innerHTML="";
+    
+    if(!steps.length){
+        seq.innerHTML=`
+        <div style="text-align:center; margin-top:100px; padding:50px; border:2px dashed #e2e8f0; border-radius:12px; color:#a0aec0;">
+            Tap + Blocks to begin
+        </div>`;
+    }
+
+    steps.forEach((step,i)=>{
+        let row=document.createElement("div");
+        row.className="step";
+        row.draggable = true;
+        
+        // Drag Events
+        row.ondragstart = () => handleDragStart(i);
+        row.ondragover = (e) => handleDragOver(e, i);
+        row.ondragleave = (e) => handleDragLeave(e);
+        row.ondrop = (e) => handleDrop(e, i);
+
+        let valDisplay="";
+        if(step.value===null){
+            valDisplay=`<div class="slot ${selectedSlot===i?'active':''}" onclick="selectSlot(${i},event)">drop number</div>`;
+        }else{
+            valDisplay=`<div class="value-pill ${editingIndex===i?'active':''}" onclick="openEditor(${i},event)">${step.value}</div>`;
+        }
+        
+        row.innerHTML=`
+            <div style="display:flex; align-items:center; pointer-events:none;">
+                <span style="font-weight:600; color:#2d3748;">${step.label}</span>
+                <div style="pointer-events: auto;">${valDisplay}</div>
+            </div>
+            <button class="del-btn" onclick="event.stopPropagation(); removeStep(${i})">&times;</button>
+        `;
+        
+        seq.appendChild(row);
+    });
 }
 
 render();
 </script>
-
 </body>
 </html>
