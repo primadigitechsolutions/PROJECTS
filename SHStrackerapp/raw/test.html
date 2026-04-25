@@ -67,7 +67,7 @@ align-items:center;
 cursor: grab;
 transition: transform 0.1s, box-shadow 0.2s;
 user-select: none;
-touch-action: none; /* Required for touch dragging */
+touch-action: none;
 }
 
 .step.dragging-active {
@@ -91,7 +91,6 @@ height:44px;
 margin-left:12px;
 font-size:.75rem;
 cursor:pointer;
-transition:.2s;
 }
 
 .slot.active{
@@ -219,7 +218,7 @@ font-weight: bold;
 </div>
 </div>
 
-<button id="fab">＋Blocks</button>
+<button id="fab" onclick="handleFabClick(event)">＋ Blocks</button>
 
 <div id="libraryOverlay" onclick="closeLibrary()">
     <div id="librarySheet" onclick="event.stopPropagation()">
@@ -257,18 +256,54 @@ function openLibrary(){ document.getElementById("libraryOverlay").style.display=
 function closeLibrary(){ document.getElementById("libraryOverlay").style.display="none"; }
 function toggleLibrary(){ let o=document.getElementById("libraryOverlay"); o.style.display==="block"?closeLibrary():openLibrary(); }
 
-/* FAB Logic */
+/* FAB Logic - Refined for Touch */
 const fab = document.getElementById("fab");
 let dragFab=false, moveFab=false, ox=0, oy=0;
-function startF(x,y){ const r=fab.getBoundingClientRect(); dragFab=true; moveFab=false; ox=x-r.left; oy=y-r.top; }
-function moveF(x,y){ if(!dragFab)return; moveFab=true; let l=x-ox, t=y-oy; fab.style.left=l+"px"; fab.style.top=t+"px"; fab.style.right="auto"; fab.style.bottom="auto"; }
-function endF(){ if(!dragFab)return; dragFab=false; setTimeout(()=>{if(!moveFab)toggleLibrary();},10); }
+
+function startF(x,y){
+    const r=fab.getBoundingClientRect();
+    dragFab=true;
+    moveFab=false;
+    ox=x-r.left;
+    oy=y-r.top;
+}
+
+function moveF(x,y){
+    if(!dragFab)return;
+    moveFab=true;
+    let l=x-ox, t=y-oy;
+    fab.style.left=l+"px";
+    fab.style.top=t+"px";
+    fab.style.right="auto";
+    fab.style.bottom="auto";
+}
+
+function endF(){
+    dragFab=false;
+}
+
+// Separate click handler that ignores the drag check if no movement happened
+function handleFabClick(e) {
+    if(!moveFab) {
+        toggleLibrary();
+    }
+}
 
 fab.addEventListener("mousedown", e=>startF(e.clientX, e.clientY));
 document.addEventListener("mousemove", e=>moveF(e.clientX, e.clientY));
 document.addEventListener("mouseup", endF);
-fab.addEventListener("touchstart", e=>startF(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-document.addEventListener("touchmove", e=>{ if(dragFab) { e.preventDefault(); moveF(e.touches[0].clientX, e.touches[0].clientY); }}, {passive:false});
+
+fab.addEventListener("touchstart", e=>{
+    startF(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive:true});
+
+document.addEventListener("touchmove", e=>{
+    if(dragFab) {
+        if(e.cancelable) e.preventDefault();
+        moveF(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, {passive:false});
+
 document.addEventListener("touchend", endF);
 
 /* Drag & Drop Logic (Touch Friendly) */
