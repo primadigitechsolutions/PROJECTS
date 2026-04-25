@@ -190,12 +190,6 @@ font-weight:600;
 background:#edf2f7;
 }
 
-.clear-btn:hover{
-background:#fee2e2;
-color:red;
-}
-
-/* touch drag ghost */
 .touchGhost{
 position:fixed;
 z-index:9999;
@@ -213,14 +207,13 @@ box-shadow:0 8px 20px rgba(0,0,0,.2);
 <div class="container">
 
 <div class="panel">
-
 <h3>Block Library</h3>
 
 <div class="block"
 draggable="true"
 onclick="quickAdd('Get Sensor Value')"
 ondragstart="dragStart(event,'func','Get Sensor Value')"
-ontouchstart="touchBlockStart(event,'Get Sensor Value')">
+ontouchstart="touchBlockStart(event,'func','Get Sensor Value')">
 Get Sensor Value
 </div>
 
@@ -228,7 +221,7 @@ Get Sensor Value
 draggable="true"
 onclick="quickAdd('Rest for')"
 ondragstart="dragStart(event,'func','Rest for')"
-ontouchstart="touchBlockStart(event,'Rest for')">
+ontouchstart="touchBlockStart(event,'func','Rest for')">
 Rest for
 </div>
 
@@ -238,11 +231,14 @@ Rest for
 
 <div class="block num-block"
 draggable="true"
-ondragstart="dragStart(event,'num',null)">
+onclick="tapNumberFill()"
+ondragstart="dragStart(event,'num',null)"
+ontouchstart="touchBlockStart(event,'num',null)">
 NUMBER
 </div>
 
-<button class="clear-btn"
+<button
+class="clear-btn"
 onclick="clearAll()">
 Clear All
 </button>
@@ -251,34 +247,50 @@ Clear All
 
 <div class="panel">
 <h3>Active Sequence</h3>
+
 <div id="sequence"
 ondragover="onDragOverSeq(event)"
 ondrop="onDropSeq(event)">
 </div>
-</div>
 
 </div>
 
+</div>
 
 <script>
 let steps=[];
 let activeStepper=null;
 
+/* quick add */
 function quickAdd(label){
 steps.push({
-label:label,
+label,
 value:null
 });
 render();
 }
 
-/* ---------- Desktop drag ---------- */
+/* tap NUMBER fills selected block */
+function tapNumberFill(){
+if(
+activeStepper!==null &&
+steps[activeStepper].value===null
+){
+steps[activeStepper].value=0;
+render();
+}
+}
 
-function dragStart(ev,type,label,index=null){
-ev.dataTransfer.setData("type",type);
-ev.dataTransfer.setData("label",label);
+/* desktop drag */
+
+function dragStart(e,type,label,index=null){
+e.dataTransfer.setData("type",type);
+e.dataTransfer.setData("label",label);
 if(index!==null){
-ev.dataTransfer.setData("oldIndex",index);
+e.dataTransfer.setData(
+"oldIndex",
+index
+);
 }
 }
 
@@ -287,12 +299,18 @@ e.preventDefault();
 }
 
 function getDragAfterElement(container,y){
+
 const els=[
-...container.querySelectorAll(".step:not(.dragging)")
+...container.querySelectorAll(
+".step:not(.dragging)"
+)
 ];
 
-return els.reduce((closest,child)=>{
-const box=child.getBoundingClientRect();
+return els.reduce(
+(closest,child)=>{
+
+const box=
+child.getBoundingClientRect();
 
 const offset=
 y-box.top-box.height/2;
@@ -306,14 +324,17 @@ offset,
 element:child
 }
 }
+
 return closest;
 
 },{
 offset:-Infinity
-}).element;
+}
+).element;
 }
 
 function onDropSeq(e){
+
 e.preventDefault();
 
 let type=
@@ -325,10 +346,14 @@ let label=
 e.dataTransfer.getData("label");
 
 let oldIndex=
-e.dataTransfer.getData("oldIndex");
+e.dataTransfer.getData(
+"oldIndex"
+);
 
 const container=
-document.getElementById("sequence");
+document.getElementById(
+"sequence"
+);
 
 const after=
 getDragAfterElement(
@@ -339,15 +364,22 @@ e.clientY
 let newIndex=
 after==null
 ?steps.length
-:[...container.children].indexOf(after);
+:[...container.children]
+.indexOf(after);
 
 if(oldIndex!==""){
+
 oldIndex=parseInt(oldIndex);
 
 let moved=
-steps.splice(oldIndex,1)[0];
+steps.splice(
+oldIndex,
+1
+)[0];
 
-if(oldIndex<newIndex){
+if(
+oldIndex<newIndex
+){
 newIndex--;
 }
 
@@ -373,23 +405,41 @@ value:null
 render();
 }
 
-/* ---------- Touch Drag ---------- */
+/* touch drag for BOTH blocks */
 
 let ghost=null;
+let touchType=null;
 let touchLabel=null;
 
-function touchBlockStart(e,label){
+function touchBlockStart(
+e,
+type,
+label
+){
 
+touchType=type;
 touchLabel=label;
 
 ghost=
-document.createElement("div");
-ghost.className="touchGhost";
-ghost.innerText=label;
+document.createElement(
+"div"
+);
 
-document.body.appendChild(ghost);
+ghost.className=
+"touchGhost";
 
-moveGhost(e.touches[0]);
+ghost.innerText=
+type==="num"
+?"NUMBER"
+:label;
+
+document.body.appendChild(
+ghost
+);
+
+moveGhost(
+e.touches[0]
+);
 
 document.addEventListener(
 "touchmove",
@@ -405,13 +455,14 @@ touchEnd
 
 function touchMove(e){
 e.preventDefault();
-moveGhost(e.touches[0]);
+moveGhost(
+e.touches[0]
+);
 }
 
 function moveGhost(t){
 ghost.style.left=
 (t.clientX+10)+"px";
-
 ghost.style.top=
 (t.clientY+10)+"px";
 }
@@ -431,16 +482,23 @@ touchEnd
 let t=
 e.changedTouches[0];
 
-let el=
+let target=
 document.elementFromPoint(
 t.clientX,
 t.clientY
 );
 
+/* function drop */
+if(
+touchType==="func"
+){
+
 if(
 document
-.getElementById("sequence")
-.contains(el)
+.getElementById(
+"sequence"
+)
+.contains(target)
 ){
 steps.push({
 label:touchLabel,
@@ -449,22 +507,48 @@ value:null
 render();
 }
 
+}
+
+/* number drop into slot */
+if(
+touchType==="num"
+){
+
+let slot=
+target.closest(".slot");
+
+if(slot){
+
+let i=
+parseInt(
+slot.dataset.index
+);
+
+steps[i].value=0;
+render();
+
+}
+
+}
+
 if(ghost){
 ghost.remove();
 ghost=null;
 }
 }
 
-/* ---------- Number slots ---------- */
+/* slot drop */
+function dropOnSlot(e,i){
 
-function dropOnSlot(e,index){
 e.preventDefault();
 e.stopPropagation();
 
 if(
-e.dataTransfer.getData("type")==="num"
+e.dataTransfer.getData(
+"type"
+)==="num"
 ){
-steps[index].value=0;
+steps[i].value=0;
 render();
 }
 }
@@ -492,21 +576,19 @@ render();
 }
 );
 
-/* ---------- Actions ---------- */
-
 function removeStep(i){
 steps.splice(i,1);
 render();
 }
 
 function clearAll(){
-if(confirm("Start a new sequence?")){
+if(confirm(
+"Start a new sequence?"
+)){
 steps=[];
 render();
 }
 }
-
-/* ---------- Render ---------- */
 
 function render(){
 
@@ -527,7 +609,7 @@ border:2px dashed #e2e8f0;
 padding:40px;
 border-radius:12px;
 color:#a0aec0;">
-Drag OR tap functions here
+Drag or tap functions here
 </div>
 `;
 }
@@ -535,7 +617,9 @@ Drag OR tap functions here
 steps.forEach((step,i)=>{
 
 let row=
-document.createElement("div");
+document.createElement(
+"div"
+);
 
 row.className="step";
 
@@ -559,13 +643,17 @@ row.classList.remove(
 );
 };
 
-let valDisplay="";
+let valDisplay;
 
-if(step.value===null){
+if(
+step.value===null
+){
 
 valDisplay=
 `
-<div class="slot"
+<div
+class="slot"
+data-index="${i}"
 ondragover="
 event.preventDefault()
 "
@@ -580,13 +668,16 @@ drop number
 
 valDisplay=
 `
-<div
-class="stepper ${activeStepper===i?'active':''}"
-onclick="activateStepper(${i},event)">
+<div class="stepper ${activeStepper===i?'active':''}"
+onclick="
+activateStepper(${i},event)
+">
 
 <button
 class="step-btn"
-onclick="adjustValue(${i},-1)">
+onclick="
+adjustValue(${i},-1)
+">
 -
 </button>
 
@@ -596,7 +687,9 @@ ${step.value}
 
 <button
 class="step-btn"
-onclick="adjustValue(${i},1)">
+onclick="
+adjustValue(${i},1)
+">
 +
 </button>
 
@@ -618,7 +711,9 @@ ${valDisplay}
 
 <button
 class="del-btn"
-onclick="removeStep(${i})">
+onclick="
+removeStep(${i})
+">
 &times;
 </button>
 `;
