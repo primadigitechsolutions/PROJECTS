@@ -51,6 +51,7 @@ padding-bottom:8px;
 
 #sequence{
 min-height:500px;
+position: relative;
 }
 
 .step{
@@ -64,19 +65,18 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 cursor: grab;
-transition: transform 0.2s, box-shadow 0.2s;
+transition: transform 0.1s, box-shadow 0.2s;
 user-select: none;
+touch-action: none; /* Required for touch dragging */
+}
+
+.step.dragging-active {
+opacity: 0.9;
+transform: scale(1.02);
+box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 position: relative;
-}
-
-.step.dragging-item {
-opacity: 0.5;
-transform: scale(0.98);
+z-index: 1000;
 background: var(--accent-soft);
-}
-
-.step.drag-over {
-border-top: 4px solid var(--accent);
 }
 
 .slot{
@@ -116,18 +116,12 @@ min-width:60px;
 color: var(--accent);
 }
 
-.value-pill.active{
-background:var(--accent);
-border-color:var(--accent);
-color:white;
-}
-
 .del-btn{
 background:#fee2e2;
 border:none;
-width: 40px;
-height: 40px;
-border-radius: 50%;
+width: 44px;
+height: 44px;
+border-radius: 12px;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -154,13 +148,7 @@ user-select:none;
 touch-action:none;
 }
 
-#fab.dragging{
-cursor:grabbing;
-transform:scale(1.1);
-opacity: 0.9;
-}
-
-#libraryOverlay{
+#libraryOverlay, #editorOverlay{
 display:none;
 position:fixed;
 inset:0;
@@ -179,7 +167,6 @@ padding:28px 20px 40px;
 border-radius:24px 24px 0 0;
 max-height:80vh;
 overflow:auto;
-box-shadow:0 -8px 30px rgba(0,0,0,.15);
 }
 
 .block{
@@ -189,42 +176,7 @@ border-radius:14px;
 padding:20px;
 margin-bottom:14px;
 font-weight:600;
-cursor:pointer;
 text-align: center;
-box-shadow: 0 2px 4px rgba(0,0,0,.02);
-}
-
-.block:active{
-background:var(--accent-soft);
-transform: scale(0.98);
-}
-
-.num-block{
-border:2px dashed var(--accent);
-background:var(--accent-soft);
-color:var(--accent);
-font-weight:700;
-}
-
-.clear-btn{
-width:100%;
-margin-top:24px;
-padding:16px;
-border:none;
-border-radius:12px;
-background:#f7fafc;
-color: #e53e3e;
-font-weight:700;
-cursor:pointer;
-}
-
-#editorOverlay{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.5);
-z-index:4000;
-backdrop-filter: blur(4px);
 }
 
 #editorSheet{
@@ -238,14 +190,6 @@ background:white;
 padding:30px;
 border-radius:28px;
 text-align:center;
-box-shadow: 0 20px 40px rgba(0,0,0,.2);
-}
-
-.editorValue{
-font-size:64px;
-font-weight:800;
-margin-bottom:24px;
-color: var(--accent);
 }
 
 .editorBtns{
@@ -263,15 +207,6 @@ background:var(--accent);
 color:white;
 font-size:40px;
 font-weight: bold;
-cursor:pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-.editBtn:active{
-transform: scale(0.9);
-opacity: 0.8;
 }
 </style>
 </head>
@@ -284,7 +219,7 @@ opacity: 0.8;
 </div>
 </div>
 
-<button id="fab">＋ Blocks</button>
+<button id="fab">＋Blocks</button>
 
 <div id="libraryOverlay" onclick="closeLibrary()">
     <div id="librarySheet" onclick="event.stopPropagation()">
@@ -292,20 +227,20 @@ opacity: 0.8;
         <div class="block" onclick="quickAdd('Get Sensor Value')">Get Sensor Value</div>
         <div class="block" onclick="quickAdd('Rest for')">Rest for</div>
         <h3 style="margin-top:30px">Data Types</h3>
-        <div class="block num-block" onclick="tapNumberFill()">NUMBER</div>
-        <button class="clear-btn" onclick="clearAll()">Clear All</button>
+        <div class="block" style="border:2px dashed var(--accent); background:var(--accent-soft); color:var(--accent)" onclick="tapNumberFill()">NUMBER</div>
+        <button onclick="clearAll()" style="width:100%; margin-top:24px; padding:16px; border:none; border-radius:12px; background:#f7fafc; color:#e53e3e; font-weight:700;">Clear All</button>
     </div>
 </div>
 
 <div id="editorOverlay" onclick="closeEditor()">
     <div id="editorSheet" onclick="event.stopPropagation()">
-        <div style="opacity:.6; margin-bottom:12px; font-weight: 600;">Adjust Value</div>
-        <div id="editorValue" class="editorValue">0</div>
+        <div style="opacity:.6; margin-bottom:12px; font-weight:600;">Adjust Value</div>
+        <div id="editorValue" style="font-size:64px; font-weight:800; margin-bottom:24px; color:var(--accent);">0</div>
         <div class="editorBtns">
             <button class="editBtn" onclick="adjustEditor(-1)">−</button>
             <button class="editBtn" onclick="adjustEditor(1)">+</button>
         </div>
-        <button class="clear-btn" onclick="closeEditor()" style="margin-top: 30px; color: var(--accent)">Done</button>
+        <button onclick="closeEditor()" style="width:100%; margin-top:30px; padding:16px; border:none; border-radius:12px; background:var(--accent-soft); color:var(--accent); font-weight:700;">Done</button>
     </div>
 </div>
 
@@ -313,193 +248,95 @@ opacity: 0.8;
 let steps=[];
 let selectedSlot=null;
 let editingIndex=null;
-let draggedItemIndex = null;
 
-/* Library and FAB Logic (Unchanged) */
-function openLibrary(){
-    document.getElementById("libraryOverlay").style.display="block";
-}
-function closeLibrary(){
-    document.getElementById("libraryOverlay").style.display="none";
-}
-function toggleLibrary(){
-    let overlay=document.getElementById("libraryOverlay");
-    overlay.style.display === "block" ? closeLibrary() : openLibrary();
-}
+/* Touch Drag Data */
+let dragNode = null;
+let dragIndex = null;
 
+function openLibrary(){ document.getElementById("libraryOverlay").style.display="block"; }
+function closeLibrary(){ document.getElementById("libraryOverlay").style.display="none"; }
+function toggleLibrary(){ let o=document.getElementById("libraryOverlay"); o.style.display==="block"?closeLibrary():openLibrary(); }
+
+/* FAB Logic */
 const fab = document.getElementById("fab");
-let draggingFab=false;
-let movedFab=false;
-let offsetX=0;
-let offsetY=0;
+let dragFab=false, moveFab=false, ox=0, oy=0;
+function startF(x,y){ const r=fab.getBoundingClientRect(); dragFab=true; moveFab=false; ox=x-r.left; oy=y-r.top; }
+function moveF(x,y){ if(!dragFab)return; moveFab=true; let l=x-ox, t=y-oy; fab.style.left=l+"px"; fab.style.top=t+"px"; fab.style.right="auto"; fab.style.bottom="auto"; }
+function endF(){ if(!dragFab)return; dragFab=false; setTimeout(()=>{if(!moveFab)toggleLibrary();},10); }
 
-function startFab(x,y){
-    const r=fab.getBoundingClientRect();
-    draggingFab=true;
-    movedFab=false;
-    offsetX=x-r.left;
-    offsetY=y-r.top;
-    fab.classList.add("dragging");
+fab.addEventListener("mousedown", e=>startF(e.clientX, e.clientY));
+document.addEventListener("mousemove", e=>moveF(e.clientX, e.clientY));
+document.addEventListener("mouseup", endF);
+fab.addEventListener("touchstart", e=>startF(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+document.addEventListener("touchmove", e=>{ if(dragFab) { e.preventDefault(); moveF(e.touches[0].clientX, e.touches[0].clientY); }}, {passive:false});
+document.addEventListener("touchend", endF);
+
+/* Drag & Drop Logic (Touch Friendly) */
+function initDrag(e, index) {
+    if(e.target.closest('button') || e.target.closest('.slot') || e.target.closest('.value-pill')) return;
+    dragIndex = index;
+    dragNode = e.currentTarget;
+    dragNode.classList.add('dragging-active');
 }
 
-function moveFab(x,y){
-    if(!draggingFab)return;
-    movedFab=true;
-    let left=x-offsetX;
-    let top=y-offsetY;
-    const maxX=window.innerWidth-fab.offsetWidth;
-    const maxY=window.innerHeight-fab.offsetHeight;
-    left=Math.max(0,Math.min(left,maxX));
-    top=Math.max(0,Math.min(top,maxY));
-    fab.style.left=left+"px";
-    fab.style.top=top+"px";
-    fab.style.right="auto";
-    fab.style.bottom="auto";
-}
-
-function endFab(){
-    if(!draggingFab)return;
-    draggingFab=false;
-    fab.classList.remove("dragging");
-    setTimeout(()=>{ if(!movedFab) toggleLibrary(); },10);
-}
-
-fab.addEventListener("mousedown", e=>startFab(e.clientX, e.clientY));
-document.addEventListener("mousemove", e=>moveFab(e.clientX, e.clientY));
-document.addEventListener("mouseup", endFab);
-fab.addEventListener("touchstart", e=>{ startFab(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
-document.addEventListener("touchmove", e=>{ if(draggingFab) moveFab(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
-document.addEventListener("touchend", endFab);
-
-/* Core Logic */
-function quickAdd(label){
-    steps.push({label, value:null});
-    closeLibrary();
-    render();
-}
-
-function selectSlot(i,e){
-    e.stopPropagation();
-    selectedSlot=i;
-    openLibrary();
-    render();
-}
-
-function tapNumberFill(){
-    if(selectedSlot!==null && steps[selectedSlot].value===null){
-        steps[selectedSlot].value=0;
-        selectedSlot=null;
-        closeLibrary();
-        render();
-    }
-}
-
-/* Rearrange Drag & Drop Logic */
-function handleDragStart(i) {
-    draggedItemIndex = i;
-}
-
-function handleDragOver(e, i) {
-    e.preventDefault();
-    if (draggedItemIndex === i) return;
-    e.currentTarget.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
-}
-
-function handleDrop(e, targetIndex) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
-
-    const itemToMove = steps.splice(draggedItemIndex, 1)[0];
-    steps.splice(targetIndex, 0, itemToMove);
+function handleTouchMove(e) {
+    if (dragIndex === null) return;
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const step = target?.closest('.step');
     
-    draggedItemIndex = null;
-    render();
-}
-
-/* Editor Logic */
-function openEditor(i,e){
-    e.stopPropagation();
-    editingIndex=i;
-    document.getElementById("editorValue").innerText=steps[i].value;
-    document.getElementById("editorOverlay").style.display="block";
-    render();
-}
-
-function adjustEditor(a){
-    steps[editingIndex].value=Math.max(0, steps[editingIndex].value+a);
-    document.getElementById("editorValue").innerText=steps[editingIndex].value;
-    render();
-}
-
-function closeEditor(){
-    editingIndex=null;
-    document.getElementById("editorOverlay").style.display="none";
-    render();
-}
-
-function removeStep(i){
-    steps.splice(i,1);
-    render();
-}
-
-function clearAll(){
-    if(confirm("Start a new sequence?")){
-        steps=[];
-        render();
+    if (step && step !== dragNode) {
+        const children = Array.from(document.getElementById('sequence').children);
+        const newIndex = children.indexOf(step);
+        if (newIndex !== -1) {
+            const item = steps.splice(dragIndex, 1)[0];
+            steps.splice(newIndex, 0, item);
+            dragIndex = newIndex;
+            render();
+        }
     }
 }
 
-document.addEventListener("click", ()=>{
-    selectedSlot=null;
-    render();
-});
+function endDrag() {
+    if (dragNode) dragNode.classList.remove('dragging-active');
+    dragIndex = null;
+    dragNode = null;
+}
 
-/* Render View */
+/* Core Actions */
+function quickAdd(label){ steps.push({label, value:null}); closeLibrary(); render(); }
+function selectSlot(i,e){ e.stopPropagation(); selectedSlot=i; openLibrary(); render(); }
+function tapNumberFill(){ if(selectedSlot!==null){ steps[selectedSlot].value=0; selectedSlot=null; closeLibrary(); render(); } }
+function openEditor(i,e){ e.stopPropagation(); editingIndex=i; document.getElementById("editorValue").innerText=steps[i].value; document.getElementById("editorOverlay").style.display="block"; }
+function adjustEditor(a){ steps[editingIndex].value=Math.max(0, steps[editingIndex].value+a); document.getElementById("editorValue").innerText=steps[editingIndex].value; render(); }
+function closeEditor(){ document.getElementById("editorOverlay").style.display="none"; render(); }
+function removeStep(i){ steps.splice(i,1); render(); }
+function clearAll(){ if(confirm("Clear sequence?")){ steps=[]; render(); closeLibrary(); } }
+
 function render(){
     const seq=document.getElementById("sequence");
-    seq.innerHTML="";
+    seq.innerHTML=steps.length?"":`<div style="text-align:center; margin-top:100px; padding:50px; border:2px dashed #e2e8f0; border-radius:12px; color:#a0aec0;">Tap + Blocks to begin</div>`;
     
-    if(!steps.length){
-        seq.innerHTML=`
-        <div style="text-align:center; margin-top:100px; padding:50px; border:2px dashed #e2e8f0; border-radius:12px; color:#a0aec0;">
-            Tap + Blocks to begin
-        </div>`;
-    }
-
     steps.forEach((step,i)=>{
-        let row=document.createElement("div");
+        const row=document.createElement("div");
         row.className="step";
-        row.draggable = true;
+        row.onmousedown = (e) => initDrag(e, i);
+        row.ontouchstart = (e) => initDrag(e, i);
         
-        // Drag Events
-        row.ondragstart = () => handleDragStart(i);
-        row.ondragover = (e) => handleDragOver(e, i);
-        row.ondragleave = (e) => handleDragLeave(e);
-        row.ondrop = (e) => handleDrop(e, i);
-
-        let valDisplay="";
-        if(step.value===null){
-            valDisplay=`<div class="slot ${selectedSlot===i?'active':''}" onclick="selectSlot(${i},event)">drop number</div>`;
-        }else{
-            valDisplay=`<div class="value-pill ${editingIndex===i?'active':''}" onclick="openEditor(${i},event)">${step.value}</div>`;
-        }
-        
-        row.innerHTML=`
-            <div style="display:flex; align-items:center; pointer-events:none;">
-                <span style="font-weight:600; color:#2d3748;">${step.label}</span>
-                <div style="pointer-events: auto;">${valDisplay}</div>
-            </div>
-            <button class="del-btn" onclick="event.stopPropagation(); removeStep(${i})">&times;</button>
-        `;
-        
+        let val = step.value === null 
+            ? `<div class="slot ${selectedSlot===i?'active':''}" onclick="selectSlot(${i},event)">drop number</div>`
+            : `<div class="value-pill" onclick="openEditor(${i},event)">${step.value}</div>`;
+            
+        row.innerHTML=`<div style="display:flex; align-items:center; pointer-events:none;">
+            <span style="font-weight:600;">${step.label}</span><div style="pointer-events:auto;">${val}</div>
+        </div><button class="del-btn" onclick="removeStep(${i})">&times;</button>`;
         seq.appendChild(row);
     });
 }
+
+document.addEventListener("touchmove", handleTouchMove, {passive: false});
+document.addEventListener("touchend", endDrag);
+document.addEventListener("mouseup", endDrag);
 
 render();
 </script>
