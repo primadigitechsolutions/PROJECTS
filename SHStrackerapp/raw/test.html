@@ -1,331 +1,635 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arduino Builder · Full Source</title>
-  <style>
-    :root {
-      --bg: #f0f4f8;
-      --panel: #ffffff;
-      --accent: #3182ce;
-      --accent-soft: #ebf8ff;
-      --text-main: #2d3748;
-      --text-light: #718096;
-      --border-color: #e2e8f0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Arduino Builder Touch Fixed</title>
 
-    body { 
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-      background-color: var(--bg);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      margin: 0;
-      padding: 40px 20px;
-    }
+<style>
+:root{
+--bg:#f0f4f8;
+--panel:#fff;
+--accent:#3182ce;
+--accent-soft:#ebf8ff;
+--text-main:#2d3748;
+--text-light:#718096;
+--border:#e2e8f0;
+}
 
-    .container {
-      display: flex;
-      gap: 24px;
-      width: 100%;
-      max-width: 1000px;
-    }
+body{
+font-family:Segoe UI,system-ui;
+background:var(--bg);
+margin:0;
+padding:40px 20px;
+display:flex;
+justify-content:center;
+color:var(--text-main);
+touch-action:manipulation;
+}
 
-    /* Side Panels */
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.03);
-      flex: 1;
-      min-height: 600px;
-    }
+.container{
+display:flex;
+gap:24px;
+width:100%;
+max-width:1000px;
+}
 
-    h3 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--accent);
-      margin: 0 0 20px 0;
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
+.panel{
+background:#fff;
+border:1px solid var(--border);
+border-radius:16px;
+padding:24px;
+box-shadow:0 10px 25px rgba(0,0,0,.03);
+flex:1;
+min-height:600px;
+}
 
-    /* Draggable Library Blocks */
-    .block {
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 12px;
-      cursor: grab;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .block:hover {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      transform: translateY(-1px);
-    }
-    .block:active { cursor: grabbing; }
+h3{
+font-size:.75rem;
+letter-spacing:1px;
+text-transform:uppercase;
+color:var(--accent);
+border-bottom:2px solid var(--accent-soft);
+padding-bottom:8px;
+margin:0 0 20px;
+}
 
-    .num-block {
-      border: 2px dashed var(--accent);
-      background: var(--accent-soft);
-      color: var(--accent);
-      text-align: center;
-      font-weight: 700;
-    }
+.block{
+background:white;
+border:1px solid var(--border);
+border-radius:8px;
+padding:14px;
+margin-bottom:12px;
+cursor:grab;
+user-select:none;
+font-weight:500;
+transition:.2s;
+}
 
-    /* Sequence Items */
-    #sequence {
-      min-height: 500px;
-      position: relative;
-    }
+.block:hover{
+background:var(--accent-soft);
+border-color:var(--accent);
+}
 
-    .step {
-      background: white;
-      border: 1px solid var(--border-color);
-      border-left: 6px solid var(--accent);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: grab;
-      animation: fadeIn 0.3s ease;
-    }
-    .step.dragging {
-      opacity: 0.3;
-      border: 2px dashed var(--accent);
-    }
+.block:active{
+transform:scale(.98);
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.num-block{
+border:2px dashed var(--accent);
+background:var(--accent-soft);
+text-align:center;
+font-weight:700;
+color:var(--accent);
+}
 
-    /* Values & Stepper */
-    .slot {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #f7fafc;
-      border: 2px dashed #cbd5e0;
-      border-radius: 6px;
-      min-width: 90px;
-      height: 32px;
-      margin-left: 12px;
-      font-size: 0.7rem;
-      color: var(--text-light);
-    }
-    .slot.drag-over {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+#sequence{
+min-height:500px;
+}
 
-    .stepper {
-      display: inline-flex;
-      background: var(--accent);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-left: 12px;
-    }
-    .step-btn {
-      background: none;
-      border: none;
-      color: white;
-      padding: 4px 12px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-    .step-btn:hover { background: rgba(255,255,255,0.2); }
-    .step-val {
-      background: rgba(0,0,0,0.05);
-      color: white;
-      padding: 0 10px;
-      min-width: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: monospace;
-      font-size: 0.9rem;
-    }
+.step{
+background:white;
+border:1px solid var(--border);
+border-left:6px solid var(--accent);
+border-radius:8px;
+padding:12px 16px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+animation:fade .25s;
+}
 
-    /* Actions */
-    .del-btn {
-      background: none;
-      border: none;
-      color: #cbd5e0;
-      font-size: 1.4rem;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .del-btn:hover { color: #fc8181; }
+@keyframes fade{
+from{opacity:0;transform:translateY(8px);}
+to{opacity:1;transform:none;}
+}
 
-    .clear-btn {
-      width: 100%;
-      background: #edf2f7;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      color: var(--text-light);
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .clear-btn:hover { background: #fee2e2; color: #ef4444; }
+.step.dragging{
+opacity:.3;
+}
 
-  </style>
+.slot{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+background:#f7fafc;
+border:2px dashed #cbd5e0;
+border-radius:6px;
+height:32px;
+min-width:90px;
+margin-left:12px;
+font-size:.7rem;
+}
+
+.slot.drag-over{
+background:var(--accent-soft);
+border-color:var(--accent);
+}
+
+.stepper{
+display:inline-flex;
+background:#f7fafc;
+border:2px solid #cbd5e0;
+border-radius:6px;
+overflow:hidden;
+margin-left:12px;
+}
+
+.stepper.active{
+background:var(--accent);
+border-color:var(--accent);
+}
+
+.step-btn{
+background:none;
+border:none;
+padding:4px 12px;
+font-size:18px;
+cursor:pointer;
+color:#4a5568;
+}
+
+.stepper.active .step-btn{
+color:white;
+}
+
+.step-val{
+display:flex;
+align-items:center;
+justify-content:center;
+min-width:32px;
+padding:0 10px;
+font-family:monospace;
+}
+
+.stepper.active .step-val{
+color:white;
+}
+
+.del-btn{
+border:none;
+background:none;
+font-size:24px;
+cursor:pointer;
+color:#cbd5e0;
+}
+
+.del-btn:hover{
+color:#ef4444;
+}
+
+.clear-btn{
+width:100%;
+margin-top:20px;
+border:none;
+padding:12px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+background:#edf2f7;
+}
+
+.clear-btn:hover{
+background:#fee2e2;
+color:red;
+}
+
+/* touch drag ghost */
+.touchGhost{
+position:fixed;
+z-index:9999;
+pointer-events:none;
+background:white;
+border:2px solid var(--accent);
+padding:12px 16px;
+border-radius:8px;
+box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+</style>
 </head>
 <body>
 
 <div class="container">
-  <div class="panel">
-    <h3>Block Library</h3>
-    <div class="block" draggable="true" ondragstart="dragStart(event, 'func', 'Get Sensor Value')">Get Sensor Value</div>
-    <div class="block" draggable="true" ondragstart="dragStart(event, 'func', 'Rest for')">Rest for</div>
-    
-    <div style="height: 20px;"></div>
-    <h3>Data Types</h3>
-    <div class="block num-block" draggable="true" ondragstart="dragStart(event, 'num', null)">NUMBER</div>
 
-    <button class="clear-btn" onclick="clearAll()">Clear All</button>
-  </div>
+<div class="panel">
 
-  <div class="panel">
-    <h3>Active Sequence</h3>
-    <div id="sequence" ondragover="onDragOverSeq(event)" ondrop="onDropSeq(event)">
-      </div>
-  </div>
+<h3>Block Library</h3>
+
+<div class="block"
+draggable="true"
+onclick="quickAdd('Get Sensor Value')"
+ondragstart="dragStart(event,'func','Get Sensor Value')"
+ontouchstart="touchBlockStart(event,'Get Sensor Value')">
+Get Sensor Value
 </div>
 
+<div class="block"
+draggable="true"
+onclick="quickAdd('Rest for')"
+ondragstart="dragStart(event,'func','Rest for')"
+ontouchstart="touchBlockStart(event,'Rest for')">
+Rest for
+</div>
+
+<div style="height:20px"></div>
+
+<h3>Data Types</h3>
+
+<div class="block num-block"
+draggable="true"
+ondragstart="dragStart(event,'num',null)">
+NUMBER
+</div>
+
+<button class="clear-btn"
+onclick="clearAll()">
+Clear All
+</button>
+
+</div>
+
+<div class="panel">
+<h3>Active Sequence</h3>
+<div id="sequence"
+ondragover="onDragOverSeq(event)"
+ondrop="onDropSeq(event)">
+</div>
+</div>
+
+</div>
+
+
 <script>
-  let steps = [];
+let steps=[];
+let activeStepper=null;
 
-  function dragStart(ev, type, label, index = null) {
-    ev.dataTransfer.setData("type", type);
-    ev.dataTransfer.setData("label", label);
-    if (index !== null) ev.dataTransfer.setData("oldIndex", index);
-  }
+function quickAdd(label){
+steps.push({
+label:label,
+value:null
+});
+render();
+}
 
-  function onDragOverSeq(ev) {
-    ev.preventDefault();
-  }
+/* ---------- Desktop drag ---------- */
 
-  function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.step:not(.dragging)')];
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
-      if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child };
-      } else {
-        return closest;
-      }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-  }
+function dragStart(ev,type,label,index=null){
+ev.dataTransfer.setData("type",type);
+ev.dataTransfer.setData("label",label);
+if(index!==null){
+ev.dataTransfer.setData("oldIndex",index);
+}
+}
 
-  function onDropSeq(ev) {
-    ev.preventDefault();
-    const type = ev.dataTransfer.getData("type");
-    const label = ev.dataTransfer.getData("label");
-    const oldIndexStr = ev.dataTransfer.getData("oldIndex");
+function onDragOverSeq(e){
+e.preventDefault();
+}
 
-    if (type !== 'func') return;
+function getDragAfterElement(container,y){
+const els=[
+...container.querySelectorAll(".step:not(.dragging)")
+];
 
-    const container = document.getElementById('sequence');
-    const afterElement = getDragAfterElement(container, ev.clientY);
-    const newIndex = afterElement == null ? steps.length : [...container.children].indexOf(afterElement);
+return els.reduce((closest,child)=>{
+const box=child.getBoundingClientRect();
 
-    if (oldIndexStr !== "") {
-      const oldIndex = parseInt(oldIndexStr);
-      const [movedItem] = steps.splice(oldIndex, 1);
-      const adjustedIndex = (oldIndex < newIndex) ? newIndex - 1 : newIndex;
-      steps.splice(adjustedIndex, 0, movedItem);
-    } else {
-      steps.splice(newIndex, 0, { label: label, value: null });
-    }
-    render();
-  }
+const offset=
+y-box.top-box.height/2;
 
-  function dropOnSlot(ev, index) {
-    ev.stopPropagation();
-    ev.preventDefault();
-    const type = ev.dataTransfer.getData("type");
-    if (type === 'num') {
-      steps[index].value = 0;
-      render();
-    }
-  }
+if(
+offset<0 &&
+offset>closest.offset
+){
+return{
+offset,
+element:child
+}
+}
+return closest;
 
-  function adjustValue(index, amount) {
-    steps[index].value = Math.max(0, steps[index].value + amount);
-    render();
-  }
+},{
+offset:-Infinity
+}).element;
+}
 
-  function removeStep(index) {
-    steps.splice(index, 1);
-    render();
-  }
+function onDropSeq(e){
+e.preventDefault();
 
-  function clearAll() {
-    if(confirm("Start a new sequence?")) {
-      steps = [];
-      render();
-    }
-  }
+let type=
+e.dataTransfer.getData("type");
 
-  function render() {
-    const seqDiv = document.getElementById('sequence');
-    seqDiv.innerHTML = '';
+if(type!=="func") return;
 
-    if (steps.length === 0) {
-      seqDiv.innerHTML = `<div style="text-align: center; color: #a0aec0; margin-top: 100px; border: 2px dashed #e2e8f0; padding: 40px; border-radius: 12px;">Drag functions here to start</div>`;
-    }
+let label=
+e.dataTransfer.getData("label");
 
-    steps.forEach((step, i) => {
-      const stepEl = document.createElement('div');
-      stepEl.className = 'step';
-      stepEl.draggable = true;
-      stepEl.ondragstart = (e) => {
-        stepEl.classList.add('dragging');
-        dragStart(e, 'func', step.label, i);
-      };
-      stepEl.ondragend = () => stepEl.classList.remove('dragging');
+let oldIndex=
+e.dataTransfer.getData("oldIndex");
 
-      let valDisplay;
-      if (step.value === null) {
-        valDisplay = `<div class="slot" 
-          ondragover="event.preventDefault(); this.classList.add('drag-over')" 
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="dropOnSlot(event, ${i})">drop number</div>`;
-      } else {
-        valDisplay = `<div class="stepper">
-          <button class="step-btn" onclick="adjustValue(${i}, -1)">-</button>
-          <div class="step-val">${step.value}</div>
-          <button class="step-btn" onclick="adjustValue(${i}, 1)">+</button>
-        </div>`;
-      }
+const container=
+document.getElementById("sequence");
 
-      stepEl.innerHTML = `
-        <div style="display: flex; align-items: center;">
-          <span>${step.label}</span>
-          ${valDisplay}
-        </div>
-        <button class="del-btn" onclick="removeStep(${i})">&times;</button>
-      `;
-      seqDiv.appendChild(stepEl);
-    });
-  }
+const after=
+getDragAfterElement(
+container,
+e.clientY
+);
 
-  render();
+let newIndex=
+after==null
+?steps.length
+:[...container.children].indexOf(after);
+
+if(oldIndex!==""){
+oldIndex=parseInt(oldIndex);
+
+let moved=
+steps.splice(oldIndex,1)[0];
+
+if(oldIndex<newIndex){
+newIndex--;
+}
+
+steps.splice(
+newIndex,
+0,
+moved
+);
+
+}else{
+
+steps.splice(
+newIndex,
+0,
+{
+label,
+value:null
+}
+);
+
+}
+
+render();
+}
+
+/* ---------- Touch Drag ---------- */
+
+let ghost=null;
+let touchLabel=null;
+
+function touchBlockStart(e,label){
+
+touchLabel=label;
+
+ghost=
+document.createElement("div");
+ghost.className="touchGhost";
+ghost.innerText=label;
+
+document.body.appendChild(ghost);
+
+moveGhost(e.touches[0]);
+
+document.addEventListener(
+"touchmove",
+touchMove,
+{passive:false}
+);
+
+document.addEventListener(
+"touchend",
+touchEnd
+);
+}
+
+function touchMove(e){
+e.preventDefault();
+moveGhost(e.touches[0]);
+}
+
+function moveGhost(t){
+ghost.style.left=
+(t.clientX+10)+"px";
+
+ghost.style.top=
+(t.clientY+10)+"px";
+}
+
+function touchEnd(e){
+
+document.removeEventListener(
+"touchmove",
+touchMove
+);
+
+document.removeEventListener(
+"touchend",
+touchEnd
+);
+
+let t=
+e.changedTouches[0];
+
+let el=
+document.elementFromPoint(
+t.clientX,
+t.clientY
+);
+
+if(
+document
+.getElementById("sequence")
+.contains(el)
+){
+steps.push({
+label:touchLabel,
+value:null
+});
+render();
+}
+
+if(ghost){
+ghost.remove();
+ghost=null;
+}
+}
+
+/* ---------- Number slots ---------- */
+
+function dropOnSlot(e,index){
+e.preventDefault();
+e.stopPropagation();
+
+if(
+e.dataTransfer.getData("type")==="num"
+){
+steps[index].value=0;
+render();
+}
+}
+
+function adjustValue(i,a){
+steps[i].value=
+Math.max(
+0,
+steps[i].value+a
+);
+render();
+}
+
+function activateStepper(i,e){
+e.stopPropagation();
+activeStepper=i;
+render();
+}
+
+document.addEventListener(
+"click",
+()=>{
+activeStepper=null;
+render();
+}
+);
+
+/* ---------- Actions ---------- */
+
+function removeStep(i){
+steps.splice(i,1);
+render();
+}
+
+function clearAll(){
+if(confirm("Start a new sequence?")){
+steps=[];
+render();
+}
+}
+
+/* ---------- Render ---------- */
+
+function render(){
+
+const seq=
+document.getElementById(
+"sequence"
+);
+
+seq.innerHTML="";
+
+if(!steps.length){
+seq.innerHTML=
+`
+<div style="
+text-align:center;
+margin-top:100px;
+border:2px dashed #e2e8f0;
+padding:40px;
+border-radius:12px;
+color:#a0aec0;">
+Drag OR tap functions here
+</div>
+`;
+}
+
+steps.forEach((step,i)=>{
+
+let row=
+document.createElement("div");
+
+row.className="step";
+
+row.draggable=true;
+
+row.ondragstart=(e)=>{
+row.classList.add(
+"dragging"
+);
+dragStart(
+e,
+"func",
+step.label,
+i
+);
+};
+
+row.ondragend=()=>{
+row.classList.remove(
+"dragging"
+);
+};
+
+let valDisplay="";
+
+if(step.value===null){
+
+valDisplay=
+`
+<div class="slot"
+ondragover="
+event.preventDefault()
+"
+ondrop="
+dropOnSlot(event,${i})
+">
+drop number
+</div>
+`;
+
+}else{
+
+valDisplay=
+`
+<div
+class="stepper ${activeStepper===i?'active':''}"
+onclick="activateStepper(${i},event)">
+
+<button
+class="step-btn"
+onclick="adjustValue(${i},-1)">
+-
+</button>
+
+<div class="step-val">
+${step.value}
+</div>
+
+<button
+class="step-btn"
+onclick="adjustValue(${i},1)">
++
+</button>
+
+</div>
+`;
+
+}
+
+row.innerHTML=
+`
+<div style="
+display:flex;
+align-items:center;">
+<span>
+${step.label}
+</span>
+${valDisplay}
+</div>
+
+<button
+class="del-btn"
+onclick="removeStep(${i})">
+&times;
+</button>
+`;
+
+seq.appendChild(row);
+
+});
+
+}
+
+render();
 </script>
 
 </body>
