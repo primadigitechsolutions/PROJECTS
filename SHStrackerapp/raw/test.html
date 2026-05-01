@@ -1,379 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Arduino Builder</title>
-
-<style>
-:root{
---bg:#f0f4f8;
---panel:#fff;
---accent:#3182ce;
---accent-soft:#ebf8ff;
---border:#e2e8f0;
-}
-
-body{
-font-family:Segoe UI,system-ui;
-background:var(--bg);
-margin:0;
-padding:20px 15px 120px;
-display:flex;
-justify-content:center;
-overscroll-behavior-y: contain;
--webkit-tap-highlight-color: transparent;
-}
-
-.container{
-width:100%;
-max-width:900px;
-}
-
-.panel{
-background:#fff;
-border:1px solid var(--border);
-border-radius:16px;
-padding:20px;
-box-shadow:0 10px 25px rgba(0,0,0,.03);
-min-height:70vh;
-}
-
-h3{
-font-size:.75rem;
-letter-spacing:1px;
-text-transform:uppercase;
-color:var(--accent);
-margin:0 0 20px;
-border-bottom:2px solid var(--accent-soft);
-padding-bottom:8px;
-}
-
-#sequence{
-min-height:500px;
-position: relative;
-}
-
-.step{
-background:#fff;
-border:1px solid var(--border);
-border-left:6px solid var(--accent);
-border-radius:12px;
-padding:16px;
-margin-bottom:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-cursor: grab;
-transition: transform 0.1s, box-shadow 0.2s;
-user-select: none;
-touch-action: none;
-}
-
-.step.dragging-active {
-opacity: 0.9;
-transform: scale(1.02);
-box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-position: relative;
-z-index: 1000;
-background: var(--accent-soft);
-}
-
-.slot{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-background:#f7fafc;
-border:2px dashed #cbd5e0;
-border-radius:8px;
-min-width:110px;
-height:44px;
-margin-left:12px;
-font-size:.75rem;
-cursor:pointer;
-}
-
-.slot.active{
-background:var(--accent);
-border-color:var(--accent);
-color:#fff;
-font-weight:700;
-}
-
-.value-pill{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-margin-left:12px;
-padding:10px 20px;
-background:var(--accent-soft);
-border:2px solid var(--accent);
-border-radius:10px;
-cursor:pointer;
-font-weight:700;
-min-width:60px;
-color: var(--accent);
-}
-
-.del-btn{
-background:#fee2e2;
-border:none;
-width: 44px;
-height: 44px;
-border-radius: 12px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 24px;
-cursor:pointer;
-color:#ef4444;
-}
-
-#fab{
-position:fixed;
-right:24px;
-bottom:24px;
-background:var(--accent);
-color:#fff;
-border:none;
-border-radius:50px;
-padding:20px 30px;
-font-size:18px;
-font-weight:700;
-box-shadow:0 12px 30px rgba(49,130,206,.4);
-cursor:grab;
-z-index:5000;
-user-select:none;
-touch-action:none;
-}
-
-#libraryOverlay, #editorOverlay{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.4);
-z-index:2500;
-backdrop-filter: blur(2px);
-}
-
-#librarySheet{
-position:absolute;
-left:0;
-right:0;
-bottom:0;
-background:white;
-padding:28px 20px 40px;
-border-radius:24px 24px 0 0;
-max-height:80vh;
-overflow:auto;
-}
-
-.block{
-background:white;
-border:1px solid var(--border);
-border-radius:14px;
-padding:20px;
-margin-bottom:14px;
-font-weight:600;
-text-align: center;
-}
-
-#editorSheet{
-position:absolute;
-left:50%;
-top:50%;
-transform: translate(-50%, -50%);
-width: 85%;
-max-width: 320px;
-background:white;
-padding:30px;
-border-radius:28px;
-text-align:center;
-}
-
-.editorBtns{
-display:flex;
-justify-content:center;
-gap:24px;
-}
-
-.editBtn{
-width:80px;
-height:80px;
-border:none;
-border-radius:22px;
-background:var(--accent);
-color:white;
-font-size:40px;
-font-weight: bold;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Counter</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+    button { padding: 15px 30px; font-size: 18px; cursor: pointer; }
+    #status { margin-top: 20px; font-weight: bold; }
+  </style>
 </head>
 <body>
+  <h1>Supabase Counter Demo</h1>
+  <button id="incrementBtn">Increment Count</button>
+  <div id="status"></div>
 
-<div class="container">
-<div class="panel">
-    <h3>Active Sequence</h3>
-    <div id="sequence"></div>
-</div>
-</div>
+  <script>
+    // === REPLACE THESE WITH YOUR OWN VALUES ===
+    const SUPABASE_URL = 'https://your-project-ref.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-public-key-here';
 
-<button id="fab" onclick="handleFabClick(event)">＋ Blocks</button>
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<div id="libraryOverlay" onclick="closeLibrary()">
-    <div id="librarySheet" onclick="event.stopPropagation()">
-        <h3>Block Library</h3>
-        <div class="block" onclick="quickAdd('Get Sensor Value')">Get Sensor Value</div>
-        <div class="block" onclick="quickAdd('Rest for')">Rest for</div>
-        <h3 style="margin-top:30px">Data Types</h3>
-        <div class="block" style="border:2px dashed var(--accent); background:var(--accent-soft); color:var(--accent)" onclick="tapNumberFill()">NUMBER</div>
-        <button onclick="clearAll()" style="width:100%; margin-top:24px; padding:16px; border:none; border-radius:12px; background:#f7fafc; color:#e53e3e; font-weight:700;">Clear All</button>
-    </div>
-</div>
+    const statusEl = document.getElementById('status');
+    const btn = document.getElementById('incrementBtn');
 
-<div id="editorOverlay" onclick="closeEditor()">
-    <div id="editorSheet" onclick="event.stopPropagation()">
-        <div style="opacity:.6; margin-bottom:12px; font-weight:600;">Adjust Value</div>
-        <div id="editorValue" style="font-size:64px; font-weight:800; margin-bottom:24px; color:var(--accent);">0</div>
-        <div class="editorBtns">
-            <button class="editBtn" onclick="adjustEditor(-1)">−</button>
-            <button class="editBtn" onclick="adjustEditor(1)">+</button>
-        </div>
-        <button onclick="closeEditor()" style="width:100%; margin-top:30px; padding:16px; border:none; border-radius:12px; background:var(--accent-soft); color:var(--accent); font-weight:700;">Done</button>
-    </div>
-</div>
+    async function incrementCount() {
+      btn.disabled = true;
+      statusEl.textContent = 'Adding to database...';
 
-<script>
-let steps=[];
-let selectedSlot=null;
-let editingIndex=null;
+      const { data, error } = await supabase
+        .from('counts')
+        .insert([
+          { count: 1 }   // You can change this to any number you want to add
+        ])
+        .select();
 
-/* Touch Drag Data */
-let dragNode = null;
-let dragIndex = null;
+      if (error) {
+        console.error(error);
+        statusEl.textContent = 'Error: ' + error.message;
+      } else {
+        statusEl.textContent = `✅ Successfully added! New row ID: ${data[0].id}`;
+      }
 
-function openLibrary(){ document.getElementById("libraryOverlay").style.display="block"; }
-function closeLibrary(){ document.getElementById("libraryOverlay").style.display="none"; }
-function toggleLibrary(){ let o=document.getElementById("libraryOverlay"); o.style.display==="block"?closeLibrary():openLibrary(); }
-
-/* FAB Logic - Refined for Touch */
-const fab = document.getElementById("fab");
-let dragFab=false, moveFab=false, ox=0, oy=0;
-
-function startF(x,y){
-    const r=fab.getBoundingClientRect();
-    dragFab=true;
-    moveFab=false;
-    ox=x-r.left;
-    oy=y-r.top;
-}
-
-function moveF(x,y){
-    if(!dragFab)return;
-    moveFab=true;
-    let l=x-ox, t=y-oy;
-    fab.style.left=l+"px";
-    fab.style.top=t+"px";
-    fab.style.right="auto";
-    fab.style.bottom="auto";
-}
-
-function endF(){
-    dragFab=false;
-}
-
-// Separate click handler that ignores the drag check if no movement happened
-function handleFabClick(e) {
-    if(!moveFab) {
-        toggleLibrary();
+      btn.disabled = false;
     }
-}
 
-fab.addEventListener("mousedown", e=>startF(e.clientX, e.clientY));
-document.addEventListener("mousemove", e=>moveF(e.clientX, e.clientY));
-document.addEventListener("mouseup", endF);
-
-fab.addEventListener("touchstart", e=>{
-    startF(e.touches[0].clientX, e.touches[0].clientY);
-}, {passive:true});
-
-document.addEventListener("touchmove", e=>{
-    if(dragFab) {
-        if(e.cancelable) e.preventDefault();
-        moveF(e.touches[0].clientX, e.touches[0].clientY);
-    }
-}, {passive:false});
-
-document.addEventListener("touchend", endF);
-
-/* Drag & Drop Logic (Touch Friendly) */
-function initDrag(e, index) {
-    if(e.target.closest('button') || e.target.closest('.slot') || e.target.closest('.value-pill')) return;
-    dragIndex = index;
-    dragNode = e.currentTarget;
-    dragNode.classList.add('dragging-active');
-}
-
-function handleTouchMove(e) {
-    if (dragIndex === null) return;
-    const touch = e.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    const step = target?.closest('.step');
-    
-    if (step && step !== dragNode) {
-        const children = Array.from(document.getElementById('sequence').children);
-        const newIndex = children.indexOf(step);
-        if (newIndex !== -1) {
-            const item = steps.splice(dragIndex, 1)[0];
-            steps.splice(newIndex, 0, item);
-            dragIndex = newIndex;
-            render();
-        }
-    }
-}
-
-function endDrag() {
-    if (dragNode) dragNode.classList.remove('dragging-active');
-    dragIndex = null;
-    dragNode = null;
-}
-
-/* Core Actions */
-function quickAdd(label){ steps.push({label, value:null}); closeLibrary(); render(); }
-function selectSlot(i,e){ e.stopPropagation(); selectedSlot=i; openLibrary(); render(); }
-function tapNumberFill(){ if(selectedSlot!==null){ steps[selectedSlot].value=0; selectedSlot=null; closeLibrary(); render(); } }
-function openEditor(i,e){ e.stopPropagation(); editingIndex=i; document.getElementById("editorValue").innerText=steps[i].value; document.getElementById("editorOverlay").style.display="block"; }
-function adjustEditor(a){ steps[editingIndex].value=Math.max(0, steps[editingIndex].value+a); document.getElementById("editorValue").innerText=steps[editingIndex].value; render(); }
-function closeEditor(){ document.getElementById("editorOverlay").style.display="none"; render(); }
-function removeStep(i){ steps.splice(i,1); render(); }
-function clearAll(){ if(confirm("Clear sequence?")){ steps=[]; render(); closeLibrary(); } }
-
-function render(){
-    const seq=document.getElementById("sequence");
-    seq.innerHTML=steps.length?"":`<div style="text-align:center; margin-top:100px; padding:50px; border:2px dashed #e2e8f0; border-radius:12px; color:#a0aec0;">Tap + Blocks to begin</div>`;
-    
-    steps.forEach((step,i)=>{
-        const row=document.createElement("div");
-        row.className="step";
-        row.onmousedown = (e) => initDrag(e, i);
-        row.ontouchstart = (e) => initDrag(e, i);
-        
-        let val = step.value === null 
-            ? `<div class="slot ${selectedSlot===i?'active':''}" onclick="selectSlot(${i},event)">drop number</div>`
-            : `<div class="value-pill" onclick="openEditor(${i},event)">${step.value}</div>`;
-            
-        row.innerHTML=`<div style="display:flex; align-items:center; pointer-events:none;">
-            <span style="font-weight:600;">${step.label}</span><div style="pointer-events:auto;">${val}</div>
-        </div><button class="del-btn" onclick="removeStep(${i})">&times;</button>`;
-        seq.appendChild(row);
-    });
-}
-
-document.addEventListener("touchmove", handleTouchMove, {passive: false});
-document.addEventListener("touchend", endDrag);
-document.addEventListener("mouseup", endDrag);
-
-render();
-</script>
+    btn.addEventListener('click', incrementCount);
+  </script>
 </body>
 </html>
