@@ -6,48 +6,75 @@
   <title>Supabase Counter</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    button { padding: 15px 30px; font-size: 18px; cursor: pointer; }
-    #status { margin-top: 20px; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 60px;
+      background: #f8f9fa;
+    }
+    h1 { color: #333; }
+    button {
+      padding: 15px 40px;
+      font-size: 20px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 20px;
+    }
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+      min-height: 28px;
+    }
+    .success { color: #22c55e; }
+    .error { color: #ef4444; }
   </style>
 </head>
 <body>
   <h1>Supabase Counter Demo</h1>
-  <button id="incrementBtn">Increment Count</button>
+  <p>Click the button to add a count value to your database</p>
+  
+  <button id="incrementBtn">Add Count (+1)</button>
   <div id="status"></div>
 
   <script>
-    // === REPLACE THESE WITH YOUR OWN VALUES ===
-    const SUPABASE_URL = 'https://your-project-ref.supabase.co';
-    const SUPABASE_ANON_KEY = 'your-anon-public-key-here';
+    const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
 
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const statusEl = document.getElementById('status');
     const btn = document.getElementById('incrementBtn');
+    const statusEl = document.getElementById('status');
 
-    async function incrementCount() {
+    async function addCount() {
       btn.disabled = true;
-      statusEl.textContent = 'Adding to database...';
+      statusEl.textContent = 'Inserting into database...';
+      statusEl.className = '';
 
       const { data, error } = await supabase
         .from('counts')
-        .insert([
-          { count: 1 }   // You can change this to any number you want to add
-        ])
+        .insert({ count: 1 })
         .select();
 
       if (error) {
         console.error(error);
         statusEl.textContent = 'Error: ' + error.message;
+        statusEl.className = 'error';
       } else {
-        statusEl.textContent = `✅ Successfully added! New row ID: ${data[0].id}`;
+        statusEl.textContent = `✅ Successfully added! Row ID: ${data[0].id}`;
+        statusEl.className = 'success';
       }
 
       btn.disabled = false;
     }
 
-    btn.addEventListener('click', incrementCount);
+    btn.addEventListener('click', addCount);
   </script>
 </body>
 </html>
