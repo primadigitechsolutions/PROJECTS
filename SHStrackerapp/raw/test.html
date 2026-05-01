@@ -8,12 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 60px;
-      background: #f8f9fa;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 60px; background: #f8f9fa; }
     h1 { color: #333; }
     button {
       padding: 15px 40px;
@@ -56,18 +51,18 @@
         statusEl.textContent = 'Inserting...';
         statusEl.className = '';
 
-        const { data, error } = await supabaseClient
+        const { error } = await supabaseClient
           .from('counts')
           .insert({ count: 1 })
-          .select()
-          // .single();   // remove .single() if you want to keep .select()
+          .select()           // keep for now
+          // .single();       // commented out
 
         if (error) {
           console.error(error);
           statusEl.textContent = '❌ Error: ' + error.message;
           statusEl.className = 'error';
         } else {
-          statusEl.textContent = `✅ Added successfully! Row ID: ${data[0].id}`;
+          statusEl.textContent = '✅ Count added successfully!';
           statusEl.className = 'success';
         }
 
@@ -75,7 +70,7 @@
       }
 
       btn.addEventListener('click', addCount);
-      statusEl.textContent = '✅ Page ready';
+      statusEl.textContent = '✅ Ready';
     });
   </script>
 </body>
