@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Supabase Counter</title>
   
-  <!-- Supabase CDN - Only load once -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -47,12 +46,12 @@
   <div id="status"></div>
 
   <script>
-    // Your Supabase credentials
+    // === Your Supabase credentials ===
     const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
 
-    // Create Supabase client
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Use a different variable name to avoid conflict with the CDN global
+    const supabaseClient = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const btn = document.getElementById('incrementBtn');
     const statusEl = document.getElementById('status');
@@ -62,7 +61,7 @@
       statusEl.textContent = 'Inserting into database...';
       statusEl.className = '';
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('counts')
         .insert({ count: 1 })
         .select();
@@ -79,7 +78,6 @@
       btn.disabled = false;
     }
 
-    // Attach click event
     btn.addEventListener('click', addCount);
   </script>
 </body>
