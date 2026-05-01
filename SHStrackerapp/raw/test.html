@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Supabase Counter</title>
+  
+  <!-- Supabase CDN - Only load once -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,25 +31,27 @@
       cursor: not-allowed;
     }
     #status {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 18px;
-      min-height: 28px;
+      min-height: 30px;
     }
     .success { color: #22c55e; }
-    .error { color: #ef4444; }
+    .error   { color: #ef4444; }
   </style>
 </head>
 <body>
-  <h1>Supabase Counter Demo</h1>
-  <p>Click the button to add a count value to your database</p>
+  <h1>Supabase Counter</h1>
+  <p>Click the button to add +1 to your database</p>
   
   <button id="incrementBtn">Add Count (+1)</button>
   <div id="status"></div>
 
   <script>
+    // Your Supabase credentials
     const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
 
+    // Create Supabase client
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const btn = document.getElementById('incrementBtn');
@@ -64,7 +69,7 @@
 
       if (error) {
         console.error(error);
-        statusEl.textContent = 'Error: ' + error.message;
+        statusEl.textContent = '❌ Error: ' + error.message;
         statusEl.className = 'error';
       } else {
         statusEl.textContent = `✅ Successfully added! Row ID: ${data[0].id}`;
@@ -74,6 +79,7 @@
       btn.disabled = false;
     }
 
+    // Attach click event
     btn.addEventListener('click', addCount);
   </script>
 </body>
