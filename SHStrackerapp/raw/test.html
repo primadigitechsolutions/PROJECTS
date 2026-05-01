@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Supabase Counter</title>
   
-  <!-- Load Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -24,12 +23,8 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 20px;
     }
-    button:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
     #status {
       margin-top: 25px;
       font-size: 18px;
@@ -41,19 +36,16 @@
 </head>
 <body>
   <h1>Supabase Counter</h1>
-  <p>Click the button to add +1 to your database</p>
+  <p>Click the button to add +1</p>
   
   <button id="incrementBtn">Add Count (+1)</button>
   <div id="status"></div>
 
   <script>
-    // Wait until Supabase library is fully loaded
     window.addEventListener('load', () => {
-      
       const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
 
-      // Correct way to create client from CDN
       const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const btn = document.getElementById('incrementBtn');
@@ -61,20 +53,21 @@
 
       async function addCount() {
         btn.disabled = true;
-        statusEl.textContent = 'Inserting into database...';
+        statusEl.textContent = 'Inserting...';
         statusEl.className = '';
 
         const { data, error } = await supabaseClient
           .from('counts')
           .insert({ count: 1 })
-          .select();
+          .select()
+          // .single();   // remove .single() if you want to keep .select()
 
         if (error) {
           console.error(error);
           statusEl.textContent = '❌ Error: ' + error.message;
           statusEl.className = 'error';
         } else {
-          statusEl.textContent = `✅ Successfully added! Row ID: ${data[0].id}`;
+          statusEl.textContent = `✅ Added successfully! Row ID: ${data[0].id}`;
           statusEl.className = 'success';
         }
 
@@ -82,10 +75,7 @@
       }
 
       btn.addEventListener('click', addCount);
-      
-      // Optional: Show ready message
-      statusEl.textContent = '✅ Ready - Click the button to add count';
-      statusEl.className = 'success';
+      statusEl.textContent = '✅ Page ready';
     });
   </script>
 </body>
