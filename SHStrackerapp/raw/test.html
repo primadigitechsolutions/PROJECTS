@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Supabase Counter</title>
   
+  <!-- Load Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -46,39 +47,46 @@
   <div id="status"></div>
 
   <script>
-    // === Your Supabase credentials ===
-    const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
+    // Wait until Supabase library is fully loaded
+    window.addEventListener('load', () => {
+      
+      const SUPABASE_URL = 'https://cdbhoufvpayiyccitaqp.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkYmhvdWZ2cGF5aXljY2l0YXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTc0MDQsImV4cCI6MjA5MzEzMzQwNH0.Bwn6robqVEcZGqovHYnH_zRQ9h80jPausbzf1ZfMWIg';
 
-    // Use a different variable name to avoid conflict with the CDN global
-    const supabaseClient = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // Correct way to create client from CDN
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const btn = document.getElementById('incrementBtn');
-    const statusEl = document.getElementById('status');
+      const btn = document.getElementById('incrementBtn');
+      const statusEl = document.getElementById('status');
 
-    async function addCount() {
-      btn.disabled = true;
-      statusEl.textContent = 'Inserting into database...';
-      statusEl.className = '';
+      async function addCount() {
+        btn.disabled = true;
+        statusEl.textContent = 'Inserting into database...';
+        statusEl.className = '';
 
-      const { data, error } = await supabaseClient
-        .from('counts')
-        .insert({ count: 1 })
-        .select();
+        const { data, error } = await supabaseClient
+          .from('counts')
+          .insert({ count: 1 })
+          .select();
 
-      if (error) {
-        console.error(error);
-        statusEl.textContent = '❌ Error: ' + error.message;
-        statusEl.className = 'error';
-      } else {
-        statusEl.textContent = `✅ Successfully added! Row ID: ${data[0].id}`;
-        statusEl.className = 'success';
+        if (error) {
+          console.error(error);
+          statusEl.textContent = '❌ Error: ' + error.message;
+          statusEl.className = 'error';
+        } else {
+          statusEl.textContent = `✅ Successfully added! Row ID: ${data[0].id}`;
+          statusEl.className = 'success';
+        }
+
+        btn.disabled = false;
       }
 
-      btn.disabled = false;
-    }
-
-    btn.addEventListener('click', addCount);
+      btn.addEventListener('click', addCount);
+      
+      // Optional: Show ready message
+      statusEl.textContent = '✅ Ready - Click the button to add count';
+      statusEl.className = 'success';
+    });
   </script>
 </body>
 </html>
