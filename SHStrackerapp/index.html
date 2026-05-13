@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>Login | Academic Portal</title>
+  <title>Trackify | Track, Predict, Achieve</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -27,12 +27,36 @@
     /* Logo Styling */
     .logo-area { text-align: center; margin-bottom: 45px; margin-top: 20px; }
     .logo-icon {
-      width: 54px; height: 54px; background: #5E3A7E; border-radius: 18px;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-weight: 800; font-size: 26px; margin: 0 auto 15px;
-      box-shadow: 0 8px 20px rgba(94, 58, 126, 0.2);
+      width: 70px;
+      height: 70px;
+      background: transparent;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      box-shadow: none;
     }
-    .logo-text { font-size: 26px; font-weight: 800; color: #2c1e3f; letter-spacing: -0.8px; }
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .logo-text { 
+      font-size: 28px; 
+      font-weight: 800; 
+      color: #2c1e3f; 
+      letter-spacing: -0.8px;
+      line-height: 1.2;
+    }
+    .tagline {
+      font-size: 13px;
+      font-weight: 500;
+      color: #7C5F9A;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
     
     /* Inputs */
     .input-group { margin-bottom: 22px; }
@@ -102,8 +126,11 @@
     <div id="mainWrapper">
       <div class="screen-content">
         <div class="logo-area">
-          <div class="logo-icon">A</div>
-          <div class="logo-text">Academic Portal</div>
+          <div class="logo-icon">
+            <img src="icon.png" alt="Trackify Logo" onerror="this.onerror=null; this.parentElement.style.background='#5E3A7E'; this.parentElement.innerHTML='T'; this.style.display='none';">
+          </div>
+          <div class="logo-text">Trackify</div>
+          <div class="tagline">Track, Predict, Achieve</div>
         </div>
         
         <div class="input-group">
