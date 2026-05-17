@@ -360,7 +360,26 @@
       );
     });
   }
+  // Delete subject – Confirm button handler
+  document.getElementById('confirmDelete').onclick = async () => {
+    if (!currentUid || !subjectToDel) {
+      closeAllModals();
+      return;
+    }
 
+    // Remove subject from semester list
+    const subjectPath = `users/${currentUid}/semesters/${currentSem}/subjects/${subjectToDel}`;
+    await set(ref(database, subjectPath), null);
+
+    // Remove all scores for that subject
+    const scoresPath = `users/${currentUid}/trackerScores/${currentSem}/${subjectToDel}`;
+    await set(ref(database, scoresPath), null);
+
+    closeAllModals();
+    loadData();  // Refresh the dashboard
+  };
+
+  
   function renderDashboard(subjects, scores) {
     const grid = document.getElementById('subjectGrid');
     grid.innerHTML = '';
